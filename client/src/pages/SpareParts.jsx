@@ -143,7 +143,7 @@ const SpareParts = () => {
                     alt={part.name}
                     className="w-full h-full object-cover"
                     onError={(e) => {
-                      e.target.src = `https://via.placeholder.com/300x200/f3f4f6/374151?text=${encodeURIComponent(part.name)}`;
+                      e.target.src = `httpss://via.placeholder.com/300x200/f3f4f6/374151?text=${encodeURIComponent(part.name)}`;
                     }}
                   />
                   {!part.inStock && (

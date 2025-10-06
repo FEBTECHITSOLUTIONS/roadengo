@@ -82,7 +82,7 @@ const Footer = () => {
             </div>
             <div className="flex items-center gap-4 mt-4">
               <a
-                href="https://wa.me/919876543210"
+                href="httpss://wa.me/919876543210"
                 target="_blank"
                 rel="noopener noreferrer"
                 className="hover:text-green-400 transition-colors"

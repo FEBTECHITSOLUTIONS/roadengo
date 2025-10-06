@@ -10,7 +10,7 @@ const Contact = () => {
     const formData = new FormData(event.target);
     formData.append("access_key", "YOUR_ACCESS_KEY_HERE");
 
-    const response = await fetch("https://api.web3forms.com/submit", {
+    const response = await fetch("httpss://api.web3forms.com/submit", {
       method: "POST",
       body: formData,
     });
@@ -102,7 +102,7 @@ const Contact = () => {
                       contact.color === "red"
                         ? `tel:${contact.contact}`
                         : contact.color === "green"
-                        ? `https://wa.me/919876543210`
+                        ? `httpss://wa.me/919876543210`
                         : `tel:${contact.contact}`
                     }
                     className={`block w-full bg-${contact.color}-600 text-white py-3 rounded-lg font-semibold hover:bg-${contact.color}-700 transition-colors text-center`}

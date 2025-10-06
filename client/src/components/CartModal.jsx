@@ -39,7 +39,7 @@ const CartModal = () => {
     };
 
     try {
-      const response = await fetch("http://localhost:5000/api/inquiries", {
+      const response = await fetch("http://roadengo.parrotconsult.com/api/inquiries", {
         method: "POST",
         headers: {
           "Content-Type": "application/json",

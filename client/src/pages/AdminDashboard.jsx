@@ -30,7 +30,7 @@ const AdminDashboard = () => {
 
   const fetchAppointments = async () => {
     try {
-      const response = await fetch('http://localhost:5000/api/appointments');
+      const response = await fetch('http://roadengo.parrotconsult.com/api/appointments');
       const data = await response.json();
       setAppointments(data);
     } catch (error) {
@@ -40,7 +40,7 @@ const AdminDashboard = () => {
 
   const fetchEmergencies = async () => {
     try {
-      const response = await fetch('http://localhost:5000/api/emergency');
+      const response = await fetch('http://roadengo.parrotconsult.com/api/emergency');
       const data = await response.json();
       setEmergencies(data);
     } catch (error) {
@@ -50,7 +50,7 @@ const AdminDashboard = () => {
 
   const fetchInquiries = async () => {
     try {
-      const response = await fetch('http://localhost:5000/api/inquiries');
+      const response = await fetch('http://roadengo.parrotconsult.com/api/inquiries');
       const data = await response.json();
       setInquiries(data);
     } catch (error) {
@@ -61,7 +61,7 @@ const AdminDashboard = () => {
   const fetchStats = async () => {
     try {
       const token = localStorage.getItem('adminToken');
-      const response = await fetch('http://localhost:5000/api/admin/dashboard', {
+      const response = await fetch('http://roadengo.parrotconsult.com/api/admin/dashboard', {
         headers: {
           'Authorization': `Bearer ${token}`
         }
@@ -78,7 +78,7 @@ const AdminDashboard = () => {
 
   const updateAppointmentStatus = async (id, status) => {
     try {
-      await fetch(`http://localhost:5000/api/appointments/${id}`, {
+      await fetch(`http://roadengo.parrotconsult.com/api/appointments/${id}`, {
         method: 'PATCH',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ status })
@@ -92,7 +92,7 @@ const AdminDashboard = () => {
 
   const updateInquiryStatus = async (id, status) => {
     try {
-      await fetch(`http://localhost:5000/api/inquiries/${id}`, {
+      await fetch(`http://roadengo.parrotconsult.com/api/inquiries/${id}`, {
         method: 'PATCH',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ status })

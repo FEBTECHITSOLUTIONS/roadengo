@@ -39,7 +39,7 @@ const CartModal = () => {
     };
 
     try {
-      const response = await fetch("http://roadengo.parrotconsult.com/api/inquiries", {
+      const response = await fetch("https://roadengo.parrotconsult.com/api/inquiries", {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
@@ -225,7 +225,7 @@ const CartModal = () => {
                     alt={item.name}
                     className="w-16 h-16 object-cover rounded"
                     onError={(e) => {
-                      e.target.src = `https://via.placeholder.com/64x64/f3f4f6/374151?text=${encodeURIComponent(
+                      e.target.src = `httpss://via.placeholder.com/64x64/f3f4f6/374151?text=${encodeURIComponent(
                         item.name.charAt(0)
                       )}`;
                     }}

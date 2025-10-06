@@ -24,7 +24,7 @@ const EmergencyAssistance = ({ onBack }) => {
     };
 
     try {
-      const response = await fetch('http://roadengo.parrotconsult.com/api/emergency', {
+      const response = await fetch('httpss://roadengo.parrotconsult.com/api/emergency', {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',

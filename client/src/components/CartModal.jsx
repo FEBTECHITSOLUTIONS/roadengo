@@ -10,10 +10,11 @@ const CartModal = () => {
     clearCart,
     getCartTotal,
     toggleCart,
-    isCartOpen, // Make sure this is imported
+    isCartOpen,
   } = useCart();
 
   const [showInquiryForm, setShowInquiryForm] = useState(false);
+  const [submitting, setSubmitting] = useState(false);
   const [inquiryData, setInquiryData] = useState({
     name: "",
     phone: "",
@@ -22,11 +23,10 @@ const CartModal = () => {
     message: "",
   });
 
-  // Debug: Add this to see if modal is rendering
-  console.log("CartModal rendered, isCartOpen:", isCartOpen);
-
+  // Fixed inquiry submission with better error handling
   const handleSubmitInquiry = async (e) => {
     e.preventDefault();
+    setSubmitting(true);
 
     const inquiryPayload = {
       ...inquiryData,
@@ -39,7 +39,8 @@ const CartModal = () => {
     };
 
     try {
-      const response = await fetch("https://roadengo.parrotconsult.com/api/inquiries", {
+      // Use local API endpoint
+      const response = await fetch("http://localhost:5000/api/inquiries", {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
@@ -48,9 +49,7 @@ const CartModal = () => {
       });
 
       if (response.ok) {
-        alert(
-          "Inquiry submitted successfully! We will contact you within 24 hours."
-        );
+        alert("✅ Inquiry submitted successfully! We will contact you within 24 hours.");
         clearCart();
         setShowInquiryForm(false);
         toggleCart();
@@ -62,15 +61,17 @@ const CartModal = () => {
           message: "",
         });
       } else {
-        alert("Failed to submit inquiry. Please try again.");
+        const errorData = await response.json();
+        throw new Error(errorData.message || "Failed to submit inquiry");
       }
     } catch (error) {
       console.error("Error submitting inquiry:", error);
-      alert("Error submitting inquiry. Please try again.");
+      alert(`❌ Error submitting inquiry: ${error.message}. Please try again.`);
+    } finally {
+      setSubmitting(false);
     }
   };
 
-  // If not open, don't render anything
   if (!isCartOpen) return null;
 
   if (showInquiryForm) {
@@ -79,12 +80,11 @@ const CartModal = () => {
         <div className="bg-white rounded-2xl max-w-2xl w-full max-h-screen overflow-y-auto">
           <div className="p-6">
             <div className="flex justify-between items-center mb-6">
-              <h2 className="text-2xl font-bold text-gray-900">
-                Submit Inquiry
-              </h2>
+              <h2 className="text-2xl font-bold text-gray-900">Submit Inquiry</h2>
               <button
                 onClick={() => setShowInquiryForm(false)}
-                className="text-gray-400 hover:text-gray-600"
+                className="text-gray-400 hover:text-gray-600 transition-colors"
+                disabled={submitting}
               >
                 <i className="ri-close-line text-2xl"></i>
               </button>
@@ -100,17 +100,22 @@ const CartModal = () => {
                   onChange={(e) =>
                     setInquiryData({ ...inquiryData, name: e.target.value })
                   }
-                  className="w-full p-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-red-500 focus:border-transparent"
+                  disabled={submitting}
+                  className="w-full p-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-red-500 focus:border-transparent disabled:opacity-50"
                 />
                 <input
                   type="tel"
                   placeholder="Phone Number"
                   required
+                  pattern="[0-9]{10}"
+                  maxLength="10"
                   value={inquiryData.phone}
-                  onChange={(e) =>
-                    setInquiryData({ ...inquiryData, phone: e.target.value })
-                  }
-                  className="w-full p-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-red-500 focus:border-transparent"
+                  onChange={(e) => {
+                    const value = e.target.value.replace(/\D/g, '');
+                    setInquiryData({ ...inquiryData, phone: value });
+                  }}
+                  disabled={submitting}
+                  className="w-full p-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-red-500 focus:border-transparent disabled:opacity-50"
                 />
               </div>
 
@@ -122,18 +127,21 @@ const CartModal = () => {
                 onChange={(e) =>
                   setInquiryData({ ...inquiryData, email: e.target.value })
                 }
-                className="w-full p-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-red-500 focus:border-transparent"
+                disabled={submitting}
+                className="w-full p-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-red-500 focus:border-transparent disabled:opacity-50"
               />
 
               <textarea
                 placeholder="Complete Address"
                 required
                 rows="3"
+                minLength="10"
                 value={inquiryData.address}
                 onChange={(e) =>
                   setInquiryData({ ...inquiryData, address: e.target.value })
                 }
-                className="w-full p-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-red-500 focus:border-transparent"
+                disabled={submitting}
+                className="w-full p-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-red-500 focus:border-transparent disabled:opacity-50"
               />
 
               <textarea
@@ -143,28 +151,23 @@ const CartModal = () => {
                 onChange={(e) =>
                   setInquiryData({ ...inquiryData, message: e.target.value })
                 }
-                className="w-full p-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-red-500 focus:border-transparent"
+                disabled={submitting}
+                className="w-full p-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-red-500 focus:border-transparent disabled:opacity-50"
               />
 
-              <div className="bg-red-50 p-4 rounded-lg">
-                <h4 className="font-semibold text-red-900 mb-2">
-                  Order Summary
-                </h4>
+              <div className="bg-red-50 p-4 rounded-lg border border-red-100">
+                <h4 className="font-semibold text-red-900 mb-2">Order Summary</h4>
                 <div className="space-y-2 text-sm">
                   {cartItems.map((item) => (
                     <div key={item.id} className="flex justify-between">
-                      <span>
-                        {item.name} x {item.quantity}
-                      </span>
-                      <span>
-                        ₹{parseInt(item.price.slice(1)) * item.quantity}
-                      </span>
+                      <span>{item.name} x {item.quantity}</span>
+                      <span>₹{(parseFloat(item.price.replace('₹', '')) * item.quantity).toFixed(2)}</span>
                     </div>
                   ))}
                   <div className="border-t pt-2 font-semibold text-red-900">
                     <div className="flex justify-between">
                       <span>Total Amount:</span>
-                      <span>₹{getCartTotal()}</span>
+                      <span>₹{getCartTotal().toFixed(2)}</span>
                     </div>
                   </div>
                 </div>
@@ -174,15 +177,24 @@ const CartModal = () => {
                 <button
                   type="button"
                   onClick={() => setShowInquiryForm(false)}
-                  className="flex-1 border-2 border-gray-300 text-gray-700 py-3 rounded-lg font-semibold hover:bg-gray-50 transition-colors"
+                  disabled={submitting}
+                  className="flex-1 border-2 border-gray-300 text-gray-700 py-3 rounded-lg font-semibold hover:bg-gray-50 transition-colors disabled:opacity-50"
                 >
                   Back to Cart
                 </button>
                 <button
                   type="submit"
-                  className="flex-1 bg-red-600 text-white py-3 rounded-lg font-semibold hover:bg-red-700 transition-colors"
+                  disabled={submitting}
+                  className="flex-1 bg-red-600 text-white py-3 rounded-lg font-semibold hover:bg-red-700 transition-colors disabled:opacity-50 flex items-center justify-center"
                 >
-                  Submit Inquiry
+                  {submitting ? (
+                    <>
+                      <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-white mr-2"></div>
+                      Submitting...
+                    </>
+                  ) : (
+                    "Submit Inquiry"
+                  )}
                 </button>
               </div>
             </form>
@@ -201,7 +213,7 @@ const CartModal = () => {
           </h2>
           <button
             onClick={toggleCart}
-            className="text-gray-400 hover:text-gray-600"
+            className="text-gray-400 hover:text-gray-600 transition-colors"
           >
             <i className="ri-close-line text-2xl"></i>
           </button>
@@ -212,6 +224,12 @@ const CartModal = () => {
             <div className="text-center py-8">
               <i className="ri-shopping-cart-line text-4xl text-gray-300 mb-4"></i>
               <p className="text-gray-500">Your cart is empty</p>
+              <button
+                onClick={toggleCart}
+                className="mt-4 text-red-600 hover:text-red-800 font-medium"
+              >
+                Continue Shopping
+              </button>
             </div>
           ) : (
             <div className="space-y-4">
@@ -225,7 +243,7 @@ const CartModal = () => {
                     alt={item.name}
                     className="w-16 h-16 object-cover rounded"
                     onError={(e) => {
-                      e.target.src = `httpss://via.placeholder.com/64x64/f3f4f6/374151?text=${encodeURIComponent(
+                      e.target.src = `https://via.placeholder.com/64x64/f3f4f6/374151?text=${encodeURIComponent(
                         item.name.charAt(0)
                       )}`;
                     }}
@@ -238,7 +256,8 @@ const CartModal = () => {
                   <div className="flex items-center gap-2">
                     <button
                       onClick={() => updateQuantity(item.id, item.quantity - 1)}
-                      className="w-8 h-8 flex items-center justify-center bg-gray-200 rounded-full hover:bg-gray-300"
+                      className="w-8 h-8 flex items-center justify-center bg-gray-200 rounded-full hover:bg-gray-300 transition-colors"
+                      disabled={item.quantity <= 1}
                     >
                       -
                     </button>
@@ -247,13 +266,13 @@ const CartModal = () => {
                     </span>
                     <button
                       onClick={() => updateQuantity(item.id, item.quantity + 1)}
-                      className="w-8 h-8 flex items-center justify-center bg-gray-200 rounded-full hover:bg-gray-300"
+                      className="w-8 h-8 flex items-center justify-center bg-gray-200 rounded-full hover:bg-gray-300 transition-colors"
                     >
                       +
                     </button>
                     <button
                       onClick={() => removeFromCart(item.id)}
-                      className="ml-2 text-red-600 hover:text-red-800"
+                      className="ml-2 text-red-600 hover:text-red-800 transition-colors"
                     >
                       <i className="ri-delete-bin-line"></i>
                     </button>
@@ -268,11 +287,11 @@ const CartModal = () => {
           <div className="border-t p-6">
             <div className="flex justify-between items-center mb-4">
               <span className="text-xl font-bold">
-                Total: ₹{getCartTotal()}
+                Total: ₹{getCartTotal().toFixed(2)}
               </span>
               <button
                 onClick={clearCart}
-                className="text-sm text-red-600 hover:text-red-800"
+                className="text-sm text-red-600 hover:text-red-800 transition-colors"
               >
                 Clear Cart
               </button>

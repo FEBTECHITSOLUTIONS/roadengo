@@ -1,14 +1,13 @@
-// models/Admin.js
+// models/User.js
 const mongoose = require('mongoose');
 const bcrypt = require('bcryptjs');
 
-const adminSchema = new mongoose.Schema({
-  username: {
+const userSchema = new mongoose.Schema({
+  name: {
     type: String,
-    required: [true, 'Username is required'],
-    unique: true,
+    required: [true, 'Name is required'],
     trim: true,
-    minlength: [3, 'Username must be at least 3 characters']
+    minlength: [2, 'Name must be at least 2 characters']
   },
   email: {
     type: String,
@@ -17,15 +16,15 @@ const adminSchema = new mongoose.Schema({
     lowercase: true,
     match: [/^\w+([.-]?\w+)*@\w+([.-]?\w+)*(\.\w{2,3})+$/, 'Please enter a valid email']
   },
+  phone: {
+    type: String,
+    required: [true, 'Phone number is required'],
+    match: [/^[0-9]{10}$/, 'Phone number must be 10 digits']
+  },
   password: {
     type: String,
     required: [true, 'Password is required'],
     minlength: [6, 'Password must be at least 6 characters']
-  },
-  role: {
-    type: String,
-    default: 'admin',
-    enum: ['admin', 'super-admin', 'manager']
   },
   isActive: {
     type: Boolean,
@@ -34,17 +33,13 @@ const adminSchema = new mongoose.Schema({
   lastLogin: {
     type: Date,
     default: Date.now
-  },
-  permissions: [{
-    type: String,
-    enum: ['manage-users', 'manage-mechanics', 'view-reports', 'manage-bookings']
-  }]
+  }
 }, {
   timestamps: true
 });
 
 // Hash password before saving
-adminSchema.pre('save', async function(next) {
+userSchema.pre('save', async function(next) {
   if (!this.isModified('password')) return next();
   try {
     this.password = await bcrypt.hash(this.password, 12);
@@ -55,8 +50,8 @@ adminSchema.pre('save', async function(next) {
 });
 
 // Compare password method
-adminSchema.methods.comparePassword = async function(candidatePassword) {
+userSchema.methods.comparePassword = async function(candidatePassword) {
   return await bcrypt.compare(candidatePassword, this.password);
 };
 
-module.exports = mongoose.model('Admin', adminSchema);
+module.exports = mongoose.model('User', userSchema);

@@ -1,10 +1,10 @@
-// middlewares/auth.js
+// middlewares/mechanicAuth.js
 const jwt = require('jsonwebtoken');
-const Admin = require('../models/Admin');
+const Mechanic = require('../models/Mechanic');
 
-const authMiddleware = async (req, res, next) => {
+const mechanicAuth = async (req, res, next) => {
   try {
-    console.log('Auth middleware called for:', req.path);
+    console.log('Mechanic auth middleware called for:', req.path);
     
     const authHeader = req.header('Authorization');
     if (!authHeader) {
@@ -18,27 +18,27 @@ const authMiddleware = async (req, res, next) => {
       return res.status(401).json({ message: 'Access denied. Invalid token format.' });
     }
 
-    console.log('Verifying token...');
+    console.log('Verifying mechanic token...');
     const decoded = jwt.verify(token, process.env.JWT_SECRET || 'your-secret-key');
-    console.log('Token decoded:', decoded);
+    console.log('Mechanic token decoded:', decoded);
     
-    const admin = await Admin.findById(decoded.adminId).select('-password');
+    const mechanic = await Mechanic.findById(decoded.mechanicId).select('-password');
     
-    if (!admin) {
-      console.log('Admin not found with ID:', decoded.adminId);
-      return res.status(401).json({ message: 'Invalid token. Admin not found.' });
+    if (!mechanic) {
+      console.log('Mechanic not found with ID:', decoded.mechanicId);
+      return res.status(401).json({ message: 'Invalid token. Mechanic not found.' });
     }
     
-    if (!admin.isActive) {
-      console.log('Admin account is inactive');
+    if (!mechanic.isActive) {
+      console.log('Mechanic account is inactive');
       return res.status(401).json({ message: 'Account is inactive.' });
     }
 
-    req.admin = admin;
-    console.log('Auth successful for admin:', admin.username);
+    req.mechanic = mechanic;
+    console.log('Mechanic auth successful for:', mechanic.name);
     next();
   } catch (error) {
-    console.error('Auth middleware error:', error.message);
+    console.error('Mechanic auth middleware error:', error.message);
     
     if (error.name === 'JsonWebTokenError') {
       return res.status(401).json({ message: 'Invalid token.' });
@@ -50,4 +50,4 @@ const authMiddleware = async (req, res, next) => {
   }
 };
 
-module.exports = authMiddleware;
+module.exports = mechanicAuth;

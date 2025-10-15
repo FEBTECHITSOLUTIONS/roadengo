@@ -1,3 +1,4 @@
+// context/CartContext.jsx
 import React, { createContext, useContext, useState, useEffect } from 'react';
 
 const CartContext = createContext();
@@ -16,35 +17,56 @@ export const CartProvider = ({ children }) => {
 
   // Load cart from localStorage on mount
   useEffect(() => {
-    const savedCart = localStorage.getItem('roadengo-cart');
-    if (savedCart) {
-      setCartItems(JSON.parse(savedCart));
+    try {
+      const savedCart = localStorage.getItem('roadengo-cart');
+      if (savedCart) {
+        const parsedCart = JSON.parse(savedCart);
+        setCartItems(Array.isArray(parsedCart) ? parsedCart : []);
+        console.log('Cart loaded from localStorage:', parsedCart.length, 'items');
+      }
+    } catch (error) {
+      console.error('Error loading cart from localStorage:', error);
+      setCartItems([]);
     }
   }, []);
 
   // Save cart to localStorage whenever it changes
   useEffect(() => {
-    localStorage.setItem('roadengo-cart', JSON.stringify(cartItems));
+    try {
+      localStorage.setItem('roadengo-cart', JSON.stringify(cartItems));
+      console.log('Cart saved to localStorage:', cartItems.length, 'items');
+    } catch (error) {
+      console.error('Error saving cart to localStorage:', error);
+    }
   }, [cartItems]);
 
   const addToCart = (part, quantity = 1) => {
     setCartItems(prevItems => {
-      const existingItem = prevItems.find(item => item.id === part.id);
+      const existingItemIndex = prevItems.findIndex(item => item.id === part.id);
       
-      if (existingItem) {
-        return prevItems.map(item =>
-          item.id === part.id
-            ? { ...item, quantity: item.quantity + quantity }
-            : item
-        );
+      if (existingItemIndex > -1) {
+        // Item exists, update quantity
+        const updatedItems = [...prevItems];
+        updatedItems[existingItemIndex] = {
+          ...updatedItems[existingItemIndex],
+          quantity: updatedItems[existingItemIndex].quantity + quantity
+        };
+        console.log('Updated existing item in cart:', part.name);
+        return updatedItems;
       } else {
+        // New item, add to cart
+        console.log('Added new item to cart:', part.name);
         return [...prevItems, { ...part, quantity }];
       }
     });
   };
 
   const removeFromCart = (partId) => {
-    setCartItems(prevItems => prevItems.filter(item => item.id !== partId));
+    setCartItems(prevItems => {
+      const filteredItems = prevItems.filter(item => item.id !== partId);
+      console.log('Removed item from cart:', partId);
+      return filteredItems;
+    });
   };
 
   const updateQuantity = (partId, quantity) => {
@@ -55,19 +77,29 @@ export const CartProvider = ({ children }) => {
     
     setCartItems(prevItems =>
       prevItems.map(item =>
-        item.id === partId ? { ...item, quantity } : item
+        item.id === partId 
+          ? { ...item, quantity: Math.max(1, quantity) } 
+          : item
       )
     );
+    
+    console.log('Updated quantity for item:', partId, 'to:', quantity);
   };
 
   const clearCart = () => {
     setCartItems([]);
+    console.log('Cart cleared');
   };
 
   const getCartTotal = () => {
     return cartItems.reduce((total, item) => {
-      const price = parseInt(item.price.slice(1));
-      return total + (price * item.quantity);
+      try {
+        const price = parseFloat(item.price.replace('₹', '').replace(',', '')) || 0;
+        return total + (price * item.quantity);
+      } catch (error) {
+        console.error('Error calculating price for item:', item);
+        return total;
+      }
     }, 0);
   };
 
@@ -77,6 +109,16 @@ export const CartProvider = ({ children }) => {
 
   const toggleCart = () => {
     setIsCartOpen(!isCartOpen);
+    console.log('Cart toggled:', !isCartOpen);
+  };
+
+  const isItemInCart = (partId) => {
+    return cartItems.some(item => item.id === partId);
+  };
+
+  const getItemQuantity = (partId) => {
+    const item = cartItems.find(item => item.id === partId);
+    return item ? item.quantity : 0;
   };
 
   const value = {
@@ -88,7 +130,9 @@ export const CartProvider = ({ children }) => {
     getCartTotal,
     getCartItemsCount,
     isCartOpen,
-    toggleCart
+    toggleCart,
+    isItemInCart,
+    getItemQuantity
   };
 
   return (

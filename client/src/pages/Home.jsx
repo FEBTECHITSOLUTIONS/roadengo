@@ -1,4 +1,5 @@
 import React from "react";
+import { Link } from "react-router-dom";
 import Hero from "../components/Hero";
 
 const Home = () => {
@@ -7,23 +8,25 @@ const Home = () => {
       icon: "ri-calendar-2-line",
       title: "Periodic Service",
       description: "Regular maintenance for optimal performance",
+      link: "/doorstep-service",
     },
     {
       icon: "ri-truck-line",
       title: "RSA Services",
       description: "Roadside assistance when you need it most",
+      link: "/emergency-assistance",
     },
-
     {
       icon: "ri-settings-3-line",
       title: "Spare Parts",
       description: "Genuine parts for all bike models",
+      link: "/spare-parts",
     },
-
     {
       icon: "ri-tools-line",
       title: "Engine Repair",
       description: "Expert engine diagnostics and repair",
+      link: "/doorstep-service",
     },
   ];
 
@@ -85,8 +88,12 @@ const Home = () => {
 
                 <div className="grid grid-cols-2 md:grid-cols-4 gap-4 md:gap-6">
                   {services.map((service, index) => (
-                    <div key={index} className="group cursor-pointer">
-                      <div className="bg-white rounded-xl p-4 md:p-6 shadow-lg hover:shadow-xl transition-all duration-300 hover:-translate-y-1 border border-gray-100">
+                    <Link
+                      key={index}
+                      to={service.link}
+                      className="group cursor-pointer block transform hover:scale-105 transition-all duration-300"
+                    >
+                      <div className="bg-white rounded-xl p-4 md:p-6 shadow-lg hover:shadow-xl transition-all duration-300 hover:-translate-y-1 border border-gray-100 group-hover:border-red-200">
                         <div className="flex justify-center mb-3">
                           <div className="w-12 h-12 md:w-16 md:h-16 bg-gradient-to-br from-red-50 to-red-100 rounded-xl flex items-center justify-center group-hover:from-red-600 group-hover:to-red-700 transition-all duration-300">
                             <i
@@ -94,11 +101,16 @@ const Home = () => {
                             ></i>
                           </div>
                         </div>
-                        <h4 className="font-semibold text-gray-900 text-sm md:text-base text-center leading-tight">
+                        <h4 className="font-semibold text-gray-900 text-sm md:text-base text-center leading-tight group-hover:text-red-700 transition-colors duration-300">
                           {service.title}
                         </h4>
+
+                        {/* Optional: Add arrow indicator */}
+                        <div className="flex justify-center mt-2 opacity-0 group-hover:opacity-100 transition-opacity duration-300">
+                          <i className="ri-arrow-right-line text-red-600 text-sm"></i>
+                        </div>
                       </div>
-                    </div>
+                    </Link>
                   ))}
                 </div>
               </div>
@@ -114,56 +126,84 @@ const Home = () => {
             <h2 className="text-3xl sm:text-4xl lg:text-5xl font-bold mb-6">
               How It Works
             </h2>
-            <p className="text-base sm:text-lg lg:text-xl text-red-100 max-w-2xl mx-auto">
+            <p className="text-base sm:text-lg lg:text-xl text-red-100 max-w-2xl mx-auto leading-relaxed">
               Simple 3-step process to get your bike serviced or repaired
             </p>
           </div>
 
-          <div className="grid grid-cols-1 sm:grid-cols-3 gap-8 relative">
-            {[
-              {
-                step: "1",
-                title: "Book Service",
-                desc: "Login or Register and select required service",
-                image: "/images/hero-img.png",
-              },
-              {
-                step: "2",
-                title: "Get Assistance",
-                desc: "Mechanic arrives at your location",
-                image: "/images/hero-img.png",
-              },
-              {
-                step: "3",
-                title: "Ride Safe",
-                desc: "Pay digitally and continue your journey",
-                image: "/images/hero-img.png",
-              },
-            ].map((item, i) => (
-              <div
-                key={i}
-                className="bg-white/10 p-6 sm:p-8 rounded-2xl backdrop-blur-lg relative"
-              >
-                <img
-                  src={item.image}
-                  alt={item.title}
-                  className="w-full h-32 sm:h-40 object-cover rounded-xl mb-6 opacity-90"
-                />
-                <div className="w-12 h-12 sm:w-16 sm:h-16 bg-white text-red-600 rounded-full flex items-center justify-center text-xl sm:text-2xl font-bold mx-auto mb-6 absolute -top-6 left-1/2 transform -translate-x-1/2 shadow-lg">
-                  {item.step}
-                </div>
-                <h3 className="text-lg sm:text-xl font-bold mb-4 text-center mt-8">
-                  {item.title}
-                </h3>
-                <p className="text-red-100 text-sm sm:text-base text-center leading-relaxed">
-                  {item.desc}
-                </p>
-              </div>
-            ))}
+          <div className="relative">
+            <div className="grid grid-cols-1 md:grid-cols-3 gap-8 lg:gap-12">
+              {[
+                {
+                  step: "1",
+                  title: "Book Service",
+                  desc: "select required service",
+                  image: "/images/booking.png",
+                },
+                {
+                  step: "2",
+                  title: "Get Assistance",
+                  desc: "Mechanic arrives at your location",
+                  image: "/images/hero-img.png",
+                },
+                {
+                  step: "3",
+                  title: "Ride Safe",
+                  desc: "continue your journey",
+                  image: "/images/safe-ride.png",
+                },
+              ].map((item, i) => (
+                <div key={i} className="relative">
+                  <div className="bg-white/10 backdrop-blur-lg p-6 sm:p-8 rounded-2xl ">
+                    {/* Step Number Circle */}
+                    <div className="w-16 h-16 bg-white text-red-600 rounded-full flex items-center justify-center text-2xl font-bold mx-auto mb-6 shadow-lg group-hover:scale-110 transition-transform duration-300 relative z-10">
+                      {item.step}
+                    </div>
 
-            {/* Arrows (only show on md+ screens) */}
-            <div className="hidden sm:block absolute top-20 left-1/3 w-12 h-0.5 bg-white"></div>
-            <div className="hidden sm:block absolute top-20 right-1/3 w-12 h-0.5 bg-white"></div>
+                    {/* Image */}
+                    <div className="mb-6 overflow-hidden rounded-xl">
+                      <img
+                        src={item.image}
+                        alt={item.title}
+                        className="w-full h-40 sm:h-48 object-cover opacity-90 group-hover:opacity-100 group-hover:scale-105 transition-all duration-300"
+                      />
+                    </div>
+
+                    {/* Content */}
+                    <div className="text-center">
+                      <h3 className="text-xl sm:text-2xl font-bold mb-4 group-hover:text-red-100 transition-colors duration-300">
+                        {item.title}
+                      </h3>
+                      <p className="text-red-100 text-sm sm:text-base leading-relaxed group-hover:text-white transition-colors duration-300">
+                        {item.desc}
+                      </p>
+                    </div>
+
+                    {/* Hover arrow indicator */}
+                    <div className="absolute bottom-4 right-4 opacity-0 group-hover:opacity-100 transition-all duration-300 transform translate-y-2 group-hover:translate-y-0">
+                      <i className="ri-arrow-right-up-line text-white text-xl"></i>
+                    </div>
+                  </div>
+
+                  {/* Connection Arrow - Only show between cards on desktop */}
+                  {i < 2 && (
+                    <div className="hidden md:block absolute top-8 -right-6 lg:-right-8 z-20">
+                      <div className="flex items-center">
+                        <div className="w-8 lg:w-12 h-0.5 bg-white/60"></div>
+                        <i className="ri-arrow-right-line text-white/60 text-xl ml-1"></i>
+                      </div>
+                    </div>
+                  )}
+                </div>
+              ))}
+            </div>
+
+            {/* Mobile Flow Indicators */}
+            <div className="md:hidden flex justify-center mt-6 space-x-2">
+              {[1, 2, 3].map((dot, i) => (
+                <div key={i} className="w-2 h-2 bg-white/40 rounded-full"></div>
+              ))}
+            </div>
           </div>
         </div>
       </section>
@@ -189,7 +229,6 @@ const Home = () => {
                 rating: 5,
                 comment:
                   "Amazing service! They came to my office and fixed my bike in 30 minutes. Very professional and transparent pricing.",
-                image: "/images/customer-1.jpg",
               },
               {
                 name: "Rohit Verma",
@@ -197,7 +236,6 @@ const Home = () => {
                 rating: 5,
                 comment:
                   "Called them for roadside assistance at 2 AM. They reached in 15 minutes and got my bike running. Highly recommend!",
-                image: "/images/customer-2.jpg",
               },
               {
                 name: "Anita Patel",
@@ -205,7 +243,6 @@ const Home = () => {
                 rating: 5,
                 comment:
                   "Regular customer for 2 years. Always on time, genuine parts, and fair pricing. Best bike service in the city!",
-                image: "/images/customer-3.jpg",
               },
             ].map((testimonial, i) => (
               <div
@@ -213,11 +250,6 @@ const Home = () => {
                 className="bg-gradient-to-br from-red-50 to-white p-6 sm:p-8 rounded-2xl border border-red-100 shadow-lg hover:shadow-xl transition-all duration-300"
               >
                 <div className="flex items-center mb-4">
-                  <img
-                    src={testimonial.image}
-                    alt={testimonial.name}
-                    className="w-12 h-12 sm:w-16 sm:h-16 rounded-full object-cover mr-4"
-                  />
                   <div>
                     <h4 className="font-bold text-gray-900">
                       {testimonial.name}

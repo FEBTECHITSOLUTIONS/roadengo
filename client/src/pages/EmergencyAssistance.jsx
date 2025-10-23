@@ -1,6 +1,6 @@
 // pages/EmergencyAssistance.jsx - MOBILE RESPONSIVE COMPACT VERSION
 import React, { useState } from "react";
-import { useNavigate } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
 import { apiService } from "../routing/apiClient";
 
 const EmergencyAssistance = () => {
@@ -321,7 +321,7 @@ Vehicle: ${vehicleTypes[formData.vehicleType].name} - ${formData.vehicleModel}
     </div>
   );
 
-  // Success screen
+  // Success screen with enhanced navigation
   if (successMessage) {
     return (
       <div className="min-h-screen flex items-center justify-center bg-green-50 p-4">
@@ -333,12 +333,20 @@ Vehicle: ${vehicleTypes[formData.vehicleType].name} - ${formData.vehicleModel}
           <pre className="text-green-700 text-sm whitespace-pre-wrap mb-4">
             {successMessage}
           </pre>
-          <button
-            onClick={() => navigate("/")}
-            className="w-full px-4 py-2 bg-green-600 text-white rounded-lg hover:bg-green-700"
-          >
-            Go Home
-          </button>
+          <div className="flex gap-2">
+            <button
+              onClick={() => navigate("/")}
+              className="flex-1 px-4 py-3 bg-green-600 text-white rounded-lg hover:bg-green-700 font-semibold text-sm"
+            >
+              ← Go Home
+            </button>
+            <Link
+              to="/booking"
+              className="flex-1 px-4 py-3 bg-blue-600 text-white rounded-lg hover:bg-blue-700 font-semibold text-sm text-center flex items-center justify-center"
+            >
+              🏠 New Booking
+            </Link>
+          </div>
         </div>
       </div>
     );
@@ -347,16 +355,26 @@ Vehicle: ${vehicleTypes[formData.vehicleType].name} - ${formData.vehicleModel}
   return (
     <div className="bg-gradient-to-br from-red-50 via-white to-orange-50 min-h-screen">
       <div className="container mx-auto px-3 py-4 sm:px-4 sm:py-6">
-        <button
-          onClick={handleBack}
-          className="mb-4 flex items-center text-red-600 hover:text-red-800 font-semibold text-sm"
-          disabled={isSubmitting}
-        >
-          ← Back to Services
-        </button>
+        {/* Enhanced Header with Link Navigation */}
+        <div className="mb-4 flex items-center justify-between">
+          <button
+            onClick={handleBack}
+            className="flex items-center text-red-600 hover:text-red-800 font-semibold text-sm bg-red-50 hover:bg-red-100 px-3 py-2 rounded-lg transition-colors"
+            disabled={isSubmitting}
+          >
+            ← Back to Services
+          </button>
+          <Link
+            to="/booking"
+            className="flex items-center text-gray-600 hover:text-gray-800 font-medium transition-colors text-xs sm:text-sm bg-gray-100 hover:bg-gray-200 px-3 py-2 rounded-lg"
+          >
+            🏠 All Services
+          </Link>
+        </div>
 
         <div className="max-w-lg mx-auto bg-white p-4 sm:p-6 rounded-xl shadow-lg">
-          <div className="text-center mb-4">
+          {/* Header Section */}
+          <div className="text-center mb-8">
             <h1 className="text-xl sm:text-2xl font-bold text-red-600">
               🚨 Emergency Assistance
             </h1>
@@ -377,8 +395,10 @@ Vehicle: ${vehicleTypes[formData.vehicleType].name} - ${formData.vehicleModel}
                   placeholder="Enter your name"
                   value={formData.name}
                   onChange={(e) => handleInputChange("name", e.target.value)}
-                  className={`w-full p-3 border rounded-lg text-sm ${
-                    errors.name ? "border-red-500 bg-red-50" : "border-gray-300"
+                  className={`w-full p-3 border rounded-lg text-sm focus:ring-4 focus:ring-red-200 transition-all ${
+                    errors.name
+                      ? "border-red-500 bg-red-50"
+                      : "border-gray-300 focus:border-red-500"
                   }`}
                   disabled={isSubmitting}
                 />
@@ -400,10 +420,10 @@ Vehicle: ${vehicleTypes[formData.vehicleType].name} - ${formData.vehicleModel}
                       e.target.value.replace(/\D/g, "")
                     )
                   }
-                  className={`w-full p-3 border rounded-lg text-sm ${
+                  className={`w-full p-3 border rounded-lg text-sm focus:ring-4 focus:ring-red-200 transition-all ${
                     errors.phone
                       ? "border-red-500 bg-red-50"
-                      : "border-gray-300"
+                      : "border-gray-300 focus:border-red-500"
                   }`}
                   maxLength="10"
                   disabled={isSubmitting}
@@ -413,8 +433,6 @@ Vehicle: ${vehicleTypes[formData.vehicleType].name} - ${formData.vehicleModel}
                 )}
               </div>
             </div>
-
-        
 
             {/* Location */}
             <div>
@@ -426,10 +444,10 @@ Vehicle: ${vehicleTypes[formData.vehicleType].name} - ${formData.vehicleModel}
                 placeholder="Enter location or use GPS"
                 value={formData.location}
                 onChange={(e) => handleInputChange("location", e.target.value)}
-                className={`w-full p-3 border rounded-lg text-sm ${
+                className={`w-full p-3 border rounded-lg text-sm focus:ring-4 focus:ring-red-200 transition-all resize-none ${
                   errors.location
                     ? "border-red-500 bg-red-50"
-                    : "border-gray-300"
+                    : "border-gray-300 focus:border-red-500"
                 }`}
                 disabled={isSubmitting || isFetchingLocation}
               />
@@ -440,7 +458,7 @@ Vehicle: ${vehicleTypes[formData.vehicleType].name} - ${formData.vehicleModel}
                 type="button"
                 onClick={fetchCurrentLocation}
                 disabled={isFetchingLocation || isSubmitting}
-                className="mt-2 w-full flex items-center justify-center gap-2 bg-blue-600 text-white px-4 py-2 rounded-lg hover:bg-blue-700 transition text-sm"
+                className="mt-2 w-full flex items-center justify-center gap-2 bg-blue-600 text-white px-4 py-2 rounded-lg hover:bg-blue-700 disabled:bg-blue-400 disabled:cursor-not-allowed transition-all text-sm font-semibold"
               >
                 {isFetchingLocation ? (
                   <>
@@ -464,7 +482,7 @@ Vehicle: ${vehicleTypes[formData.vehicleType].name} - ${formData.vehicleModel}
                   type="button"
                   onClick={() => setShowVehiclePopup(true)}
                   disabled={isSubmitting}
-                  className={`w-full p-3 border-2 rounded-lg text-left transition-all text-sm ${
+                  className={`w-full p-3 border-2 rounded-lg text-left transition-all text-sm hover:shadow-md ${
                     formData.vehicleType
                       ? "border-green-500 bg-green-50"
                       : errors.bikeModel
@@ -482,7 +500,9 @@ Vehicle: ${vehicleTypes[formData.vehicleType].name} - ${formData.vehicleModel}
                           {vehicleTypes[formData.vehicleType].name}
                         </span>
                       </div>
-                      <span className="text-blue-600 text-xs">Change</span>
+                      <span className="text-blue-600 text-xs font-medium">
+                        Change
+                      </span>
                     </div>
                   ) : (
                     <div className="flex items-center justify-between text-gray-500">
@@ -498,7 +518,7 @@ Vehicle: ${vehicleTypes[formData.vehicleType].name} - ${formData.vehicleModel}
                     type="button"
                     onClick={() => setShowModelPopup(true)}
                     disabled={isSubmitting}
-                    className={`w-full p-3 border-2 rounded-lg text-left transition-all text-sm ${
+                    className={`w-full p-3 border-2 rounded-lg text-left transition-all text-sm hover:shadow-md ${
                       formData.vehicleModel
                         ? "border-green-500 bg-green-50"
                         : errors.bikeModel
@@ -511,7 +531,9 @@ Vehicle: ${vehicleTypes[formData.vehicleType].name} - ${formData.vehicleModel}
                         <span className="font-medium">
                           {formData.vehicleModel}
                         </span>
-                        <span className="text-blue-600 text-xs">Change</span>
+                        <span className="text-blue-600 text-xs font-medium">
+                          Change
+                        </span>
                       </div>
                     ) : (
                       <div className="flex items-center justify-between text-gray-500">
@@ -536,15 +558,15 @@ Vehicle: ${vehicleTypes[formData.vehicleType].name} - ${formData.vehicleModel}
               </label>
               <textarea
                 rows="3"
-                placeholder="Describe the problem..."
+                placeholder="Describe the problem in detail..."
                 value={formData.issueDescription}
                 onChange={(e) =>
                   handleInputChange("issueDescription", e.target.value)
                 }
-                className={`w-full p-3 border rounded-lg text-sm ${
+                className={`w-full p-3 border rounded-lg text-sm focus:ring-4 focus:ring-red-200 transition-all resize-none ${
                   errors.issueDescription
                     ? "border-red-500 bg-red-50"
-                    : "border-gray-300"
+                    : "border-gray-300 focus:border-red-500"
                 }`}
                 disabled={isSubmitting}
               />
@@ -559,11 +581,30 @@ Vehicle: ${vehicleTypes[formData.vehicleType].name} - ${formData.vehicleModel}
             <button
               type="submit"
               disabled={isSubmitting}
-              className="w-full bg-red-600 text-white py-3 rounded-lg font-bold text-sm hover:bg-red-700 transition-all"
+              className="w-full bg-red-600 text-white py-3 rounded-lg font-bold text-sm hover:bg-red-700 disabled:bg-red-400 disabled:cursor-not-allowed transition-all transform hover:scale-[1.02] active:scale-95 shadow-md"
             >
-              {isSubmitting ? "Submitting..." : "🚨 Submit Emergency Request"}
+              {isSubmitting ? (
+                <>
+                  <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-white mr-2 inline-block"></div>
+                  Submitting...
+                </>
+              ) : (
+                "🚨 Submit Emergency Request"
+              )}
             </button>
           </form>
+
+          {/* Footer Info */}
+          <div className="mt-6 text-center">
+            <div className="bg-gray-50 p-4 rounded-xl border border-gray-200">
+              <p className="text-xs text-gray-600 mb-2">
+                <strong>
+                  <i className="ri-time-line"></i> Response Time:
+                </strong>{" "}
+                15 minutes
+              </p>
+            </div>
+          </div>
         </div>
       </div>
 

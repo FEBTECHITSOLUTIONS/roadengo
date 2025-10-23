@@ -1,4 +1,5 @@
 import React, { useState, useEffect } from "react";
+import { Link } from "react-router-dom";
 import { apiService, SERVICE_TYPES } from "../routing/apiClient";
 
 const DoorstepService = ({ onBack }) => {
@@ -11,8 +12,8 @@ const DoorstepService = ({ onBack }) => {
   const [currentStep, setCurrentStep] = useState(1);
   const [showVehiclePopup, setShowVehiclePopup] = useState(false);
   const [showModelPopup, setShowModelPopup] = useState(false);
-  const [apiError, setApiError] = useState(null); // API error state
-  const [isOfflineMode, setIsOfflineMode] = useState(false); // Offline mode
+  const [apiError, setApiError] = useState(null);
+  const [isOfflineMode, setIsOfflineMode] = useState(false);
   const [formData, setFormData] = useState({
     name: "",
     phone: "",
@@ -89,9 +90,8 @@ const DoorstepService = ({ onBack }) => {
   // Enhanced error handling for API calls
   const fetchAvailableSlots = async (date) => {
     try {
-      setApiError(null); // Clear previous errors
+      setApiError(null);
       
-      // Check if apiService exists and has the method
       if (!apiService || typeof apiService.getAvailableSlots !== 'function') {
         console.warn('API service not available, using default slots');
         setAvailableSlots(defaultTimeSlots);
@@ -105,7 +105,6 @@ const DoorstepService = ({ onBack }) => {
         setAvailableSlots(response.data.slots);
         setIsOfflineMode(false);
       } else {
-        // API returned but no slots data
         console.warn('API returned empty slots, using default');
         setAvailableSlots(defaultTimeSlots);
         setIsOfflineMode(true);
@@ -113,7 +112,6 @@ const DoorstepService = ({ onBack }) => {
     } catch (error) {
       console.error('Error fetching available slots:', error);
       
-      // Enhanced error handling based on error type
       if (error.code === 'NETWORK_ERROR' || error.message?.includes('Network Error')) {
         setApiError('🌐 Network connection issue. Using offline mode.');
         setIsOfflineMode(true);
@@ -128,7 +126,6 @@ const DoorstepService = ({ onBack }) => {
         setIsOfflineMode(true);
       }
       
-      // Always provide fallback slots
       setAvailableSlots(defaultTimeSlots);
     }
   };
@@ -238,13 +235,11 @@ const DoorstepService = ({ onBack }) => {
       serviceCategory: "doorstep",
       status: "pending",
       requestTime: new Date().toISOString(),
-      isOfflineBooking: isOfflineMode // Flag for offline bookings
+      isOfflineBooking: isOfflineMode
     };
 
     try {
-      // Check if API service is available
       if (!apiService || typeof apiService.createAppointment !== 'function') {
-        // Offline mode - store locally and show success
         localStorage.setItem('pendingBooking', JSON.stringify(appointmentData));
         setSuccessMessage(`✅ Booking saved locally!
         
@@ -276,11 +271,9 @@ const DoorstepService = ({ onBack }) => {
     } catch (error) {
       console.error('Appointment booking error:', error);
       
-      // Enhanced error handling for different scenarios
       let errorMessage = '';
       
       if (error.code === 'NETWORK_ERROR' || error.message?.includes('Network Error')) {
-        // Network error - save locally
         localStorage.setItem('pendingBooking', JSON.stringify(appointmentData));
         setSuccessMessage(`📱 Booking saved offline!
         
@@ -298,11 +291,10 @@ const DoorstepService = ({ onBack }) => {
             break;
           case 409:
             errorMessage = '⏰ Selected time slot is no longer available. Please choose another time.';
-            setSelectedTime(""); // Clear selected time
+            setSelectedTime("");
             break;
           case 500:
             errorMessage = '🔧 Server temporarily unavailable. Your booking has been saved and we\'ll confirm it shortly.';
-            // Save locally as backup
             localStorage.setItem('pendingBooking', JSON.stringify(appointmentData));
             break;
           default:
@@ -422,7 +414,7 @@ const DoorstepService = ({ onBack }) => {
     </div>
   );
 
-  // Success screen
+  // Success screen with enhanced navigation
   if (successMessage) {
     return (
       <div className="bg-gradient-to-br from-green-50 via-white to-emerald-50 min-h-screen flex items-center justify-center p-4">
@@ -432,13 +424,21 @@ const DoorstepService = ({ onBack }) => {
           <div className="bg-green-50 p-3 rounded-lg mb-4">
             <pre className="text-xs text-green-700 whitespace-pre-wrap">{successMessage}</pre>
           </div>
-          <p className="text-gray-600 text-sm mb-3">Redirecting back...</p>
-          <button
-            onClick={onBack}
-            className="w-full bg-green-600 text-white px-4 py-2 rounded-lg hover:bg-green-700 transition-colors text-sm"
-          >
-            Back to Services
-          </button>
+          <p className="text-gray-600 text-sm mb-4">Choose your next action:</p>
+          <div className="flex gap-2">
+            <button
+              onClick={onBack}
+              className="flex-1 bg-green-600 text-white px-4 py-3 rounded-lg hover:bg-green-700 transition-colors text-sm font-semibold"
+            >
+              ← Back to Services
+            </button>
+            <Link
+              to="/booking"
+              className="flex-1 bg-blue-600 text-white px-4 py-3 rounded-lg hover:bg-blue-700 transition-colors text-sm text-center flex items-center justify-center font-semibold"
+            >
+              🏠 New Booking
+            </Link>
+          </div>
         </div>
       </div>
     );
@@ -447,25 +447,36 @@ const DoorstepService = ({ onBack }) => {
   return (
     <div className="bg-gradient-to-br from-blue-50 via-white to-indigo-50 min-h-screen">
       <div className="px-4 py-6 sm:px-6 sm:py-8 md:px-8 lg:container lg:mx-auto">
-        <button
-          onClick={onBack}
-          className="mb-4 flex items-center text-blue-600 hover:text-blue-800 font-semibold transition-colors text-sm"
-          disabled={isSubmitting}
-        >
-          ← Back to Services
-        </button>
+        
+        {/* Enhanced Header with Navigation */}
+        <div className="mb-4 flex items-center justify-between">
+          <button
+            onClick={onBack}
+            className="flex items-center text-blue-600 hover:text-blue-800 font-semibold transition-colors text-sm bg-blue-50 hover:bg-blue-100 px-3 py-2 rounded-lg"
+            disabled={isSubmitting}
+          >
+            ← Back to Services
+          </button>
+          <Link
+            to="/booking"
+            className="flex items-center text-gray-600 hover:text-gray-800 font-medium transition-colors text-xs sm:text-sm bg-gray-100 hover:bg-gray-200 px-3 py-2 rounded-lg"
+          >
+            🏠 All Services
+          </Link>
+        </div>
 
         <div className="max-w-2xl mx-auto">
+          {/* Hero Section */}
           <div className="text-center mb-8">
             <div className="text-4xl mb-4">🏠</div>
             <h1 className="text-2xl font-bold text-gray-900 mb-3 leading-tight sm:text-3xl lg:text-4xl">
               <span className="text-blue-600">Doorstep Service</span>
             </h1>
             <p className="text-sm text-gray-600 leading-relaxed sm:text-base">
-              We'll come to your location
+              Professional service at your location
             </p>
             
-            {/* API Status Indicator */}
+            {/* Status Indicators */}
             {isOfflineMode && (
               <div className="mt-3 bg-yellow-50 border border-yellow-200 rounded-lg p-3">
                 <p className="text-yellow-800 text-xs">
@@ -486,20 +497,21 @@ const DoorstepService = ({ onBack }) => {
             <div className="flex items-center space-x-2">
               {[1, 2, 3].map((step) => (
                 <div key={step} className="flex items-center">
-                  <div className={`w-8 h-8 rounded-full flex items-center justify-center text-sm font-semibold ${
+                  <div className={`w-8 h-8 rounded-full flex items-center justify-center text-sm font-semibold transition-all ${
                     currentStep >= step ? 'bg-blue-600 text-white' : 'bg-gray-200 text-gray-600'
                   }`}>
                     {step}
                   </div>
                   {step < 3 && (
-                    <div className={`w-8 h-0.5 ${currentStep > step ? 'bg-blue-600' : 'bg-gray-200'}`}></div>
+                    <div className={`w-8 h-0.5 transition-all ${currentStep > step ? 'bg-blue-600' : 'bg-gray-200'}`}></div>
                   )}
                 </div>
               ))}
             </div>
           </div>
 
-          <div className="bg-white p-5 rounded-2xl shadow-lg">
+          {/* Main Form */}
+          <div className="bg-white p-5 sm:p-6 rounded-2xl shadow-lg">
             <form onSubmit={handleSubmit} className="space-y-5">
               
               {/* Step 1: Personal Info */}
@@ -509,15 +521,15 @@ const DoorstepService = ({ onBack }) => {
                     👤 Personal Information
                   </h3>
                   
-                  <div className="grid grid-cols-2 gap-4">
+                  <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                     <div>
                       <input
                         type="text"
                         placeholder="Full Name *"
                         value={formData.name}
                         onChange={(e) => handleInputChange('name', e.target.value)}
-                        className={`w-full p-4 border-2 rounded-xl text-sm ${
-                          errors.name ? 'border-red-500 bg-red-50' : 'border-gray-300'
+                        className={`w-full p-4 border-2 rounded-xl text-sm focus:ring-4 focus:ring-blue-200 transition-all ${
+                          errors.name ? 'border-red-500 bg-red-50' : 'border-gray-300 focus:border-blue-500'
                         }`}
                       />
                       {errors.name && <p className="text-red-600 text-xs mt-1">{errors.name}</p>}
@@ -526,15 +538,15 @@ const DoorstepService = ({ onBack }) => {
                     <div>
                       <input
                         type="tel"
-                        placeholder="Phone *"
+                        placeholder="Phone Number *"
                         maxLength="10"
                         value={formData.phone}
                         onChange={(e) => {
                           const value = e.target.value.replace(/\D/g, '');
                           handleInputChange('phone', value);
                         }}
-                        className={`w-full p-4 border-2 rounded-xl text-sm ${
-                          errors.phone ? 'border-red-500 bg-red-50' : 'border-gray-300'
+                        className={`w-full p-4 border-2 rounded-xl text-sm focus:ring-4 focus:ring-blue-200 transition-all ${
+                          errors.phone ? 'border-red-500 bg-red-50' : 'border-gray-300 focus:border-blue-500'
                         }`}
                       />
                       {errors.phone && <p className="text-red-600 text-xs mt-1">{errors.phone}</p>}
@@ -547,8 +559,8 @@ const DoorstepService = ({ onBack }) => {
                       placeholder="Email Address *"
                       value={formData.email}
                       onChange={(e) => handleInputChange('email', e.target.value)}
-                      className={`w-full p-4 border-2 rounded-xl text-sm ${
-                        errors.email ? 'border-red-500 bg-red-50' : 'border-gray-300'
+                      className={`w-full p-4 border-2 rounded-xl text-sm focus:ring-4 focus:ring-blue-200 transition-all ${
+                        errors.email ? 'border-red-500 bg-red-50' : 'border-gray-300 focus:border-blue-500'
                       }`}
                     />
                     {errors.email && <p className="text-red-600 text-xs mt-1">{errors.email}</p>}
@@ -558,7 +570,7 @@ const DoorstepService = ({ onBack }) => {
                     type="button"
                     onClick={nextStep}
                     disabled={!formData.name || !formData.phone || !formData.email}
-                    className="w-full bg-blue-600 text-white py-4 rounded-xl font-semibold hover:bg-blue-700 disabled:bg-gray-400 transition-all transform active:scale-95 text-base"
+                    className="w-full bg-blue-600 text-white py-4 rounded-xl font-semibold hover:bg-blue-700 disabled:bg-gray-400 disabled:cursor-not-allowed transition-all transform hover:scale-[1.02] active:scale-95 text-base shadow-md"
                   >
                     Next: Service Details →
                   </button>
@@ -578,14 +590,14 @@ const DoorstepService = ({ onBack }) => {
                       rows="3"
                       value={formData.address}
                       onChange={(e) => handleInputChange('address', e.target.value)}
-                      className={`w-full p-4 border-2 rounded-xl text-sm ${
-                        errors.address ? 'border-red-500 bg-red-50' : 'border-gray-300'
+                      className={`w-full p-4 border-2 rounded-xl text-sm focus:ring-4 focus:ring-blue-200 transition-all resize-none ${
+                        errors.address ? 'border-red-500 bg-red-50' : 'border-gray-300 focus:border-blue-500'
                       }`}
                     />
                     {errors.address && <p className="text-red-600 text-xs mt-1">{errors.address}</p>}
                   </div>
 
-                  {/* Vehicle Type & Model Selection */}
+                  {/* Vehicle Selection */}
                   <div>
                     <label className="block font-semibold text-sm mb-2">
                       Vehicle Type & Model *
@@ -595,7 +607,7 @@ const DoorstepService = ({ onBack }) => {
                         type="button"
                         onClick={() => setShowVehiclePopup(true)}
                         disabled={isSubmitting}
-                        className={`w-full p-4 border-2 rounded-xl text-left transition-all text-sm ${
+                        className={`w-full p-4 border-2 rounded-xl text-left transition-all text-sm hover:shadow-md ${
                           formData.vehicleType
                             ? "border-green-500 bg-green-50"
                             : errors.bikeModel
@@ -613,7 +625,7 @@ const DoorstepService = ({ onBack }) => {
                                 {vehicleTypes[formData.vehicleType].name}
                               </span>
                             </div>
-                            <span className="text-blue-600 text-xs">Change</span>
+                            <span className="text-blue-600 text-xs font-medium">Change</span>
                           </div>
                         ) : (
                           <div className="flex items-center justify-between text-gray-500">
@@ -628,7 +640,7 @@ const DoorstepService = ({ onBack }) => {
                           type="button"
                           onClick={() => setShowModelPopup(true)}
                           disabled={isSubmitting}
-                          className={`w-full p-4 border-2 rounded-xl text-left transition-all text-sm ${
+                          className={`w-full p-4 border-2 rounded-xl text-left transition-all text-sm hover:shadow-md ${
                             formData.vehicleModel
                               ? "border-green-500 bg-green-50"
                               : errors.bikeModel
@@ -641,7 +653,7 @@ const DoorstepService = ({ onBack }) => {
                               <span className="font-medium">
                                 {formData.vehicleModel}
                               </span>
-                              <span className="text-blue-600 text-xs">Change</span>
+                              <span className="text-blue-600 text-xs font-medium">Change</span>
                             </div>
                           ) : (
                             <div className="flex items-center justify-between text-gray-500">
@@ -659,6 +671,7 @@ const DoorstepService = ({ onBack }) => {
                     )}
                   </div>
 
+                  {/* Service Type Selection */}
                   <div>
                     <p className="text-sm font-semibold mb-3">Select Service Type *</p>
                     <div className="grid grid-cols-1 gap-3 max-h-64 overflow-y-auto">
@@ -666,7 +679,7 @@ const DoorstepService = ({ onBack }) => {
                         <div
                           key={service.value}
                           onClick={() => handleInputChange('serviceType', service.value)}
-                          className={`p-4 border-2 rounded-xl cursor-pointer transition-all ${
+                          className={`p-4 border-2 rounded-xl cursor-pointer transition-all hover:shadow-md ${
                             formData.serviceType === service.value
                               ? 'border-blue-500 bg-blue-50'
                               : 'border-gray-200 hover:border-blue-300'
@@ -689,7 +702,7 @@ const DoorstepService = ({ onBack }) => {
                     <button
                       type="button"
                       onClick={prevStep}
-                      className="flex-1 bg-gray-200 text-gray-700 py-4 rounded-xl font-semibold hover:bg-gray-300 transition-all transform active:scale-95 text-base"
+                      className="flex-1 bg-gray-200 text-gray-700 py-4 rounded-xl font-semibold hover:bg-gray-300 transition-all transform hover:scale-[1.02] active:scale-95 text-base"
                     >
                       ← Back
                     </button>
@@ -697,7 +710,7 @@ const DoorstepService = ({ onBack }) => {
                       type="button"
                       onClick={nextStep}
                       disabled={!formData.address || !formData.vehicleType || !formData.vehicleModel || !formData.serviceType}
-                      className="flex-1 bg-blue-600 text-white py-4 rounded-xl font-semibold hover:bg-blue-700 disabled:bg-gray-400 transition-all transform active:scale-95 text-base"
+                      className="flex-1 bg-blue-600 text-white py-4 rounded-xl font-semibold hover:bg-blue-700 disabled:bg-gray-400 disabled:cursor-not-allowed transition-all transform hover:scale-[1.02] active:scale-95 text-base shadow-md"
                     >
                       Next: Date & Time →
                     </button>
@@ -726,8 +739,8 @@ const DoorstepService = ({ onBack }) => {
                           setErrors(prev => ({ ...prev, date: "" }));
                         }
                       }}
-                      className={`w-full p-4 border-2 rounded-xl text-sm ${
-                        errors.date ? 'border-red-500 bg-red-50' : 'border-gray-300'
+                      className={`w-full p-4 border-2 rounded-xl text-sm focus:ring-4 focus:ring-blue-200 transition-all ${
+                        errors.date ? 'border-red-500 bg-red-50' : 'border-gray-300 focus:border-blue-500'
                       }`}
                     />
                     {errors.date && <p className="text-red-600 text-xs mt-1">{errors.date}</p>}
@@ -735,7 +748,7 @@ const DoorstepService = ({ onBack }) => {
 
                   <div>
                     <div className="flex items-center justify-between mb-3">
-                      <p className="text-sm font-semibold">Available Time Slots</p>
+                      <p className="text-sm font-semibold">Available Time Slots *</p>
                       {isOfflineMode && (
                         <span className="text-xs text-yellow-600 bg-yellow-100 px-2 py-1 rounded">
                           Default Times
@@ -754,10 +767,10 @@ const DoorstepService = ({ onBack }) => {
                                 setErrors(prev => ({ ...prev, time: "" }));
                               }
                             }}
-                            className={`p-3 rounded-xl border-2 transition-all text-sm font-medium ${
+                            className={`p-3 rounded-xl border-2 transition-all text-sm font-medium hover:shadow-md ${
                               selectedTime === time
                                 ? "bg-blue-600 text-white border-blue-600"
-                                : "bg-gray-50 text-gray-700 border-gray-200 hover:border-blue-300"
+                                : "bg-gray-50 text-gray-700 border-gray-200 hover:border-blue-300 hover:bg-blue-50"
                             }`}
                           >
                             {time}
@@ -778,13 +791,15 @@ const DoorstepService = ({ onBack }) => {
                       rows="3"
                       value={formData.additionalNotes}
                       onChange={(e) => handleInputChange('additionalNotes', e.target.value)}
-                      className="w-full p-4 border-2 border-gray-300 rounded-xl text-sm"
+                      className="w-full p-4 border-2 border-gray-300 rounded-xl text-sm focus:ring-4 focus:ring-blue-200 focus:border-blue-500 transition-all resize-none"
                     />
                   </div>
 
                   {/* Booking Summary */}
                   <div className="bg-blue-50 p-4 rounded-xl border-2 border-blue-200">
-                    <h4 className="font-semibold text-blue-900 mb-3 text-sm">📋 Booking Summary</h4>
+                    <h4 className="font-semibold text-blue-900 mb-3 text-sm flex items-center">
+                      📋 Booking Summary
+                    </h4>
                     <div className="space-y-1 text-blue-800 text-xs">
                       <p><strong>Name:</strong> {formData.name}</p>
                       <p><strong>Phone:</strong> {formData.phone}</p>
@@ -804,14 +819,14 @@ const DoorstepService = ({ onBack }) => {
                     <button
                       type="button"
                       onClick={prevStep}
-                      className="flex-1 bg-gray-200 text-gray-700 py-4 rounded-xl font-semibold hover:bg-gray-300 transition-all transform active:scale-95 text-base"
+                      className="flex-1 bg-gray-200 text-gray-700 py-4 rounded-xl font-semibold hover:bg-gray-300 transition-all transform hover:scale-[1.02] active:scale-95 text-base"
                     >
                       ← Back
                     </button>
                     <button
                       type="submit"
                       disabled={isSubmitting || !selectedDate || !selectedTime}
-                      className="flex-1 bg-blue-600 text-white py-4 rounded-xl font-semibold hover:bg-blue-700 disabled:bg-gray-400 transition-all transform active:scale-95 text-base flex items-center justify-center"
+                      className="flex-1 bg-blue-600 text-white py-4 rounded-xl font-semibold hover:bg-blue-700 disabled:bg-gray-400 disabled:cursor-not-allowed transition-all transform hover:scale-[1.02] active:scale-95 text-base flex items-center justify-center shadow-md"
                     >
                       {isSubmitting ? (
                         <>
@@ -819,7 +834,7 @@ const DoorstepService = ({ onBack }) => {
                           Booking...
                         </>
                       ) : (
-                        '📅 Book Appointment'
+                        '📅 Confirm Booking'
                       )}
                     </button>
                   </div>
@@ -827,19 +842,31 @@ const DoorstepService = ({ onBack }) => {
               )}
             </form>
 
+            {/* Footer Info */}
             <div className="mt-6 text-center">
-              <div className="bg-gray-50 p-4 rounded-xl">
-                <p className="text-xs text-gray-600 mb-1">
-                  <strong>📞 Confirmation:</strong> We'll call you {isOfflineMode ? 'within 2 hours' : '30 minutes before'}
-                </p>
-                <p className="text-xs text-gray-600">
-                  <strong>🕒 Duration:</strong> Typically 45-90 minutes
-                </p>
-                {isOfflineMode && (
-                  <p className="text-xs text-yellow-600 mt-1">
-                    <strong>📱 Offline Mode:</strong> Booking will be manually processed
+              <div className="bg-gray-50 p-4 rounded-xl border border-gray-200">
+                <div className="space-y-2">
+                  <p className="text-xs text-gray-600">
+                    <strong>📞 Confirmation:</strong> We'll call you {isOfflineMode ? 'within 2 hours' : '30 minutes before'}
                   </p>
-                )}
+                  <p className="text-xs text-gray-600">
+                    <strong>🕒 Duration:</strong> Typically 45-90 minutes
+                  </p>
+                  {isOfflineMode && (
+                    <p className="text-xs text-yellow-600">
+                      <strong>📱 Offline Mode:</strong> Booking will be manually processed
+                    </p>
+                  )}
+                </div>
+                
+                <div className="mt-3 pt-3 border-t border-gray-200">
+                  <Link
+                    to="/booking"
+                    className="text-xs text-blue-600 hover:text-blue-800 font-medium transition-colors"
+                  >
+                    🏠 Browse All Services →
+                  </Link>
+                </div>
               </div>
             </div>
           </div>

@@ -10,28 +10,51 @@ const Navbar = () => {
 
   return (
     <>
-      {/* Emergency Topbar */}
-      <div className="bg-red-600 text-white text-xs sm:text-sm">
-        <div className="max-w-7xl mx-auto px-4 py-2">
-          <div className="flex flex-row md:flex-row justify-between items-center gap-3 md:gap-6">
-            {/* Left Section */}
-            <div className="flex flex-col sm:flex-row items-center gap-2 sm:gap-6 text-center sm:text-left">
-              <div className="flex items-center gap-2 animate-pulse">
-                <span className="text-yellow-300">🚨</span>
-                <span className="font-semibold">24/7 Emergency Helpline</span>
-              </div>
-            </div>
-
-            {/* Right Section */}
-            <div className="flex flex-col sm:flex-row items-center gap-2 sm:gap-6">
-              <div className="flex items-center gap-2">
-                <i className="ri-time-line text-sm"></i>
-                <span className="text-xs sm:text-sm">24/7 Available</span>
-              </div>
-            </div>
-          </div>
+    {/* Emergency Topbar */}
+<div className="bg-red-600 text-white text-xs sm:text-sm">
+  <div className="max-w-7xl mx-auto px-4 py-2">
+    <div className="flex flex-col sm:flex-row justify-between items-center gap-2 sm:gap-6">
+      {/* Left Section - Emergency Contact */}
+      <div className="flex items-center gap-2 sm:gap-4">
+        <div className="flex items-center gap-2 animate-pulse">
+          <i className="ri-phone-line text-yellow-300 text-sm"></i>
+          <span className="font-semibold">Emergency Roadside Assistance</span>
+        </div>
+        <div className="hidden sm:flex items-center gap-2 text-yellow-100">
+          <span>|</span>
+          <i className="ri-customer-service-2-line text-xs"></i>
+          <span className="text-xs">+91-1800-XXX-XXXX</span>
         </div>
       </div>
+
+      {/* Center Section - Quick Info */}
+      <div className="hidden md:flex items-center gap-4 text-center">
+        <div className="flex items-center gap-1">
+          <i className="ri-map-pin-line text-yellow-300 text-xs"></i>
+          <span className="text-xs">Pan-India Service</span>
+        </div>
+        <span className="text-yellow-100">•</span>
+        <div className="flex items-center gap-1">
+          <i className="ri-shield-check-line text-yellow-300 text-xs"></i>
+          <span className="text-xs">Genuine Parts</span>
+        </div>
+      </div>
+
+      {/* Right Section - Availability */}
+      <div className="hidden md:flex items-center gap-3 sm:gap-4">
+        <div className="flex items-center gap-2">
+          <div className="w-2 h-2 bg-green-400 rounded-full animate-pulse"></div>
+          <span className="text-xs font-medium">24/7 Available</span>
+        </div>
+        <div className="hidden sm:flex items-center gap-2 text-yellow-100">
+          <i className="ri-time-line text-xs"></i>
+          <span className="text-xs">Response in 30 mins</span>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
 
       {/* Main Navigation */}
       <nav className="bg-gray-900 shadow-lg px-4 py-3 sticky top-0 w-full z-50 border-t-2 border-red-600">
@@ -45,28 +68,28 @@ const Navbar = () => {
           <div className="hidden lg:flex items-center space-x-8">
             <Link
               to="/"
-              className="text-gray-100 hover:text-red-400 font-semibold transition-colors relative group"
+              className="text-gray-100 hover:text-red-400  transition-colors relative group"
             >
               Home
               <span className="absolute -bottom-1 left-0 w-0 h-0.5 bg-red-400 transition-all group-hover:w-full"></span>
             </Link>
             <Link
               to="/spare-parts"
-              className="text-gray-100 hover:text-red-400 font-semibold transition-colors relative group"
+              className="text-gray-100 hover:text-red-400  transition-colors relative group"
             >
               Spare Parts
               <span className="absolute -bottom-1 left-0 w-0 h-0.5 bg-red-400 transition-all group-hover:w-full"></span>
             </Link>
             <Link
               to="/services"
-              className="text-gray-100 hover:text-red-400 font-semibold transition-colors relative group"
+              className="text-gray-100 hover:text-red-400  transition-colors relative group"
             >
               Services
               <span className="absolute -bottom-1 left-0 w-0 h-0.5 bg-red-400 transition-all group-hover:w-full"></span>
             </Link>
             <Link
               to="/about"
-              className="text-gray-100 hover:text-red-400 font-semibold transition-colors relative group"
+              className="text-gray-100 hover:text-red-400  transition-colors relative group"
             >
               About
               <span className="absolute -bottom-1 left-0 w-0 h-0.5 bg-red-400 transition-all group-hover:w-full"></span>
@@ -84,9 +107,9 @@ const Navbar = () => {
           <div className="hidden lg:flex">
             <Link 
               to="/booking" 
-              className="bg-red-600 text-white px-6 py-2 rounded-lg font-semibold hover:bg-red-700 transition-colors duration-300"
+              className="bg-red-600 text-white px-6 py-3 rounded-lg hover:bg-red-700 transition-colors duration-300"
             >
-              Booking
+              <i className="ri-customer-service-2-fill"></i> Book Service
             </Link>
           </div>
 
@@ -160,7 +183,7 @@ const Navbar = () => {
                 onClick={() => setIsMenuOpen(false)}
               >
                 <i className="ri-calendar-check-line mr-2"></i>
-                Booking
+                Book Service
               </Link>
             </div>
           </div>

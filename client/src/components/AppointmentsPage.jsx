@@ -120,7 +120,7 @@ const AppointmentsPage = () => {
 
       {/* Emergency Cards */}
       <div className="grid grid-cols-1  gap-4">
-        {emergencies.length === 0 && !loading && (
+        {emergencies?.length === 0 && !loading && (
           <p className="text-gray-600 col-span-full">No emergencies found.</p>
         )}
         {emergencies?.map(renderCard)}
@@ -128,7 +128,7 @@ const AppointmentsPage = () => {
 
       {/* Appointments Cards */}
       <div className="grid grid-cols-1  gap-4 mt-6">
-        {appointments.length === 0 && !loading && (
+        {appointments?.length === 0 && !loading && (
           <p className="text-gray-600 col-span-full">No appointments found.</p>
         )}
         {appointments?.map(renderCard)}

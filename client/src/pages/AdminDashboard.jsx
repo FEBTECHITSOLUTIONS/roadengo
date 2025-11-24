@@ -2,9 +2,12 @@
 import React, { useState, useEffect, useRef, useCallback } from "react";
 import { useNavigate } from "react-router-dom";
 import { apiService, STATUS } from "../routing/apiClient";
+import AppointmentsPage from "../components/AppointmentsPage";
 
 const AdminDashboard = () => {
   const [appointments, setAppointments] = useState([]);
+  console.log(appointments);
+  
   const [emergencies, setEmergencies] = useState([]);
   const [inquiries, setInquiries] = useState([]);
   const [mechanics, setMechanics] = useState([]);
@@ -21,10 +24,9 @@ const AdminDashboard = () => {
     phone: "",
     password: "",
     specialization: [],
+    VehicleType:"",
     experience: 0,
-    location: {
       city: "",
-    },
   });
 
   const navigate = useNavigate();
@@ -606,6 +608,16 @@ const AdminDashboard = () => {
             >
               Mechanics ({mechanics.length})
             </button>
+            <button
+              onClick={() => setActiveTab("AllBookings")}
+              className={`px-2 sm:px-4 md:px-6 py-2 sm:py-3 rounded-lg font-semibold text-xs sm:text-sm ${
+                activeTab === "AllBookings"
+                  ? "bg-purple-600 text-white"
+                  : "bg-white text-gray-700 hover:bg-gray-50"
+              }`}
+            >
+              All Bookings
+            </button>
           </nav>
         </div>
 
@@ -795,6 +807,7 @@ const AdminDashboard = () => {
               <div className="space-y-4 p-4">
                 {appointments.map((appointment) => (
                   <div key={appointment._id} className="border border-gray-200 rounded-lg p-4 space-y-3">
+                     
                     <div className="flex justify-between items-start">
                       <div className="flex-1 min-w-0">
                         <h3 className="font-semibold text-gray-900">{appointment.name}</h3>
@@ -840,7 +853,7 @@ const AdminDashboard = () => {
                         <div>
                           <p className="text-xs text-gray-500">Assigned Mechanic</p>
                           <p className="text-sm font-medium">
-                            {mechanics.find((m) => m._id === appointment.assignedMechanic)?.name || "Unknown"}
+                           {appointment?.assignedMechanic?.name} || Unknown
                           </p>
                         </div>
                       )}
@@ -949,7 +962,7 @@ const AdminDashboard = () => {
                         {appointment.assignedMechanic ? (
                           <div className="text-sm">
                             <div className="font-medium text-gray-900">
-                              {mechanics.find((m) => m._id === appointment.assignedMechanic)?.name || "Unknown"}
+                              {appointment?.assignedMechanic?.name || "Unknown"}
                             </div>
                             <div className="text-gray-500">Assigned</div>
                           </div>
@@ -1035,7 +1048,7 @@ const AdminDashboard = () => {
                         <div>
                           <p className="text-xs text-gray-500">Assigned Mechanic</p>
                           <p className="text-sm font-medium">
-                            {mechanics.find((m) => m._id === emergency.assignedMechanic)?.name || "Unknown"}
+                            {emergency?.assignedMechanic?.name || "Unknown"}
                           </p>
                         </div>
                       )}
@@ -1373,157 +1386,197 @@ Total: ₹${inquiry.totalAmount}
             )}
           </div>
         )}
+        {/* AllBookings TAB - COMPLETE IMPLEMENTATION */}
+        {activeTab === "AllBookings" && (
+          <div className="bg-white rounded-lg shadow-lg overflow-hidden">
+            <AppointmentsPage />
+          </div>
+        )}
 
         {/* Create Mechanic Modal */}
-        {showCreateMechanicModal && (
-          <div className="fixed inset-0 bg-gray-600 bg-opacity-50 overflow-y-auto h-full w-full z-50">
-            <div className="relative top-4 mx-2 sm:mx-4 md:mx-auto p-3 sm:p-4 md:p-5 border w-full sm:w-11/12 md:w-3/4 lg:w-1/2 xl:w-96 shadow-lg rounded-md bg-white">
-              <div className="mt-2 sm:mt-3">
-                <h3 className="text-base sm:text-lg font-medium text-gray-900 mb-3 sm:mb-4">
-                  Create New Mechanic
-                </h3>
-                <form onSubmit={handleCreateMechanic}>
-                  <div className="space-y-3 sm:space-y-4">
-                    <div className="flex flex-col sm:flex-row gap-2">
-                      <div className="flex-1">
-                        <label className="block text-sm font-medium text-gray-700 mb-1">Name *</label>
-                        <input
-                          type="text"
-                          required
-                          value={newMechanic.name}
-                          onChange={(e) => setNewMechanic({ ...newMechanic, name: e.target.value })}
-                          className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 text-sm"
-                          placeholder="Enter mechanic name"
-                        />
-                      </div>
-                      <div className="flex-1">
-                        <label className="block text-sm font-medium text-gray-700 mb-1">Email *</label>
-                        <input
-                          type="email"
-                          required
-                          value={newMechanic.email}
-                          onChange={(e) => setNewMechanic({ ...newMechanic, email: e.target.value })}
-                          className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 text-sm"
-                          placeholder="Enter email address"
-                        />
-                      </div>
-                    </div>
+       {showCreateMechanicModal && (
+  <div className="fixed inset-0 bg-gray-600 bg-opacity-50 overflow-y-auto h-full w-full z-50">
+    <div className="relative top-4 mx-2 sm:mx-4 md:mx-auto p-3 sm:p-4 md:p-5 border w-full sm:w-11/12 md:w-3/4 lg:w-1/2 xl:w-96 shadow-lg rounded-md bg-white">
+      <div className="mt-2 sm:mt-3">
+        <h3 className="text-base sm:text-lg font-medium text-gray-900 mb-3 sm:mb-4">
+          Create New Mechanic
+        </h3>
 
-                    <div className="flex flex-col sm:flex-row gap-2">
-                      <div className="flex-1">
-                        <label className="block text-sm font-medium text-gray-700 mb-1">Phone *</label>
-                        <input
-                          type="tel"
-                          required
-                          pattern="[0-9]{10}"
-                          maxLength="10"
-                          value={newMechanic.phone}
-                          onChange={(e) => {
-                            const value = e.target.value.replace(/\D/g, "");
-                            setNewMechanic({ ...newMechanic, phone: value });
-                          }}
-                          className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 text-sm"
-                          placeholder="Enter 10-digit phone number"
-                        />
-                      </div>
-                      <div className="flex-1">
-                        <label className="block text-sm font-medium text-gray-700 mb-1">Password *</label>
-                        <input
-                          type="password"
-                          required
-                          minLength="6"
-                          value={newMechanic.password}
-                          onChange={(e) => setNewMechanic({ ...newMechanic, password: e.target.value })}
-                          className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 text-sm"
-                          placeholder="Enter password (min 6 characters)"
-                        />
-                      </div>
-                    </div>
+        <form onSubmit={handleCreateMechanic}>
+          <div className="space-y-3 sm:space-y-4">
 
-                    <div>
-                      <label className="block text-sm font-medium text-gray-700 mb-1">
-                        Specialization *
-                      </label>
-                      <select
-                        required
-                        value={
-                          Array.isArray(newMechanic.specialization)
-                            ? newMechanic.specialization[0] || ""
-                            : newMechanic.specialization || ""
-                        }
-                        onChange={(e) =>
-                          setNewMechanic({
-                            ...newMechanic,
-                            specialization: e.target.value ? [e.target.value] : [],
-                          })
-                        }
-                        className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 text-sm"
-                      >
-                        <option value="">-- Choose an option --</option>
-                        <option value="emergency-repair">Emergency Repair</option>
-                        <option value="doorstep-service">Doorstep Service</option>
-                      </select>
-                    </div>
+            {/* NAME + EMAIL */}
+            <div className="flex flex-col sm:flex-row gap-2">
+              <div className="flex-1">
+                <label className="block text-sm font-medium text-gray-700 mb-1">Name *</label>
+                <input
+                  type="text"
+                  required
+                  value={newMechanic.name}
+                  onChange={(e) => setNewMechanic({ ...newMechanic, name: e.target.value })}
+                  className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 text-sm"
+                  placeholder="Enter mechanic name"
+                />
+              </div>
 
-                    <div className="flex flex-col sm:flex-row gap-2">
-                      <div className="flex-1">
-                        <label className="block text-sm font-medium text-gray-700 mb-1">
-                          Experience (years)
-                        </label>
-                        <input
-                          type="number"
-                          min="0"
-                          max="50"
-                          value={newMechanic.experience}
-                          onChange={(e) =>
-                            setNewMechanic({
-                              ...newMechanic,
-                              experience: parseInt(e.target.value) || 0,
-                            })
-                          }
-                          className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 text-sm"
-                          placeholder="Years of experience"
-                        />
-                      </div>
-                      <div className="flex-1">
-                        <label className="block text-sm font-medium text-gray-700 mb-1">City</label>
-                        <input
-                          type="text"
-                          value={newMechanic.location.city}
-                          onChange={(e) =>
-                            setNewMechanic({
-                              ...newMechanic,
-                              location: { ...newMechanic.location, city: e.target.value },
-                            })
-                          }
-                          className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 text-sm"
-                          placeholder="City"
-                        />
-                      </div>
-                    </div>
-                  </div>
+              <div className="flex-1">
+                <label className="block text-sm font-medium text-gray-700 mb-1">Email *</label>
+                <input
+                  type="email"
+                  required
+                  value={newMechanic.email}
+                  onChange={(e) => setNewMechanic({ ...newMechanic, email: e.target.value })}
+                  className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 text-sm"
+                  placeholder="Enter email address"
+                />
+              </div>
+            </div>
 
-                  <div className="flex flex-col sm:flex-row justify-end space-y-2 sm:space-y-0 sm:space-x-3 mt-4 sm:mt-6">
-                    <button
-                      type="button"
-                      onClick={() => setShowCreateMechanicModal(false)}
-                      className="w-full sm:w-auto px-4 py-2 text-sm font-medium text-gray-700 bg-gray-200 rounded-md hover:bg-gray-300 transition-colors"
-                    >
-                      Cancel
-                    </button>
-                    <button
-                      type="submit"
-                      disabled={loading}
-                      className="w-full sm:w-auto px-4 py-2 text-sm font-medium text-white bg-purple-600 rounded-md hover:bg-purple-700 disabled:opacity-50 transition-colors"
-                    >
-                      {loading ? "Creating..." : "Create Mechanic"}
-                    </button>
-                  </div>
-                </form>
+            {/* PHONE + PASSWORD */}
+            <div className="flex flex-col sm:flex-row gap-2">
+              <div className="flex-1">
+                <label className="block text-sm font-medium text-gray-700 mb-1">Phone *</label>
+                <input
+                  type="tel"
+                  required
+                  pattern="[0-9]{10}"
+                  maxLength="10"
+                  value={newMechanic.phone}
+                  onChange={(e) => {
+                    const value = e.target.value.replace(/\D/g, "");
+                    setNewMechanic({ ...newMechanic, phone: value });
+                  }}
+                  className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 text-sm"
+                  placeholder="Enter 10-digit phone number"
+                />
+              </div>
+
+              <div className="flex-1">
+                <label className="block text-sm font-medium text-gray-700 mb-1">Password *</label>
+                <input
+                  type="password"
+                  required
+                  minLength="6"
+                  value={newMechanic.password}
+                  onChange={(e) => setNewMechanic({ ...newMechanic, password: e.target.value })}
+                  className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 text-sm"
+                  placeholder="Enter password (min 6 characters)"
+                />
+              </div>
+            </div>
+
+            {/* ⭐ NEW FIELD: VEHICLE TYPE (Two / Three Wheeler) */}
+            <div>
+              <label className="block text-sm font-medium text-gray-700 mb-1">Vehicle Type *</label>
+              <select
+                required
+                value={newMechanic.vehicleType || ""}
+                onChange={(e) =>
+                  setNewMechanic({
+                    ...newMechanic,
+                    vehicleType: e.target.value,
+                  })
+                }
+                className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 text-sm"
+              >
+                <option value="">-- Select Vehicle Type --</option>
+                <option value="two-wheeler">Two Wheeler</option>
+                <option value="three-wheeler">Three Wheeler</option>
+              </select>
+            </div>
+
+            {/* SPECIALIZATION */}
+            <div>
+              <label className="block text-sm font-medium text-gray-700 mb-1">
+                Specialization *
+              </label>
+
+              <select
+                required
+                value={
+                  Array.isArray(newMechanic.specialization)
+                    ? newMechanic.specialization[0] || ""
+                    : newMechanic.specialization || ""
+                }
+                onChange={(e) =>
+                  setNewMechanic({
+                    ...newMechanic,
+                    specialization: e.target.value ? [e.target.value] : [],
+                  })
+                }
+                className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 text-sm"
+              >
+                <option value="">-- Choose an option --</option>
+                <option value="emergency-repair">Emergency Repair</option>
+                <option value="doorstep-service">Doorstep Service</option>
+              </select>
+            </div>
+
+            {/* EXPERIENCE + CITY */}
+            <div className="flex flex-col sm:flex-row gap-2">
+              <div className="flex-1">
+                <label className="block text-sm font-medium text-gray-700 mb-1">
+                  Experience (years)
+                </label>
+                <input
+                  type="number"
+                  min="0"
+                  max="50"
+                  value={newMechanic.experience}
+                  onChange={(e) =>
+                    setNewMechanic({
+                      ...newMechanic,
+                      experience: parseInt(e.target.value) || 0,
+                    })
+                  }
+                  className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 text-sm"
+                  placeholder="Years of experience"
+                />
+              </div>
+
+              <div className="flex-1">
+                <label className="block text-sm font-medium text-gray-700 mb-1">City</label>
+                <input
+                  type="text"
+                  value={newMechanic.city}
+                  onChange={(e) =>
+                    setNewMechanic({
+                      ...newMechanic,
+                      city: e.target.value ,
+                    })
+                  }
+                  className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 text-sm"
+                  placeholder="City"
+                />
               </div>
             </div>
           </div>
-        )}
+
+          {/* FOOTER BUTTONS */}
+          <div className="flex flex-col sm:flex-row justify-end space-y-2 sm:space-y-0 sm:space-x-3 mt-4 sm:mt-6">
+            <button
+              type="button"
+              onClick={() => setShowCreateMechanicModal(false)}
+              className="w-full sm:w-auto px-4 py-2 text-sm font-medium text-gray-700 bg-gray-200 rounded-md hover:bg-gray-300 transition-colors"
+            >
+              Cancel
+            </button>
+
+            <button
+              type="submit"
+              disabled={loading}
+              className="w-full sm:w-auto px-4 py-2 text-sm font-medium text-white bg-purple-600 rounded-md hover:bg-purple-700 disabled:opacity-50 transition-colors"
+            >
+              {loading ? "Creating..." : "Create Mechanic"}
+            </button>
+          </div>
+        </form>
+
+      </div>
+    </div>
+  </div>
+)}
+
 
         {/* Enhanced Assign Modal */}
         <EnhancedAssignModal />

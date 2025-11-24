@@ -159,13 +159,13 @@ const MechanicLogin = () => {
             <div className="flex items-center justify-between text-sm">
               <div className="text-gray-600">
                 Need help? 
-                <a href="/support" className="font-medium text-blue-600 hover:text-blue-500 ml-1">
+                <a href="/contact" className="font-medium text-blue-600 hover:text-blue-500 ml-1">
                   Contact Support
                 </a>
               </div>
               <div>
-                <a href="/admin/login" className="font-medium text-blue-600 hover:text-blue-500">
-                  Admin Login
+                <a href="/mechanic/Onboarding" className="font-medium text-blue-600 hover:text-blue-500">
+                  SignUp
                 </a>
               </div>
             </div>

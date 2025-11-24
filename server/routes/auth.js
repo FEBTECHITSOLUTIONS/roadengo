@@ -61,8 +61,15 @@ router.post('/login', async (req, res) => {
     );
 
     console.log('Login successful for:', admin.username);
-
-    res.json({
+    const option = {
+       httpOnly:true,
+        secure:false,
+        expires:new Date(Date.now() + 24*60*60*1000),
+        sameSite:'strict',
+    }
+    res
+    .cookie('accessToken' , token , option)
+    .json({
       message: 'Login successful',
       token,
       admin: {

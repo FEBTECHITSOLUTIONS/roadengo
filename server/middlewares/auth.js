@@ -4,9 +4,11 @@ const Admin = require('../models/Admin');
 
 const authMiddleware = async (req, res, next) => {
   try {
-    console.log('Auth middleware called for:', req.path);
+    // console.log('Auth middleware called for:', req.path);
     
-    const authHeader = req.header('Authorization');
+    const authHeader = req.header('Authorization') || req.cookies;
+    // console.log(authHeader, 'authHeader cookie');
+    
     if (!authHeader) {
       console.log('No Authorization header found');
       return res.status(401).json({ message: 'Access denied. No token provided.' });
@@ -14,11 +16,11 @@ const authMiddleware = async (req, res, next) => {
 
     const token = authHeader.replace('Bearer ', '');
     if (!token) {
-      console.log('No token found after Bearer');
+      // console.log('No token found after Bearer');
       return res.status(401).json({ message: 'Access denied. Invalid token format.' });
     }
 
-    console.log('Verifying token...');
+    // console.log('Verifying token...');
     const decoded = jwt.verify(token, process.env.JWT_SECRET || 'your-secret-key');
     console.log('Token decoded:', decoded);
     
@@ -35,7 +37,7 @@ const authMiddleware = async (req, res, next) => {
     }
 
     req.admin = admin;
-    console.log('Auth successful for admin:', admin.username);
+    // console.log('Auth successful for admin:', admin.username);
     next();
   } catch (error) {
     console.error('Auth middleware error:', error.message);
@@ -45,7 +47,7 @@ const authMiddleware = async (req, res, next) => {
     } else if (error.name === 'TokenExpiredError') {
       return res.status(401).json({ message: 'Token expired.' });
     } else {
-      return res.status(401).json({ message: 'Token verification failed.' });
+      return res.status(401).json({ message: `Token verification failed. ${token}` });
     }
   }
 };

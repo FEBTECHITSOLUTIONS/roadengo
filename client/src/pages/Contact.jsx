@@ -10,13 +10,14 @@ const Contact = () => {
     const formData = new FormData(event.target);
     formData.append("access_key", "YOUR_ACCESS_KEY_HERE");
 
-    const response = await fetch("httpss://api.web3forms.com/submit", {
+    const response = await fetch("https://api.web3forms.com/submit", {
       method: "POST",
       body: formData,
     });
 
     const data = await response.json();
-
+    console.log(data);
+    
     if (data.success) {
       setResult(
         "Message Sent Successfully! We'll contact you within 15 minutes."
@@ -134,7 +135,7 @@ const Contact = () => {
             {[
               { id: "general", label: "General Inquiry", icon: "📝" },
               { id: "service", label: "Book Service", icon: "🔧" },
-              { id: "emergency", label: "Emergency Help", icon: "🚨" },
+              { id: "emergency", label: "Roadside repair", icon: "🚨" },
               { id: "feedback", label: "Feedback", icon: "⭐" },
             ].map((tab) => (
               <button
@@ -365,27 +366,21 @@ const Contact = () => {
                       icon: "📍",
                       title: "Head Office",
                       details: [
-                        "123 Service Street",
-                        "Mumbai, Maharashtra 400001",
-                        "India",
+                        'Lakshar road near sati kund',' uttarakhand 249408', 'India'
                       ],
                     },
                     {
                       icon: "📞",
                       title: "Phone Numbers",
                       details: [
-                        "Emergency: +91 9876543210",
-                        "Support: +91 9876543211",
-                        "Booking: +91 9876543212",
+                       7900900744
                       ],
                     },
                     {
                       icon: "📧",
                       title: "Email Addresses",
                       details: [
-                        "emergency@bikeservice.com",
-                        "support@bikeservice.com",
-                        "booking@bikeservice.com",
+                        "support@roadengo.com"
                       ],
                     },
                     {
@@ -422,113 +417,7 @@ const Contact = () => {
       </section>
 
       {/* Section 4: Service Areas Map */}
-      <section className="min-h-screen bg-white flex items-center">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12 sm:py-16 lg:py-20">
-          <div className="text-center mb-12 sm:mb-16">
-            <h2 className="text-3xl sm:text-4xl lg:text-5xl font-bold text-gray-900 mb-6">
-              Our Service <span className="text-red-600">Areas</span>
-            </h2>
-            <p className="text-base sm:text-lg lg:text-xl text-gray-600 max-w-3xl mx-auto">
-              We provide doorstep bike service across major cities with plans to
-              expand nationwide
-            </p>
-          </div>
-
-          <div className="grid grid-cols-1 lg:grid-cols-2 gap-12 lg:gap-16 items-center">
-            {/* Service Areas List */}
-            <div>
-              <h3 className="text-2xl font-bold text-gray-900 mb-8">
-                Currently Serving
-              </h3>
-              <div className="grid grid-cols-1 sm:grid-cols-2 gap-6">
-                {[
-                  {
-                    city: "Mumbai",
-                    areas: "15+ Areas",
-                    zones: [
-                      "Andheri",
-                      "Bandra",
-                      "Borivali",
-                      "Thane",
-                      "Navi Mumbai",
-                    ],
-                    status: "active",
-                  },
-                  {
-                    city: "Delhi NCR",
-                    areas: "12+ Areas",
-                    zones: [
-                      "Gurgaon",
-                      "Noida",
-                      "Faridabad",
-                      "Ghaziabad",
-                      "Central Delhi",
-                    ],
-                    status: "active",
-                  },
-                  {
-                    city: "Bangalore",
-                    areas: "10+ Areas",
-                    zones: [
-                      "Whitefield",
-                      "Koramangala",
-                      "Indiranagar",
-                      "Electronic City",
-                      "Marathahalli",
-                    ],
-                    status: "active",
-                  },
-                  {
-                    city: "Pune",
-                    areas: "8+ Areas",
-                    zones: [
-                      "Hinjewadi",
-                      "Baner",
-                      "Kothrud",
-                      "Wakad",
-                      "Pimpri-Chinchwad",
-                    ],
-                    status: "active",
-                  },
-                ].map((location, i) => (
-                  <div
-                    key={i}
-                    className="bg-gradient-to-br from-green-50 to-white p-6 rounded-xl shadow-lg border border-green-100"
-                  >
-                    <div className="flex items-center justify-between mb-4">
-                      <h4 className="text-lg font-bold text-gray-900">
-                        {location.city}
-                      </h4>
-                      <div className="bg-green-100 text-green-800 px-3 py-1 rounded-full text-xs font-semibold">
-                        {location.areas}
-                      </div>
-                    </div>
-                    <div className="space-y-1">
-                      {location.zones.map((zone, j) => (
-                        <div key={j} className="flex items-center space-x-2">
-                          <div className="w-2 h-2 bg-green-500 rounded-full"></div>
-                          <span className="text-gray-700 text-sm">{zone}</span>
-                        </div>
-                      ))}
-                    </div>
-                  </div>
-                ))}
-              </div>
-            </div>
-
-            {/* Map Placeholder */}
-            <div className="relative">
-              <div className="bg-gradient-to-br from-gray-100 to-gray-200 rounded-2xl h-96 lg:h-[500px] flex items-center justify-center">
-                <img
-                  src="/images/service-map.jpg"
-                  alt="Service Areas Map"
-                  className="w-full h-full object-cover rounded-2xl"
-                />
-              </div>
-            </div>
-          </div>
-        </div>
-      </section>
+    
 
     </div>
   );

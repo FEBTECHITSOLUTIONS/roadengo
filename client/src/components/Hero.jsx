@@ -48,7 +48,7 @@ const Hero = () => {
               >
                 <div className="absolute inset-0 bg-gradient-to-r from-red-700 to-red-600 opacity-0 group-hover:opacity-100 transition-opacity duration-300"></div>
                 <i className="ri-phone-fill text-xl relative z-10"></i>
-                <span className="relative z-10">Emergency Help</span>
+                <span className="relative z-10">Roadside repair</span>
               </Link>
               
               <Link
@@ -56,7 +56,7 @@ const Hero = () => {
                 className="border-2 border-red-600 text-red-600 px-8 py-4 rounded-xl text-lg font-semibold hover:bg-red-600 hover:text-white transition-all duration-300 flex items-center justify-center gap-3 group"
               >
                 <i className="ri-calendar-2-line text-xl group-hover:scale-110 transition-transform duration-300"></i>
-                Schedule Service
+                Routine service
               </Link>
             </div>
 

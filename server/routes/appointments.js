@@ -2,12 +2,12 @@
 const express = require('express');
 const router = express.Router();
 const Appointment = require('../models/Appointment');
-const authMiddleware = require('../middlewares/auth');
+
 
 // Get all appointments (Admin only)
-router.get('/', authMiddleware, async (req, res) => {
+router.get('/',  async (req, res) => {
   try {
-    console.log('Fetching appointments for admin:', req.admin.username);
+    // console.log('Fetching appointments for admin:', req.admin.username);
     
     const { status, startDate, endDate, mechanic } = req.query;
     let query = {};
@@ -38,8 +38,43 @@ router.get('/', authMiddleware, async (req, res) => {
   }
 });
 
+
+// GET ALL APPOINTMENTS WITH OPTIONAL FILTER
+router.get("/allbookings", async (req, res) => {
+  try {
+    console.log("Route hit: /allbookings");
+
+    const { status } = req.query;
+    const filter = {};
+
+    if (status) {
+      filter.status = status.trim().toLowerCase(); 
+      console.log("Filtering by status:", filter);
+    }
+
+    const appointments = (await Appointment.find(filter).populate("assignedMechanic" , 'name phone').lean());
+    // console.log("Appointments fetched:", appointments.length);
+    console.log('all appointment' , appointments);
+    
+    res.status(200).json({
+      success: true,
+      count: appointments.length,
+      data: appointments,
+    });
+  } catch (error) {
+    console.error("Error fetching appointments:", error);
+    res.status(500).json({
+      success: false,
+      message: "Failed to fetch appointments",
+      error: error.message,
+    });
+  }
+});
+
+
+
 // Get appointment by ID
-router.get('/:id', authMiddleware, async (req, res) => {
+router.get('/:id',  async (req, res) => {
   try {
     const appointment = await Appointment.findById(req.params.id)
       .populate('assignedMechanic', 'name email phone mechanicId')
@@ -67,7 +102,7 @@ router.post('/', async (req, res) => {
     const appointmentData = req.body;
     
     // Validate required fields
-    const requiredFields = ['name', 'phone', 'email', 'address', 'bikeModel', 'serviceType', 'serviceDate', 'serviceTime'];
+    const requiredFields = ['name', 'phone',  'address', 'bikeModel', 'serviceType', 'serviceDate', 'serviceTime'];
     const missingFields = requiredFields.filter(field => !appointmentData[field] || appointmentData[field].toString().trim() === '');
     
     if (missingFields.length > 0) {
@@ -132,7 +167,7 @@ router.post('/', async (req, res) => {
 });
 
 // Update appointment
-router.patch('/:id', authMiddleware, async (req, res) => {
+router.patch('/:id',  async (req, res) => {
   try {
     const { id } = req.params;
     const updateData = req.body;
@@ -181,7 +216,7 @@ router.patch('/:id', authMiddleware, async (req, res) => {
 });
 
 // Delete appointment
-router.delete('/:id', authMiddleware, async (req, res) => {
+router.delete('/:id',  async (req, res) => {
   try {
     const appointment = await Appointment.findByIdAndDelete(req.params.id);
     
@@ -258,5 +293,9 @@ router.get('/available-slots', async (req, res) => {
     });
   }
 });
+
+
+
+
 
 module.exports = router;

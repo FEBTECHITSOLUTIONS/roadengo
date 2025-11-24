@@ -122,72 +122,65 @@ const About = () => {
         </div>
       </section>
 
-      {/* Section 4: Meet Our Team */}
-      <section className="min-h-screen bg-white flex items-center">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12 sm:py-16 lg:py-20">
-          <div className="text-center mb-12 sm:mb-16">
-            <h2 className="text-3xl sm:text-4xl lg:text-5xl font-bold text-gray-900 mb-6">
-              Meet Our <span className="text-red-600">Leadership Team</span>
-            </h2>
-            <p className="text-base sm:text-lg lg:text-xl text-gray-600 max-w-3xl mx-auto">
-              Passionate leaders driving innovation in doorstep bike servicing
-            </p>
-          </div>
+     {/* Section 4: Founder & Director */}
+<section className="min-h-screen bg-white flex items-center">
+  <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12 sm:py-16 lg:py-20">
+    <div className="text-center mb-12 sm:mb-16">
+      <h2 className="text-3xl sm:text-4xl lg:text-5xl font-bold text-gray-900 mb-6">
+        Founder & Director – <span className="text-red-600">Govind Saini</span>
+      </h2>
+      <p className="text-base sm:text-lg lg:text-xl text-gray-600 max-w-3xl mx-auto">
+        A young visionary entrepreneur redefining Road Side Assistance for India
+      </p>
+    </div>
 
-          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-8 mb-16">
-            {[
-              {
-                name: "Rahul Sharma",
-                role: "Founder & CEO",
-                experience: "15+ Years in Auto Industry",
-                image: "/images/ceo.jpg",
-                bio: "Former automotive engineer turned entrepreneur",
-              },
-              {
-                name: "Priya Patel",
-                role: "Head of Operations",
-                experience: "12+ Years Operations",
-                image: "/images/head-ops.jpg",
-                bio: "Expert in service operations and quality control",
-              },
-              {
-                name: "Amit Kumar",
-                role: "Technical Director",
-                experience: "18+ Years Technical",
-                image: "/images/tech-director.jpg",
-                bio: "Master mechanic and technical training specialist",
-              },
-            ].map((member, i) => (
-              <div
-                key={i}
-                className="bg-gradient-to-br from-gray-50 to-white p-6 sm:p-8 rounded-2xl shadow-lg hover:shadow-xl transition-all duration-300 transform hover:scale-105 border border-gray-100"
-              >
-                <div className="relative mb-6">
-                  <img
-                    src={member.image}
-                    alt={member.name}
-                    className="w-24 h-24 sm:w-32 sm:h-32 rounded-full mx-auto object-cover border-4 border-red-100"
-                  />
-                  <div className="absolute -bottom-2 left-1/2 transform -translate-x-1/2 bg-red-600 text-white px-3 py-1 rounded-full text-xs font-semibold">
-                    {member.experience}
-                  </div>
-                </div>
-                <div className="text-center">
-                  <h3 className="text-lg sm:text-xl font-bold text-gray-900 mb-1">
-                    {member.name}
-                  </h3>
-                  <p className="text-red-600 font-semibold mb-2">
-                    {member.role}
-                  </p>
-                  <p className="text-gray-600 text-sm leading-relaxed">
-                    {member.bio}
-                  </p>
-                </div>
-              </div>
-            ))}
+    <div className="flex flex-col items-center">
+      <div className="bg-gradient-to-br from-gray-50 to-white p-6 sm:p-10 rounded-2xl shadow-lg hover:shadow-xl transition-all duration-300 border border-gray-100 max-w-3xl">
+        
+        {/* Image */}
+        <div className="relative mb-6 flex justify-center">
+          <img
+            src="/images/founder.jpeg" // <-- Update with your founder image
+            alt="Govind Saini"
+            className="w-32 h-32 sm:w-40 sm:h-40 rounded-full object-cover border-4 border-red-100"
+          />
+          <div className="absolute -bottom-2 bg-red-600 text-white px-3 py-1 rounded-full text-xs font-semibold">
+            7+ Years Experience
           </div>
         </div>
-      </section>
+
+        {/* Content */}
+        <div className="text-center">
+          <h3 className="text-2xl sm:text-3xl font-bold text-gray-900 mb-2">
+            Govind Saini
+          </h3>
+          <p className="text-red-600 font-semibold mb-4">
+            Founder & Director – Roadengo RSA
+          </p>
+
+          <p className="text-gray-700 text-base sm:text-lg leading-relaxed mb-4">
+            Govind Saini, a 27-year-old dynamic entrepreneur, founded Roadengo Road Side Assistance after gaining
+            7 years of strong experience in automobile service, sales, marketing, and customer support. His deep
+            industry knowledge and young vision inspired him to build a fast, reliable, and professional on-road
+            assistance network for two- and three-wheelers.
+          </p>
+
+          <p className="text-gray-700 text-base sm:text-lg leading-relaxed mb-4">
+            Under his leadership, Roadengo RSA provides 24×7 emergency support, including on-spot repair, tyre and
+            battery services, towing, and EV diagnostics. His belief is clear: whenever a customer faces any vehicle
+            problem, the first name they should remember is <strong>Roadengo</strong>.
+          </p>
+
+          <p className="text-gray-700 text-base sm:text-lg leading-relaxed">
+            With a mission to create India’s most trusted RSA ecosystem, Govind Saini is driving Roadengo toward 
+            rapid expansion, better technology, and a reputation for unmatched reliability — anytime, anywhere.
+          </p>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
 
       {/* Section 6: Why Choose Us */}
       <section className="min-h-screen bg-white flex items-center">

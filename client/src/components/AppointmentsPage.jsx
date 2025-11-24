@@ -115,7 +115,7 @@ const AppointmentsPage = () => {
           Refresh
           {loading && <Loader2 className="animate-spin mx-auto" size={20} />}
         </button>
-        <p className=" ">Total Booking  <span className=" text-purple-900">{emergencies.length + appointments.length}</span></p>
+        <p className=" ">Total Booking  <span className=" text-purple-900">{emergencies?.length + appointments?.length}</span></p>
       </div>
 
       {/* Emergency Cards */}

@@ -14,6 +14,7 @@ import AdminDashboard from "../pages/AdminDashboard";
 import MechanicDashboard from "../pages/MechanicDashboard";
 import MechanicLogin from "../pages/MechanicLogin";
 import ProtectedRoute from "../components/ProtectedRoute";
+import MechanicOnboard from "../components/MechanicOnboard";
 
 const MainRouting = () => {
   return (
@@ -30,6 +31,7 @@ const MainRouting = () => {
           <Route path="/booking" element={<Booking />} />
           <Route path="/doorstep-service" element={<DoorstepService />} />
           <Route path="/emergency-assistance" element={<EmergencyAssistance />} />
+          <Route path="/mechanic/Onboarding" element={<MechanicOnboard />} />
         </Route>
 
         {/* Admin Routes - No Layout */}

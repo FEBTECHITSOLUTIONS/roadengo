@@ -8,12 +8,8 @@ const Footer = () => {
         <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-4 gap-10">
           {/* Logo + About */}
           <div>
-            <div className="flex items-center space-x-2 mb-4">
-              <img
-                src="/images/logo.png"
-                className="w-20"
-                alt="Bike Service Logo"
-              />
+            <div className="flex items-center space-x-2 mb-4 h-10 overflow-hidden w-fit rounded-sm">
+           <img src="/images/logo.jpeg" className="w-20 " alt="Bike Service Logo" />
             </div>
             <p className="text-gray-400 text-sm leading-relaxed">
               24/7 bike emergency services, spare parts delivery, and

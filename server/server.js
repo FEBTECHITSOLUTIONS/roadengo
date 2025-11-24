@@ -3,10 +3,11 @@ const express = require('express');
 const mongoose = require('mongoose');
 const cors = require('cors');
 const path = require('path');
+const cookieParser = require('cookie-parser')
 require('dotenv').config();
 
 const app = express();
-
+app.use(cookieParser())
 // Middleware Configuration
 app.use(cors({
   origin: [
@@ -32,19 +33,6 @@ const connectDB = async () => {
       useUnifiedTopology: true,
     });
     console.log(`✅ MongoDB Connected: ${conn.connection.host}`);
-    
-    // Create default admin if doesn't exist
-    const Admin = require('./models/Admin');
-    const existingAdmin = await Admin.findOne({ username: 'admin' });
-    if (!existingAdmin) {
-      const defaultAdmin = new Admin({
-        username: 'admin',
-        email: 'admin@roadengo.com',
-        password: 'admin123'
-      });
-      await defaultAdmin.save();
-      console.log('✅ Default admin created (admin/admin123)');
-    }
   } catch (error) {
     console.error('❌ MongoDB connection error:', error);
     process.exit(1);
@@ -61,6 +49,7 @@ const inquiryRoutes = require('./routes/inquiries');
 const mechanicRoutes = require('./routes/mechanics');
 const mechanicDashboardRoutes = require('./routes/mechanicDashboard');
 const adminRoutes = require('./routes/admin');
+const financesRouter = require('./routes/financesRouter.js');
 
 // Use Routes
 app.use('/api/auth', authRoutes);
@@ -70,24 +59,9 @@ app.use('/api/inquiries', inquiryRoutes);
 app.use('/api/mechanics', mechanicRoutes);
 app.use('/api/mechanic-dashboard', mechanicDashboardRoutes);
 app.use('/api/admin', adminRoutes);
+app.use('/api/finances' , financesRouter)
 
-// Health Check
-app.get('/api/health', (req, res) => {
-  res.json({ 
-    status: 'OK', 
-    message: '🏍️ RoadEngo API is running!',
-    timestamp: new Date().toISOString(),
-    endpoints: {
-      auth: '/api/auth',
-      appointments: '/api/appointments',
-      emergency: '/api/emergency',
-      inquiries: '/api/inquiries',
-      mechanics: '/api/mechanics',
-      mechanicDashboard: '/api/mechanic-dashboard',
-      admin: '/api/admin'
-    }
-  });
-});
+
 
 // Global Error Handler
 app.use((err, req, res, next) => {
@@ -98,20 +72,13 @@ app.use((err, req, res, next) => {
   });
 });
 
-// 404 Handler
-app.use('*', (req, res) => {
-  res.status(404).json({ 
-    message: `Route ${req.originalUrl} not found`,
-    availableRoutes: ['/api/health', '/api/auth', '/api/appointments', '/api/emergency', '/api/inquiries', '/api/mechanics', '/api/admin']
-  });
-});
 
-const PORT = process.env.PORT || 5000;
+
+const PORT = process.env.PORT;
 app.listen(PORT, () => {
   console.log(`🚀 Server running on port ${PORT}`);
   console.log(`📡 API URL: http://localhost:${PORT}/api`);
   console.log(`🏥 Health Check: http://localhost:${PORT}/api/health`);
-  console.log(`👨‍💼 Default Admin: admin/admin123`);
 });
 
 module.exports = app;

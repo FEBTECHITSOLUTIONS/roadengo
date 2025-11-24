@@ -297,13 +297,15 @@ const MechanicDashboard = () => {
                           <svg className="flex-shrink-0 mr-2 h-4 w-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                             <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M3 5a2 2 0 012-2h3.28a1 1 0 01.948.684l1.498 4.493a1 1 0 01-.502 1.21l-2.257 1.13a11.042 11.042 0 005.516 5.516l1.13-2.257a1 1 0 011.21-.502l4.493 1.498a1 1 0 01.684.949V19a2 2 0 01-2 2h-1C9.716 21 3 14.284 3 6V5z" />
                           </svg>
-                          <span>{task.userId?.phone || task.phone || task.contactNumber || 'N/A'}</span>
+<a href={`tel:${task.userId?.phone || task.phone || task.contactNumber || ''}`}>
+  {task.userId?.phone || task.phone || task.contactNumber || 'N/A'}
+</a>
                         </div>
                         <div className="flex items-center">
                           <svg className="flex-shrink-0 mr-2 h-4 w-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                             <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z" />
                           </svg>
-                          <span className="truncate">{task.address || task.location?.address || 'Address not provided'}</span>
+                          <span className="truncate">{task.location || 'Address not provided'}</span>
                         </div>
                         {task.appointmentDate && (
                           <div className="flex items-center">
@@ -353,26 +355,73 @@ const MechanicDashboard = () => {
                       ) : null}
                       
                       <button
-                        onClick={async () => {
-                          try {
-                            const routeInfo = await apiService.getRouteInfo(task._id, task.taskType);
-                            const { from, to, customerInfo } = routeInfo.data;
-                            
-                            const googleMapsUrl = `https://www.google.com/maps/dir/${from?.latitude || ''},${from?.longitude || ''}/${to?.latitude || to?.address || ''}`;
-                            window.open(googleMapsUrl, '_blank');
-                          } catch (error) {
-                            console.error('Error getting route info:', error);
-                            alert('Unable to get directions. Please check the address manually.');
-                          }
-                        }}
-                        className="text-blue-600 hover:text-blue-800 px-4 py-2 rounded-lg text-sm font-medium border border-blue-200 hover:border-blue-300 transition-colors flex items-center space-x-2"
-                        title="Get Directions"
-                      >
-                        <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+  onClick={async () => {
+    try {
+      // Get mechanic's current location
+      const getCurrentPosition = () =>
+        new Promise((resolve, reject) => {
+          if (!navigator.geolocation) {
+            reject(new Error('Geolocation is not supported by your browser.'));
+          } else {
+            navigator.geolocation.getCurrentPosition(resolve, reject, {
+              enableHighAccuracy: true,
+            });
+          }
+        });
+
+      const position = await getCurrentPosition();
+      const from = {
+        latitude: position.coords.latitude,
+        longitude: position.coords.longitude,
+      };
+
+      if (!from?.latitude || !from?.longitude) {
+        alert('Current location not available.');
+        return;
+      }
+
+      // Get destination coordinates or address from API
+      const routeInfo = await apiService.getRouteInfo(task._id, task.taskType);
+      const to = routeInfo.data.to;
+
+      if (!to) {
+        alert('Destination not available.');
+        return;
+      }
+
+      // Build Google Maps URL using proper coordinates
+      let toParam = "";
+      if (to.latitude != null && to.longitude != null) {
+        // Use lat/lng if available
+        toParam = `${to.latitude},${to.longitude}`;
+      } else if (typeof to.address === "string") {
+        // Extract numeric coordinates from "Latitude: xx.xxxx, Longitude: yy.yyyy"
+        const match = to.address.match(/([-+]?[0-9]*\.?[0-9]+),\s*([-+]?[0-9]*\.?[0-9]+)/);
+        if (match) {
+          toParam = `${match[1]},${match[2]}`;
+        } else {
+          // fallback to URL-encoded address if format is different
+          toParam = encodeURIComponent(to.address);
+        }
+      }
+
+      const googleMapsUrl = `https://www.google.com/maps/dir/${from.latitude},${from.longitude}/${toParam}`;
+      window.open(googleMapsUrl, '_blank');
+
+    } catch (error) {
+      console.error('Error getting route info or current location:', error);
+      alert('Unable to get directions. Please check the coordinates manually.');
+    }
+  }}
+  className="text-blue-600 hover:text-blue-800 px-4 py-2 rounded-lg text-sm font-medium border border-blue-200 hover:border-blue-300 transition-colors flex items-center space-x-2"
+  title="Get Directions"
+>
+   <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                           <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M9 20l-5.447-2.724A1 1 0 013 16.382V5.618a1 1 0 011.447-.894L9 7m0 13l6-3m-6 3V7m6 10l4.553 2.276A1 1 0 0021 18.382V7.618a1 1 0 00-1.447-.894L15 4m0 13V4m-6 3l6-3" />
                         </svg>
                         <span>Directions</span>
-                      </button>
+</button>
+
                     </div>
                   </div>
                 </div>

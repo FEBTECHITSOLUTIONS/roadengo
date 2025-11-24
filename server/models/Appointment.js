@@ -12,11 +12,6 @@ const appointmentSchema = new mongoose.Schema({
     required: [true, 'Phone number is required'],
     match: [/^[0-9]{10}$/, 'Phone number must be 10 digits']
   },
-  email: {
-    type: String,
-    required: [true, 'Email is required'],
-    match: [/^\w+([.-]?\w+)*@\w+([.-]?\w+)*(\.\w{2,3})+$/, 'Please enter valid email']
-  },
   address: {
     type: String,
     required: [true, 'Address is required'],

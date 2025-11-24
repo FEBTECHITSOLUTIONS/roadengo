@@ -14,15 +14,15 @@ const generateMechanicId = () => {
   return `MECH-${timestamp}-${random}`.toUpperCase();
 };
 
-// Mechanic Registration (Admin only)
-router.post('/register', authMiddleware, async (req, res) => {
+// Mechanic Registration
+router.post('/register', async (req, res) => {
   try {
     console.log('Registering new mechanic:', req.body);
     
-    const { name, email, phone, password, specialization, experience, location } = req.body;
+    const { name, email, phone, password, specialization, experience, location , vehicleType , city} = req.body;
     
     // Validate required fields
-    const requiredFields = ['name', 'email', 'phone', 'password', 'specialization'];
+    const requiredFields = ['name', 'email', 'phone', 'password', 'specialization' , 'vehicleType' , 'city'];
     const missingFields = requiredFields.filter(field => !req.body[field]);
     
     if (missingFields.length > 0) {
@@ -53,9 +53,10 @@ router.post('/register', authMiddleware, async (req, res) => {
       phone,
       password,
       mechanicId,
+      vehicleType,
       specialization: Array.isArray(specialization) ? specialization : [specialization],
       experience: parseInt(experience) || 0,
-      location: location || { city: '' }
+      location:{ city: city }
     });
 
     await mechanic.save();
@@ -71,6 +72,7 @@ router.post('/register', authMiddleware, async (req, res) => {
         phone: mechanic.phone,
         mechanicId: mechanic.mechanicId,
         specialization: mechanic.specialization,
+        vehicleType:mechanic.vehicleType,
         experience: mechanic.experience
       }
     });

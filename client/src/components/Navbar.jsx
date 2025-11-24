@@ -1,8 +1,28 @@
-import React, { useState } from "react";
+import React, { useEffect, useRef, useState } from "react";
 import { Link } from "react-router-dom";
-
+import { EllipsisVertical } from 'lucide-react';
 const Navbar = () => {
   const [isMenuOpen, setIsMenuOpen] = useState(false);
+  const [isDropDownOpen , setDropDownOpen] = useState(false)
+
+   const dropdownRef = useRef(null);
+
+  // Close the dropdown if user clicks outside
+  useEffect(() => {
+    const handleClickOutside = (event) => {
+      if (dropdownRef.current && !dropdownRef.current.contains(event.target)) {
+        setDropDownOpen(false);
+      }
+    };
+
+    // Add event listener on mount
+    document.addEventListener('mousedown', handleClickOutside);
+
+    // Cleanup event listener on unmount
+    return () => {
+      document.removeEventListener('mousedown', handleClickOutside);
+    };
+  }, []);
 
   const toggleMenu = () => {
     setIsMenuOpen(!isMenuOpen);
@@ -60,8 +80,8 @@ const Navbar = () => {
       <nav className="bg-gray-900 shadow-lg px-4 py-3 sticky top-0 w-full z-50 border-t-2 border-red-600">
         <div className="max-w-7xl mx-auto flex items-center justify-between">
           {/* Logo */}
-          <Link to="/" className="flex items-center space-x-3">
-            <img src="/images/logo.png" className="w-20" alt="logo" />
+          <Link to="/" className="flex items-center space-x-3 h-10 overflow-hidden rounded-sm scale-125">
+            <img src="/images/logo.jpeg" className="w-20 " alt="logo" />
           </Link>
 
           {/* Desktop Menu */}
@@ -102,9 +122,26 @@ const Navbar = () => {
               <span className="absolute -bottom-1 left-0 w-0 h-0.5 bg-red-400 transition-all group-hover:w-full"></span>
             </Link>
           </div>
-
+          
           {/* Desktop Booking Button */}
-          <div className="hidden lg:flex">
+          <div className="hidden lg:flex lg:justify-center lg:items-center">
+              <div ref={dropdownRef} className="relative flex justify-center items-center transition-all duration-700">
+               <EllipsisVertical onClick={()=>{setDropDownOpen(!isDropDownOpen)}} className=" text-white cursor-pointer"/>
+              {isDropDownOpen &&  
+              <div   className={`absolute top-10 py-5 flex flex-col justify-center items-center gap-5 w-40 rounded-md bg-red-700 text-white transition-all duration-1000 ease-in-out ${
+          isDropDownOpen
+            ? "opacity-100 transform scale-100 translate-y-0"
+            : "opacity-0 transform scale-95 translate-y-5 pointer-events-none"
+        }`}>
+                <Link className=" hover:scale-115 transition-all duration-500" to={'/admin/login'}>
+                  Admin Login
+                </Link>
+                <Link className=" hover:scale-115 transition-all duration-500" to={'mechanic/login'}>
+                  Mechanic Login
+                </Link>
+              </div>
+                }
+            </div>
             <Link 
               to="/booking" 
               className="bg-red-600 text-white px-6 py-3 rounded-lg hover:bg-red-700 transition-colors duration-300"

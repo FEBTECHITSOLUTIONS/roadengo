@@ -14,10 +14,12 @@ const DoorstepService = ({ onBack }) => {
   const [showModelPopup, setShowModelPopup] = useState(false);
   const [apiError, setApiError] = useState(null);
   const [isOfflineMode, setIsOfflineMode] = useState(false);
+
+    const [isFetchingLocation, setIsFetchingLocation] = useState(false);
+  
   const [formData, setFormData] = useState({
     name: "",
     phone: "",
-    email: "",
     address: "",
     bikeModel: "",
     vehicleType: "",
@@ -26,31 +28,136 @@ const DoorstepService = ({ onBack }) => {
     additionalNotes: ""
   });
 
+    // Build address string from Nominatim response
+  const formatAddressFromNominatim = (data) => {
+    if (!data) return "";
+    const a = data.address || {};
+    const parts = [];
+
+    if (a.house_number) parts.push(a.house_number);
+    if (a.road) parts.push(a.road);
+    if (a.neighbourhood) parts.push(a.neighbourhood);
+    if (a.suburb) parts.push(a.suburb);
+    if (a.city || a.town || a.village)
+      parts.push(a.city || a.town || a.village);
+    if (a.state_district) parts.push(a.state_district);
+    if (a.state) parts.push(a.state);
+    if (a.postcode) parts.push(a.postcode);
+    if (a.country) parts.push(a.country);
+
+    return parts.join(", ") || data.display_name || "";
+  };
+  
+  const fetchCurrentLocation = () => {
+    if (!navigator.geolocation) {
+      alert("❌ Geolocation not supported");
+      return;
+    }
+
+    setIsFetchingLocation(true);
+
+    const options = {
+      enableHighAccuracy: true,
+      timeout: 10000,
+      maximumAge: 60000,
+    };
+
+    navigator.geolocation.getCurrentPosition(
+      async (position) => {
+        try {
+          const { latitude, longitude, accuracy } = position.coords;
+
+          const url = `https://nominatim.openstreetmap.org/reverse?format=json&lat=${latitude}&lon=${longitude}&addressdetails=1&zoom=18`;
+          const response = await fetch(url, {
+            headers: { Accept: "application/json" },
+          });
+
+          if (!response.ok) throw new Error(`HTTP ${response.status}`);
+
+          const data = await response.json();
+          const mainAddress =
+            formatAddressFromNominatim(data) || "Address not found";
+
+          const finalLocation = `${mainAddress}
+
+${latitude.toFixed(6)}, ${longitude.toFixed(6)}
+${accuracy ? `${Math.round(accuracy)}m` : "Unknown"}`;
+
+          setFormData((prev) => ({ ...prev, address: finalLocation }));
+          alert(
+            `Location detected! Accuracy: ${
+              accuracy ? Math.round(accuracy) + "m" : "Unknown"
+            }`
+          );
+        } catch (err) {
+          console.error("Geocoding failed:", err);
+          const { latitude, longitude, accuracy } = position.coords;
+
+          const fallback = `${latitude.toFixed(6)}, ${longitude.toFixed(6)}
+${accuracy ? `${Math.round(accuracy)}m` : "Unknown"}
+Address lookup failed`;
+
+          setFormData((prev) => ({ ...prev, location: fallback }));
+          alert("⚠️ Got coordinates but couldn't fetch address");
+        } finally {
+          setIsFetchingLocation(false);
+        }
+      },
+      (error) => {
+        console.error("Geolocation error:", error);
+        let msg = "⚠️ Unable to fetch location";
+        if (error.code === error.PERMISSION_DENIED) {
+          msg = "⚠️ Location permission denied";
+        } else if (error.code === error.POSITION_UNAVAILABLE) {
+          msg = "⚠️ Location unavailable";
+        } else if (error.code === error.TIMEOUT) {
+          msg = "⏳ Location request timed out";
+        }
+        alert(msg);
+        setIsFetchingLocation(false);
+      },
+      options
+    );
+  };
+
   // Vehicle types with models
   const vehicleTypes = {
     "2-wheeler": {
       name: "2-Wheeler",
       icon: "🏍️",
-      models: [
-        "Honda Activa 6G", "TVS Jupiter", "Bajaj Pulsar 150", "Hero Splendor Plus",
-        "Royal Enfield Classic 350", "KTM Duke 200", "Yamaha FZ-S", "Suzuki Gixxer",
-        "Hero Xtreme 160R", "Bajaj Dominar 400", "Honda CB Shine", "TVS Apache RTR 160",
-        "Hero Passion Pro", "Bajaj Platina 110", "Honda Unicorn 160", "Yamaha MT-15",
-        "TVS Ntorq 125", "Hero Maestro Edge", "Honda Dio", "Suzuki Access 125",
-        "Bajaj Chetak Electric", "Ather 450X", "TVS iQube Electric", "Hero Electric Optima",
-        "Other (Please specify in notes)"
-      ]
+     models: [
+  "Honda Activa",
+  "Hero Splendor",
+  "TVS Jupiter",
+  "Roadengo",
+  "Royal Enfield Bullet",
+  "Bajaj Pulsar",
+  "TVS Apache",
+  "Suzuki Access",
+  "OLA Electric",
+  "Ather Electric",
+  "Electric Scooty",
+  "Other"
+]
+
     },
     "3-wheeler": {
       name: "3-Wheeler", 
       icon: "🛺",
-      models: [
-        "Bajaj RE Compact", "Mahindra Treo", "TVS King", "Piaggio Ape Auto",
-        "Bajaj Maxima C", "Force Trax Cruiser", "Mahindra Alfa Plus", "TVS King Deluxe",
-        "Bajaj Qute", "Mahindra Jeeto", "Piaggio Ape City", "Force Motors Minidor",
-        "Mahindra Treo Zor", "Bajaj Qute Electric", "Piaggio Ape E-City", "TVS King Electric",
-        "Other (Please specify in notes)"
-      ]
+        models: [
+    "BAXY CNG LODER",
+    "BAXY DSL LODER",
+    "BAXY CNG PASSENGER",
+    "BAXY LION",
+    "Citylife E-Rickshaw",
+    "Yatri E-Rickshaw",
+    "Bajaj RE",
+    "Mahindra Alfa",
+    "Mahindra Treo",
+    "TVS King",
+    "Piaggio Ape",
+    "Other"
+  ]
     }
   };
 
@@ -145,12 +252,6 @@ const DoorstepService = ({ onBack }) => {
       newErrors.phone = "Invalid phone number";
     }
 
-    if (!formData.email.trim()) {
-      newErrors.email = "Email required";
-    } else if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(formData.email)) {
-      newErrors.email = "Invalid email";
-    }
-
     if (!formData.address.trim()) {
       newErrors.address = "Address required";
     } else if (formData.address.trim().length < 10) {
@@ -220,13 +321,17 @@ const DoorstepService = ({ onBack }) => {
 
   // Enhanced submit with better error handling
   const handleSubmit = async (e) => {
+    console.log(isSubmitting);
+    console.log('Submitting');
+
     e.preventDefault();
-    
+  
     if (!validateForm()) {
       return;
     }
-
+console.log(isSubmitting);
     setIsSubmitting(true);
+    console.log(isSubmitting);
     
     const appointmentData = {
       ...formData,
@@ -315,7 +420,6 @@ const DoorstepService = ({ onBack }) => {
     setFormData({
       name: "",
       phone: "",
-      email: "",
       address: "",
       bikeModel: "",
       vehicleType: "",
@@ -333,7 +437,7 @@ const DoorstepService = ({ onBack }) => {
   };
 
   const nextStep = () => {
-    if (currentStep === 1 && formData.name && formData.phone && formData.email) {
+    if (currentStep === 1 && formData.name && formData.phone ) {
       setCurrentStep(2);
     } else if (currentStep === 2 && formData.address && formData.vehicleType && formData.vehicleModel && formData.serviceType) {
       setCurrentStep(3);
@@ -553,23 +657,11 @@ const DoorstepService = ({ onBack }) => {
                     </div>
                   </div>
 
-                  <div>
-                    <input
-                      type="email"
-                      placeholder="Email Address *"
-                      value={formData.email}
-                      onChange={(e) => handleInputChange('email', e.target.value)}
-                      className={`w-full p-4 border-2 rounded-xl text-sm focus:ring-4 focus:ring-blue-200 transition-all ${
-                        errors.email ? 'border-red-500 bg-red-50' : 'border-gray-300 focus:border-blue-500'
-                      }`}
-                    />
-                    {errors.email && <p className="text-red-600 text-xs mt-1">{errors.email}</p>}
-                  </div>
 
                   <button
                     type="button"
                     onClick={nextStep}
-                    disabled={!formData.name || !formData.phone || !formData.email}
+                    disabled={!formData.name || !formData.phone }
                     className="w-full bg-blue-600 text-white py-4 rounded-xl font-semibold hover:bg-blue-700 disabled:bg-gray-400 disabled:cursor-not-allowed transition-all transform hover:scale-[1.02] active:scale-95 text-base shadow-md"
                   >
                     Next: Service Details →
@@ -583,19 +675,42 @@ const DoorstepService = ({ onBack }) => {
                   <h3 className="text-lg font-bold text-gray-900 mb-4 flex items-center">
                     🔧 Service Details
                   </h3>
-
-                  <div>
-                    <textarea
-                      placeholder="Complete Address (Include landmarks) *"
-                      rows="3"
-                      value={formData.address}
-                      onChange={(e) => handleInputChange('address', e.target.value)}
-                      className={`w-full p-4 border-2 rounded-xl text-sm focus:ring-4 focus:ring-blue-200 transition-all resize-none ${
-                        errors.address ? 'border-red-500 bg-red-50' : 'border-gray-300 focus:border-blue-500'
-                      }`}
-                    />
-                    {errors.address && <p className="text-red-600 text-xs mt-1">{errors.address}</p>}
-                  </div>
+                         <div>
+              <label className="block font-semibold text-sm mb-1">
+                Current address *
+              </label>
+              <textarea
+                rows="2"
+                placeholder="Enter location or use GPS"
+                value={formData.address}
+                onChange={(e) => handleInputChange("address", e.target.value)}
+                className={`w-full p-3 border rounded-lg text-sm focus:ring-4 focus:ring-red-200 transition-all resize-none ${
+                  errors.address
+                    ? "border-red-500 bg-red-50"
+                    : "border-gray-300 focus:border-red-500"
+                }`}
+                disabled={isSubmitting || isFetchingLocation}
+              />
+              {errors.location && (
+                <p className="text-red-600 text-xs mt-1">{errors.address}</p>
+              )}
+              <button
+                type="button"
+                onClick={fetchCurrentLocation}
+                disabled={isFetchingLocation || isSubmitting}
+                className="mt-2 w-full flex items-center justify-center gap-2 bg-blue-600 text-white px-4 py-2 rounded-lg hover:bg-blue-700 disabled:bg-blue-400 disabled:cursor-not-allowed transition-all text-sm font-semibold"
+              >
+                {isFetchingLocation ? (
+                  <>
+                    <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-white"></div>
+                    Getting Location...
+                  </>
+                ) : (
+                  <>Use GPS Location</>
+                )}
+              </button>
+            </div>
+                
 
                   {/* Vehicle Selection */}
                   <div>
@@ -814,7 +929,13 @@ const DoorstepService = ({ onBack }) => {
                       )}
                     </div>
                   </div>
-
+                   {errors.bikeModel && (
+                      <p className="text-red-600 text-xs mt-1">{errors.bikeModel}</p>
+                    )}
+                    {errors.serviceType && <p className="text-red-600 text-xs mt-1">{errors.serviceType}</p>}
+                    {errors.date && <p className="text-red-600 text-xs mt-1">{errors.date}</p>}
+                  {errors.time && <p className="text-red-600 text-xs mt-1">{errors.time}</p>}
+                    {errors.phone && <p className="text-red-600 text-xs mt-1">{errors.phone}</p>}
                   <div className="flex gap-3">
                     <button
                       type="button"

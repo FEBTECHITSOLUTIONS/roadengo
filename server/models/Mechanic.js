@@ -36,6 +36,7 @@ const mechanicSchema = new mongoose.Schema({
     enum: ['bike-service', 'emergency-repair', 'doorstep-service', 'parts-replacement', 'maintenance', 'inspection'],
     required: [true, 'At least one specialization is required']
   }],
+  vehicleType:{type:String , required:true},
   experience: {
     type: Number,
     default: 0,

@@ -29,31 +29,39 @@ const EmergencyAssistance = () => {
     "2-wheeler": {
       name: "2-Wheeler",
       icon: "🏍️",
-      models: [
-        "Honda Activa",
-        "Hero Splendor",
-        "Royal Enfield Classic",
-        "Yamaha FZ",
-        "Bajaj Pulsar",
-        "TVS Apache",
-        "KTM Duke",
-        "Suzuki Access",
-        "Other",
-      ],
+     models: [
+  "Honda Activa",
+  "Hero Splendor",
+  "TVS Jupiter",
+  "Roadengo",
+  "Royal Enfield Bullet",
+  "Bajaj Pulsar",
+  "TVS Apache",
+  "Suzuki Access",
+  "OLA Electric",
+  "Ather Electric",
+  "Electric Scooty",
+  "Other"
+]
     },
     "3-wheeler": {
       name: "3-Wheeler",
       icon: "🛺",
-      models: [
-        "Auto Rickshaw",
-        "Bajaj RE",
-        "Mahindra Alfa",
-        "Piaggio Ape",
-        "TVS King",
-        "Force Trax",
-        "Tempo Traveller",
-        "Other",
-      ],
+     models: [
+  "BAXY CNG LODER",
+  "BAXY DSL LODER",
+  "BAXY CNG PASSENGER",
+  "BAXY LION",
+  "Citylife E-Rickshaw",
+  "Yatri E-Rickshaw",
+  "Bajaj RE",
+  "Mahindra Alfa",
+  "Mahindra Treo",
+  "TVS King",
+  "Piaggio Ape",
+  "Other"
+]
+
     },
   };
 
@@ -93,61 +101,56 @@ const EmergencyAssistance = () => {
     };
 
     navigator.geolocation.getCurrentPosition(
-      async (position) => {
-        try {
-          const { latitude, longitude, accuracy } = position.coords;
+  async (position) => {
+    try {
+      const { latitude, longitude } = position.coords;
 
-          const url = `https://nominatim.openstreetmap.org/reverse?format=json&lat=${latitude}&lon=${longitude}&addressdetails=1&zoom=18`;
-          const response = await fetch(url, {
-            headers: { Accept: "application/json" },
-          });
+      // Google Maps Geocoding API endpoint
+      const GOOGLE_API_KEY = import.meta.env.VITE_GOOGLE_MAPS_API_KEY; // store in .env
+      const url = `https://maps.googleapis.com/maps/api/geocode/json?latlng=${latitude},${longitude}&key=${GOOGLE_API_KEY}`;
 
-          if (!response.ok) throw new Error(`HTTP ${response.status}`);
+      const response = await fetch(url);
+      if (!response.ok) throw new Error(`HTTP ${response.status}`);
 
-          const data = await response.json();
-          const mainAddress =
-            formatAddressFromNominatim(data) || "Address not found";
+      const data = await response.json();
 
-          const finalLocation = `${mainAddress}
+      if (data.status !== "OK" || !data.results || !data.results[0]) {
+        throw new Error("No address found");
+      }
 
-📍 ${latitude.toFixed(6)}, ${longitude.toFixed(6)}
-🎯 ${accuracy ? `${Math.round(accuracy)}m` : "Unknown"}`;
+      // Only the formatted address, no coordinates or emojis
+      const mainAddress = data.results[0].formatted_address;
 
-          setFormData((prev) => ({ ...prev, location: finalLocation }));
-          alert(
-            `📍 Location detected! Accuracy: ${
-              accuracy ? Math.round(accuracy) + "m" : "Unknown"
-            }`
-          );
-        } catch (err) {
-          console.error("Geocoding failed:", err);
-          const { latitude, longitude, accuracy } = position.coords;
+      setFormData((prev) => ({ ...prev, location: mainAddress }));
+      console.log("Location detected:", mainAddress);
+    } catch (err) {
+      console.error("Google geocoding failed:", err);
 
-          const fallback = `📍 ${latitude.toFixed(6)}, ${longitude.toFixed(6)}
-🎯 ${accuracy ? `${Math.round(accuracy)}m` : "Unknown"}
-⚠️ Address lookup failed`;
+      // fallback: just show coordinates
+      const { latitude, longitude } = position.coords;
+      const fallback = `${latitude.toFixed(6)},${longitude.toFixed(6)}`;
+      setFormData((prev) => ({ ...prev, location: fallback }));
+      console.warn("Got coordinates but couldn't fetch address.");
+    } finally {
+      setIsFetchingLocation(false);
+    }
+  },
+  (error) => {
+    console.error("Geolocation error:", error);
+    let msg = "Unable to fetch location";
+    if (error.code === error.PERMISSION_DENIED) {
+      msg = "Location permission denied";
+    } else if (error.code === error.POSITION_UNAVAILABLE) {
+      msg = "Location unavailable";
+    } else if (error.code === error.TIMEOUT) {
+      msg = "Location request timed out";
+    }
+    alert(msg);
+    setIsFetchingLocation(false);
+  },
+  options
+);
 
-          setFormData((prev) => ({ ...prev, location: fallback }));
-          alert("⚠️ Got coordinates but couldn't fetch address");
-        } finally {
-          setIsFetchingLocation(false);
-        }
-      },
-      (error) => {
-        console.error("Geolocation error:", error);
-        let msg = "⚠️ Unable to fetch location";
-        if (error.code === error.PERMISSION_DENIED) {
-          msg = "⚠️ Location permission denied";
-        } else if (error.code === error.POSITION_UNAVAILABLE) {
-          msg = "⚠️ Location unavailable";
-        } else if (error.code === error.TIMEOUT) {
-          msg = "⏳ Location request timed out";
-        }
-        alert(msg);
-        setIsFetchingLocation(false);
-      },
-      options
-    );
   };
 
   // ✅ Handle Vehicle Type Selection
@@ -466,7 +469,7 @@ Vehicle: ${vehicleTypes[formData.vehicleType].name} - ${formData.vehicleModel}
                     Getting Location...
                   </>
                 ) : (
-                  <>📍 Use GPS Location</>
+                  <>Use GPS Location</>
                 )}
               </button>
             </div>

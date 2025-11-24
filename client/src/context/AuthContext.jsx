@@ -65,8 +65,8 @@ export const AuthProvider = ({ children }) => {
       setLoading(true);
       
       const endpoint = userType === 'admin' 
-        ? 'http://localhost:5000/api/auth/login' 
-        : 'http://localhost:5000/api/mechanics/login';
+        ? 'http://localhost:5005/api/auth/login' 
+        : 'http://localhost:5005/api/mechanics/login';
       
       const response = await fetch(endpoint, {
         method: 'POST',

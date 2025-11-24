@@ -2,7 +2,7 @@
 import axios from 'axios';
 
 // Base URL Configuration - FIXED FOR VITE
-const BASE_URL = import.meta.env.VITE_API_URL || 'https://roadengo.parrotconsult.com/api';
+const BASE_URL = import.meta.env.VITE_API_URL;
 
 // Create Axios Instance
 const apiClient = axios.create({

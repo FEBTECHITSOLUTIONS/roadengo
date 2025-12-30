@@ -144,24 +144,49 @@ const Navbar = () => {
             </div>
             <Link 
               to="/booking" 
-              className="bg-red-600 text-white px-6 py-3 rounded-lg hover:bg-red-700 transition-colors duration-300"
+              className=" hidden md:block bg-red-600 text-white px-6 py-3 rounded-lg hover:bg-red-700 transition-colors duration-300"
             >
               <i className="ri-customer-service-2-fill"></i> Book Service
             </Link>
           </div>
 
-          {/* Mobile Menu Button */}
+          
+          <div className=" flex justify-center items-center">
+                
+             <div className="lg:flex lg:justify-center lg:items-center">
+              <div ref={dropdownRef} className="relative flex justify-center items-center transition-all duration-700">
+               <EllipsisVertical onClick={()=>{setDropDownOpen(!isDropDownOpen)}} className=" text-white cursor-pointer"/>
+              {isDropDownOpen &&  
+              <div   className={`absolute top-10 py-5 flex flex-col justify-center items-center gap-5 w-40 rounded-md bg-red-700 text-white transition-all duration-1000 ease-in-out ${
+          isDropDownOpen
+            ? "opacity-100 transform scale-100 translate-y-0"
+            : "opacity-0 transform scale-95 translate-y-5 pointer-events-none"
+        }`}>
+                <Link className=" hover:scale-115 transition-all duration-500" to={'/admin/login'}>
+                  Admin Login
+                </Link>
+                <Link className=" hover:scale-115 transition-all duration-500" to={'mechanic/login'}>
+                  Mechanic Login
+                </Link>
+              </div>
+                }
+            </div>
+          </div>
+                {/* Mobile Menu Button */}
           <button
             onClick={toggleMenu}
             className="lg:hidden text-gray-100 hover:text-red-400 transition-colors p-2"
             aria-label="Toggle menu"
           >
+            
             {isMenuOpen ? (
               <i className="ri-close-line text-2xl"></i>
             ) : (
               <i className="ri-menu-line text-2xl"></i>
             )}
           </button>
+
+          </div>
         </div>
 
         {/* Mobile Menu */}
@@ -171,6 +196,7 @@ const Navbar = () => {
           }`}
         >
           <div className="pt-4 pb-2 space-y-2">
+            
             <Link
               to="/"
               className="block text-gray-100 hover:text-red-400 font-semibold py-3 px-4 rounded-lg hover:bg-gray-800 transition-all duration-200"

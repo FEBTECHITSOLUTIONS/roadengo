@@ -21,7 +21,7 @@ const Booking = () => {
       description: "Service at your location",
       subText: "45-90 min arrival",
       color: "blue",
-      features: ["Scheduled visit", "Full maintenance", "Quality parts", "Price - ₹299"],
+      features: ["Scheduled visit", "Full maintenance", "Quality parts", "Price - ₹399"],
     },
     {
       type: "Spare Parts Inquiry",

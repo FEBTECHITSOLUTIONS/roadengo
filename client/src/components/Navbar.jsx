@@ -143,7 +143,7 @@ const Navbar = () => {
 
               {/* Dropdown */}
               <div
-                className="absolute top-10 py-5 flex flex-col justify-center items-center gap-5 w-40 rounded-md bg-red-700 text-white opacity-0 scale-95 translate-y-2 invisible group-hover:visible group-hover:opacity-100 group-hover:scale-100 group-hover:translate-y-0 transition-all duration-300 ease-in-out">
+                className="absolute top-10 py-5 flex flex-col justify-center items-center gap-5 w-40 rounded-md bg-red-700 text-white opacity-0 scale-95 translate-y-2 invisible group-hover:visible group-hover:opacity-100 group-hover:scale-100 group-hover:translate-y-0 transition-all duration-300 ease-in-out mr-8 lg:mr-28 xl:mr-10">
                 <Link
                   className="hover:scale-110 transition-all duration-300"
                   to="/admin/login"

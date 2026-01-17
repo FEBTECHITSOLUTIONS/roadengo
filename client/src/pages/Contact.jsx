@@ -51,7 +51,7 @@ const Contact = () => {
               {
                 title: "24/7 Emergency",
                 subtitle: "Immediate Assistance",
-                contact: "+91 9876543210",
+                contact: "+91 7900900744",
                 description: "Roadside breakdown & emergency repairs",
                 icon: "🚨",
                 color: "red",
@@ -60,7 +60,7 @@ const Contact = () => {
               {
                 title: "General Support",
                 subtitle: "Service Booking",
-                contact: "+91 9876543211",
+                contact: "+91 7900900744",
                 description: "Regular service appointments & inquiries",
                 icon: "📞",
                 color: "blue",
@@ -69,7 +69,7 @@ const Contact = () => {
               {
                 title: "WhatsApp Chat",
                 subtitle: "Quick Response",
-                contact: "+91 9876543210",
+                contact: "+91 7900900744",
                 description: "Instant chat support & service updates",
                 icon: "💬",
                 color: "green",
@@ -103,9 +103,10 @@ const Contact = () => {
                       contact.color === "red"
                         ? `tel:${contact.contact}`
                         : contact.color === "green"
-                        ? `httpss://wa.me/919876543210`
+                        ? `https://wa.me/${contact.contact.replace(/[\s+-]/g, "")}`
                         : `tel:${contact.contact}`
                     }
+                    target="_blank"
                     className={`block w-full bg-${contact.color}-600 text-white py-3 rounded-lg font-semibold hover:bg-${contact.color}-700 transition-colors text-center`}
                   >
                     {contact.buttonText}

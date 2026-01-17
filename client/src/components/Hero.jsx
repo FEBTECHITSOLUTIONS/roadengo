@@ -11,7 +11,7 @@ const Hero = () => {
             {/* Badge */}
             <div className="inline-flex items-center px-4 py-2 bg-red-100 rounded-full text-red-700 font-medium text-sm">
               <i className="ri-shield-check-line mr-2"></i>
-              Trusted by 10,000+ Riders
+              Trusted by 10,000+ Mechanics
             </div>
 
             {/* Main Heading */}

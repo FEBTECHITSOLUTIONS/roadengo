@@ -3,3 +3,7 @@
     font-family: "Outfit", sans-serif;
     text-decoration: none;
 }
+
+html, body, #root {
+    overflow-x: hidden;
+}

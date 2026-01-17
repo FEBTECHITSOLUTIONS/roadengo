@@ -1,4 +1,5 @@
 import React from "react";
+import { FaUserCircle } from "react-icons/fa";
 
 const About = () => {
   return (
@@ -139,11 +140,7 @@ const About = () => {
         
         {/* Image */}
         <div className="relative mb-6 flex justify-center">
-          <img
-            src="/images/founder.jpeg" // <-- Update with your founder image
-            alt="Govind Saini"
-            className="w-32 h-32 sm:w-40 sm:h-40 rounded-full object-cover border-4 border-red-100"
-          />
+          <FaUserCircle className="text-gray-500 text-9xl sm:text-[10rem] lg:text-[12rem] " />
           <div className="absolute -bottom-2 bg-red-600 text-white px-3 py-1 rounded-full text-xs font-semibold">
             7+ Years Experience
           </div>

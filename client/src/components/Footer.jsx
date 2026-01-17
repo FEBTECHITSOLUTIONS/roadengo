@@ -1,5 +1,7 @@
 import React from "react";
 import { Link } from "react-router-dom";
+import { FaInstagram, FaFacebook, FaYoutube, FaTwitter } from "react-icons/fa";
+import { FaXTwitter } from "react-icons/fa6";
 
 const Footer = () => {
   return (
@@ -9,12 +11,47 @@ const Footer = () => {
           {/* Logo + About */}
           <div>
             <div className="flex items-center space-x-2 mb-4 h-10 overflow-hidden w-fit rounded-sm">
-           <img src="/images/logo.jpeg" className="w-20 " alt="Bike Service Logo" />
+              <img src="/images/logo.jpeg" className="w-20" alt="Bike Service Logo" />
             </div>
             <p className="text-gray-400 text-sm leading-relaxed">
               24/7 bike emergency services, spare parts delivery, and
               professional roadside repair solutions you can trust.
             </p>
+            {/* Social Media Links */}
+            <div className="flex items-center gap-4 mt-4">
+              <a
+                href="https://instagram.com/yourprofile"
+                target="_blank"
+                rel="noopener noreferrer"
+                className="hover:text-pink-500 transition-colors"
+              >
+                <FaInstagram className="text-2xl" />
+              </a>
+              <a
+                href="https://facebook.com/yourpage"
+                target="_blank"
+                rel="noopener noreferrer"
+                className="hover:text-blue-500 transition-colors"
+              >
+                <FaFacebook className="text-2xl" />
+              </a>
+              <a
+                href="https://youtube.com/@yourchannel"
+                target="_blank"
+                rel="noopener noreferrer"
+                className="hover:text-red-500 transition-colors"
+              >
+                <FaYoutube className="text-2xl" />
+              </a>
+              <a
+                href="https://twitter.com/yourhandle"
+                target="_blank"
+                rel="noopener noreferrer"
+                className="hover:text-blue-400 transition-colors"
+              >
+                <FaXTwitter className="text-2xl" />
+              </a>
+            </div>
           </div>
 
           {/* Quick Links */}
@@ -64,6 +101,14 @@ const Footer = () => {
                   Admin Login
                 </Link>
               </li>
+              <li>
+                <Link
+                  to="/mechanic/login"
+                  className="hover:text-white transition-colors"
+                >
+                  Mechanics Login
+                </Link>
+              </li>
             </ul>
           </div>
 
@@ -74,11 +119,11 @@ const Footer = () => {
             </h3>
             <div className="bg-red-600 text-white p-4 rounded-xl shadow-md">
               <p className="text-sm font-medium">24/7 Emergency Hotline</p>
-              <p className="text-xl font-bold">+91 9876543210</p>
+              <p className="text-xl font-bold">+91 7900900744</p>
             </div>
             <div className="flex items-center gap-4 mt-4">
               <a
-                href="httpss://wa.me/919876543210"
+                href="https://wa.me/7900900744"
                 target="_blank"
                 rel="noopener noreferrer"
                 className="hover:text-green-400 transition-colors"
@@ -86,7 +131,7 @@ const Footer = () => {
                 <i className="ri-whatsapp-fill text-2xl"></i>
               </a>
               <a
-                href="tel:+919876543210"
+                href="tel:+917900900744"
                 className="hover:text-blue-400 transition-colors"
               >
                 <i className="ri-phone-fill text-2xl"></i>
@@ -98,7 +143,7 @@ const Footer = () => {
         {/* Bottom Bar */}
         <div className="border-t border-gray-800 mt-10 pt-6 text-center">
           <p className="text-gray-500 text-sm">
-            © {new Date().getFullYear()} BikeService. All rights reserved.
+            © {new Date().getFullYear()} BikeService. All rights reserved. 
           </p>
         </div>
       </div>

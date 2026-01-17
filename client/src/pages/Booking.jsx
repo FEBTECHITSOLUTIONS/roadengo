@@ -13,7 +13,7 @@ const Booking = () => {
       description: "24/7 roadside support",
       subText: "15 min response",
       color: "red",
-      features: ["Instant help", "GPS tracking", "Expert mechanics"],
+      features: ["Instant help", "GPS tracking", "Expert mechanics", "Price - ₹349"],
     },
     {
       type: "Doorstep Service",
@@ -21,7 +21,7 @@ const Booking = () => {
       description: "Service at your location",
       subText: "45-90 min arrival",
       color: "blue",
-      features: ["Scheduled visit", "Full maintenance", "Quality parts"],
+      features: ["Scheduled visit", "Full maintenance", "Quality parts", "Price - ₹399"],
     },
     {
       type: "Spare Parts Inquiry",

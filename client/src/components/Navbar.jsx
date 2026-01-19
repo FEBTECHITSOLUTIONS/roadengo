@@ -80,7 +80,7 @@ const Navbar = () => {
         <div className="max-w-7xl mx-auto flex items-center justify-between">
           {/* Logo */}
           <Link to="/" className="flex items-center space-x-3 h-10 overflow-hidden rounded-sm scale-125">
-            <img src="/images/Roadengo-Logo.jpeg" className="w-20 " alt="logo" />
+            <img src="/images/Roadengo-Logo.jpeg" className="w-25 " alt="logo" />
           </Link>
 
           {/* Desktop Menu */}

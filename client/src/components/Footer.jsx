@@ -20,7 +20,7 @@ const Footer = () => {
             {/* Social Media Links */}
             <div className="flex items-center gap-4 mt-4">
               <a
-                href="https://instagram.com/yourprofile"
+                href="https://www.instagram.com/roadengo?igsh=MXJvN211NWdwZGh0MA%3D%3D&utm_source=qr"
                 target="_blank"
                 rel="noopener noreferrer"
                 className="hover:text-pink-500 transition-colors"
@@ -28,7 +28,7 @@ const Footer = () => {
                 <FaInstagram className="text-2xl" />
               </a>
               <a
-                href="https://facebook.com/yourpage"
+                href="https://www.facebook.com/share/1EJ7e62HsW/?mibextid=wwXIfr"
                 target="_blank"
                 rel="noopener noreferrer"
                 className="hover:text-blue-500 transition-colors"

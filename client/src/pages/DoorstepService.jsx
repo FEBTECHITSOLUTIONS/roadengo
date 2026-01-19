@@ -15,7 +15,8 @@ const DoorstepService = ({ onBack }) => {
   const [apiError, setApiError] = useState(null);
   const [isOfflineMode, setIsOfflineMode] = useState(false);
 
-    const [isFetchingLocation, setIsFetchingLocation] = useState(false);
+  const [isFetchingLocation, setIsFetchingLocation] = useState(false);
+  const [locationError, setLocationError] = useState(""); // ADDED: State for location errors
   
   const [formData, setFormData] = useState({
     name: "",
@@ -49,8 +50,10 @@ const DoorstepService = ({ onBack }) => {
   };
   
   const fetchCurrentLocation = () => {
+    setLocationError(""); // Reset error state
+    
     if (!navigator.geolocation) {
-      alert("❌ Geolocation not supported");
+      setLocationError("❌ Geolocation is not supported by this browser.");
       return;
     }
 
@@ -86,11 +89,7 @@ ${latitude.toFixed(6)}, ${longitude.toFixed(6)}
 ${accuracy ? `${Math.round(accuracy)}m` : "Unknown"}`;
 
           setFormData((prev) => ({ ...prev, address: finalLocation }));
-          alert(
-            `Location detected! Accuracy: ${
-              accuracy ? Math.round(accuracy) + "m" : "Unknown"
-            }`
-          );
+          // Removed success alert to be less annoying
         } catch (err) {
           console.error("Geocoding failed:", err);
           const { latitude, longitude, accuracy } = position.coords;
@@ -99,9 +98,8 @@ ${accuracy ? `${Math.round(accuracy)}m` : "Unknown"}`;
 ${accuracy ? `${Math.round(accuracy)}m` : "Unknown"}
 Address lookup failed`;
 
-          // setFormData((prev) => ({ ...prev, location: fallback }));
           setFormData((prev) => ({ ...prev, address: fallback }));
-          alert("⚠️ Got coordinates but couldn't fetch address");
+          setLocationError("⚠️ Got coordinates but server failed to fetch address details.");
         } finally {
           setIsFetchingLocation(false);
         }
@@ -110,13 +108,13 @@ Address lookup failed`;
         console.error("Geolocation error:", error);
         let msg = "⚠️ Unable to fetch location";
         if (error.code === error.PERMISSION_DENIED) {
-          msg = "⚠️ Location permission denied";
+          msg = "🔒 Location permission denied. Please enable location access in your browser settings.";
         } else if (error.code === error.POSITION_UNAVAILABLE) {
-          msg = "⚠️ Location unavailable";
+          msg = "📡 Location unavailable. Please check if your device GPS is turned on.";
         } else if (error.code === error.TIMEOUT) {
-          msg = "⏳ Location request timed out";
+          msg = "⏳ Location request timed out. Please try again.";
         }
-        alert(msg);
+        setLocationError(msg); // Set error state instead of alert
         setIsFetchingLocation(false);
       },
       options
@@ -455,7 +453,7 @@ console.log(isSubmitting);
 
   // Vehicle Type Popup
   const VehicleTypePopup = () => (
-    <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4">
+    <div className="fixed inset-0 bg-black/30 backdrop-blur-md flex items-center justify-center z-50 p-4">
       <div className="bg-white rounded-2xl max-w-md w-full max-h-[80vh] overflow-hidden">
         <div className="p-4 border-b border-gray-200">
           <div className="flex items-center justify-between">
@@ -491,7 +489,7 @@ console.log(isSubmitting);
 
   // Vehicle Model Popup
   const VehicleModelPopup = () => (
-    <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4">
+    <div className="fixed inset-0 bg-black/30 backdrop-blur-md flex items-center justify-center z-50 p-4">
       <div className="bg-white rounded-2xl max-w-md w-full max-h-[80vh] overflow-hidden">
         <div className="p-4 border-b border-gray-200">
           <div className="flex items-center justify-between">
@@ -678,7 +676,7 @@ console.log(isSubmitting);
                   <h3 className="text-lg font-bold text-gray-900 mb-4 flex items-center">
                     🔧 Service Details
                   </h3>
-                         <div>
+                          <div>
               <label className="block font-semibold text-sm mb-1">
                 Current address *
               </label>
@@ -712,6 +710,15 @@ console.log(isSubmitting);
                   <>Use GPS Location</>
                 )}
               </button>
+              
+              {/* ADDED: Location Error Message Display */}
+              {locationError && (
+                <div className="mt-2 p-3 bg-red-50 border border-red-200 rounded-lg text-sm text-red-700 flex items-start gap-2">
+                  <span className="mt-0.5">⚠️</span>
+                  <span>{locationError}</span>
+                </div>
+              )}
+
             </div>
                 
 

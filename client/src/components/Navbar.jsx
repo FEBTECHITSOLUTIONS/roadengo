@@ -30,12 +30,12 @@ const Navbar = () => {
   return (
     <>
     {/* Emergency Topbar */}
-<div className="bg-red-600 text-white text-xs sm:text-sm">
-  <div className="max-w-7xl mx-auto px-4 py-2">
-    <div className="flex flex-col sm:flex-row justify-between items-center gap-2 sm:gap-6">
-      {/* Left Section - Emergency Contact */}
-      <div className="flex items-center gap-2 sm:gap-4">
-        <div className="flex items-center gap-2 animate-pulse">
+    <div className="bg-red-900 text-white text-xs sm:text-sm">
+      <div className="max-w-7xl mx-auto px-4 py-2">
+        <div className="flex flex-col sm:flex-row justify-between items-center gap-2 sm:gap-6">
+        {/* Left Section - Emergency Contact */}
+        <div className="flex items-center gap-2 sm:gap-4">
+          <div className="flex items-center gap-2 animate-pulse">
           <i className="ri-phone-line text-yellow-300 text-sm"></i>
           <span className="font-semibold">Emergency Roadside Assistance</span>
         </div>
@@ -76,49 +76,49 @@ const Navbar = () => {
 
 
       {/* Main Navigation */}
-      <nav className="bg-gray-900 shadow-lg px-4 py-3 sticky top-0 w-full z-50 border-t-2 border-red-600">
+      <nav className="bg-red-600 shadow-lg px-4 py-3 sticky top-0 w-full z-50 border-t-2 border-red-600">
         <div className="max-w-7xl mx-auto flex items-center justify-between">
           {/* Logo */}
           <Link to="/" className="flex items-center space-x-3 h-10 overflow-hidden rounded-sm scale-125">
-            <img src="/images/logo.jpeg" className="w-20 " alt="logo" />
+            <img src="/images/Roadengo-Logo.jpeg" className="w-20 " alt="logo" />
           </Link>
 
           {/* Desktop Menu */}
           <div className="hidden lg:flex items-center space-x-8">
             <Link
               to="/"
-              className="text-gray-100 hover:text-red-400  transition-colors relative group"
+              className="text-white hover:text-gray-800  transition-colors relative group"
             >
               Home
-              <span className="absolute -bottom-1 left-0 w-0 h-0.5 bg-red-400 transition-all group-hover:w-full"></span>
+              <span className="absolute -bottom-1 left-0 w-0 h-0.5 bg-gray-800 transition-all group-hover:w-full"></span>
             </Link>
             <Link
               to="/spare-parts"
-              className="text-gray-100 hover:text-red-400  transition-colors relative group"
+              className="text-white hover:text-gray-800  transition-colors relative group"
             >
               Spare Parts
-              <span className="absolute -bottom-1 left-0 w-0 h-0.5 bg-red-400 transition-all group-hover:w-full"></span>
+              <span className="absolute -bottom-1 left-0 w-0 h-0.5 bg-gray-800 transition-all group-hover:w-full"></span>
             </Link>
             <Link
               to="/services"
-              className="text-gray-100 hover:text-red-400  transition-colors relative group"
+              className="text-white hover:text-gray-800  transition-colors relative group"
             >
               Services
-              <span className="absolute -bottom-1 left-0 w-0 h-0.5 bg-red-400 transition-all group-hover:w-full"></span>
+              <span className="absolute -bottom-1 left-0 w-0 h-0.5 bg-gray-800 transition-all group-hover:w-full"></span>
             </Link>
             <Link
               to="/about"
-              className="text-gray-100 hover:text-red-400  transition-colors relative group"
+              className="text-white hover:text-gray-800  transition-colors relative group"
             >
               About
-              <span className="absolute -bottom-1 left-0 w-0 h-0.5 bg-red-400 transition-all group-hover:w-full"></span>
+              <span className="absolute -bottom-1 left-0 w-0 h-0.5 bg-gray-800 transition-all group-hover:w-full"></span>
             </Link>
             <Link
               to="/contact"
-              className="text-gray-100 hover:text-red-400 font-semibold transition-colors relative group"
+              className="text-white hover:text-gray-800 font-semibold transition-colors relative group"
             >
               Contact
-              <span className="absolute -bottom-1 left-0 w-0 h-0.5 bg-red-400 transition-all group-hover:w-full"></span>
+              <span className="absolute -bottom-1 left-0 w-0 h-0.5 bg-gray-800 transition-all group-hover:w-full"></span>
             </Link>
           </div>
           
@@ -126,7 +126,7 @@ const Navbar = () => {
           <div className="hidden lg:flex lg:justify-center lg:items-center">
             <Link 
               to="/booking" 
-              className=" hidden md:block bg-red-600 text-white px-6 py-3 rounded-lg hover:bg-red-700 transition-colors duration-300"
+              className=" hidden md:block bg-red-900 text-white px-6 py-3 rounded-lg hover:bg-gray-800 transition-colors duration-300"
             >
               <i className="ri-customer-service-2-fill"></i> Book Service
             </Link>
@@ -143,7 +143,7 @@ const Navbar = () => {
 
               {/* Dropdown */}
               <div
-                className="absolute top-10 py-5 flex flex-col justify-center items-center gap-5 w-40 rounded-md bg-red-700 text-white opacity-0 scale-95 translate-y-2 invisible group-hover:visible group-hover:opacity-100 group-hover:scale-100 group-hover:translate-y-0 transition-all duration-300 ease-in-out mr-8 lg:mr-28 xl:mr-10">
+                className="absolute top-10 py-5 flex flex-col justify-center items-center gap-5 w-40 rounded-md bg-red-900 text-white opacity-0 scale-95 translate-y-2 invisible group-hover:visible group-hover:opacity-100 group-hover:scale-100 group-hover:translate-y-0 transition-all duration-300 ease-in-out mr-8 lg:mr-28 xl:mr-10">
                 <Link
                   className="hover:scale-110 transition-all duration-300"
                   to="/admin/login"
@@ -232,7 +232,7 @@ const Navbar = () => {
             <div className="pt-2">
               <Link
                 to="/booking"
-                className="block bg-red-600 text-white text-center py-3 px-4 rounded-lg font-semibold hover:bg-red-700 transition-colors duration-300"
+                className="block bg-red-900 text-white text-center py-3 px-4 rounded-lg font-semibold hover:bg-gray-800 transition-colors duration-300"
                 onClick={() => setIsMenuOpen(false)}
               >
                 <i className="ri-calendar-check-line mr-2"></i>

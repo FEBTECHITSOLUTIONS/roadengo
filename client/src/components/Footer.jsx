@@ -170,7 +170,7 @@ const Footer = () => {
                 </div>
                 <a 
                   href="mailto:support@roadengo.com" 
-                  className="text-gray-100 hover:text-white transition-colors text-sm font-medium"
+                  className="text-gray-100 hover:text-white transition-colors text-sm font-medium wrap-anywhere"
                 >
                   support@roadengo.com
                 </a>

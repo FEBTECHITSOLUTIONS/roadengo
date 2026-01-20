@@ -15,6 +15,8 @@ import MechanicDashboard from "../pages/MechanicDashboard";
 import MechanicLogin from "../pages/MechanicLogin";
 import ProtectedRoute from "../components/ProtectedRoute";
 import MechanicOnboard from "../components/MechanicOnboard";
+import TermsAndConditions from "../pages/TermsAndConditions";
+import PrivacyPolicy from "../pages/PrivacyAndPolicy";
 
 const MainRouting = () => {
   return (
@@ -29,6 +31,8 @@ const MainRouting = () => {
           <Route path="/about" element={<About />} />
           <Route path="/contact" element={<Contact />} />
           <Route path="/booking" element={<Booking />} />
+          <Route path="/terms-and-conditions" element={<TermsAndConditions />} />
+          <Route path="/privacy-policy" element={<PrivacyPolicy />} />
           <Route path="/doorstep-service" element={<DoorstepService />} />
           <Route path="/emergency-assistance" element={<EmergencyAssistance />} />
           <Route path="/mechanic/Onboarding" element={<MechanicOnboard />} />

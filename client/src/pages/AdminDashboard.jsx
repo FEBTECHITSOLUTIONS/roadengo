@@ -1878,10 +1878,19 @@ ${form.rating ? `⭐ Rating: ${'⭐'.repeat(form.rating)}` : ''}
                       <div className="max-w-xs">
                         <p className="text-sm text-gray-600 line-clamp-2">{form.message}</p>
                         {form.serviceType && (
-                          <p className="text-xs text-gray-500 mt-1">Service:  {form.serviceType}</p>
+                          <p className="text-xs text-gray-500 mt-1">🔧 Service: {form. serviceType}</p>
+                        )}
+                        {form.vehicleModel && (
+                          <p className="text-xs text-gray-500 mt-1">🏍️ Vehicle: {form.vehicleModel}</p>
+                        )}
+                        {form.emergencyType && (
+                          <p className="text-xs text-red-600 mt-1 font-medium">🚨 Emergency: {form. emergencyType}</p>
+                        )}
+                        {form.preferredDateTime && (
+                          <p className="text-xs text-blue-600 mt-1">📅 Date: {form.preferredDateTime}</p>
                         )}
                         {form.rating && (
-                          <p className="text-xs text-gray-500 mt-1">Rating:  {'⭐'.repeat(form.rating)}</p>
+                          <p className="text-xs text-gray-500 mt-1">⭐ Rating: {'⭐'. repeat(form.rating)}</p>
                         )}
                       </div>
                     </td>
@@ -1919,8 +1928,8 @@ ${form.rating ? `⭐ Rating: ${'⭐'.repeat(form.rating)}` : ''}
                     </td>
                     <td className="px-4 lg:px-6 py-4 whitespace-nowrap text-sm">
                       <button
-                        onClick={() => {
-                          const details = `
+  onClick={() => {
+    const details = `
 📋 CONTACT FORM DETAILS
 
 👤 Customer Information:
@@ -1929,25 +1938,27 @@ Phone: ${form.phone}
 Email: ${form.email}
 
 📝 Form Details:
-Type: ${form.formType}
+Type:  ${form.formType}
 Status: ${form.status}
 Message: ${form.message}
 
-${form. serviceType ? `🔧 Service Type: ${form.serviceType}` : ''}
-${form.vehicleModel ? `🏍️ Vehicle: ${form. vehicleModel}` : ''}
+${form.serviceType ? `🔧 Service Type: ${form. serviceType}` : ''}
+${form.vehicleModel ? `🏍️ Vehicle: ${form.vehicleModel}` : ''}
+${form.preferredDateTime ? `📅 Preferred Date & Time: ${form.preferredDateTime}` : ''}
 ${form.location ? `📍 Location: ${form.location}` : ''}
-${form.rating ? `⭐ Rating: ${'⭐'. repeat(form.rating)}` : ''}
+${form.emergencyType ? `🚨 Emergency Type: ${form.emergencyType}` : ''}
+${form.rating ? `⭐ Rating: ${'⭐'.repeat(form.rating)}` : ''}
 
-📧 Email Status: ${form.emailSent ?  '✅ Sent' :  '❌ Not Sent'}
+📧 Email Status:  ${form.emailSent ? '✅ Sent' : '❌ Not Sent'}
 📅 Submitted: ${formatDateTime(form.createdAt)}
-🆔 Form ID: ${form._id}
-                          `.trim();
-                          alert(details);
-                        }}
-                        className="text-indigo-600 hover:text-indigo-900 font-medium"
-                      >
-                        View Details
-                      </button>
+🆔 Form ID:  ${form._id}
+    `.trim();
+    alert(details);
+  }}
+  className="text-indigo-600 hover:text-indigo-900 font-medium"
+>
+  View Details
+</button>
                     </td>
                   </tr>
                 ))}

@@ -5,15 +5,15 @@ import { FaXTwitter } from "react-icons/fa6";
 
 const Footer = () => {
   return (
-    <footer className="bg-gray-900 text-gray-300">
+    <footer className="bg-red-800 text-gray-100">
       <div className="max-w-7xl mx-auto px-4 py-12">
-        <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-4 gap-10">
+        <div className="grid grid-cols-2 md:grid-cols-4 gap-10">
           {/* Logo + About */}
           <div>
-            <div className="flex items-center space-x-2 mb-4 h-10 overflow-hidden w-fit rounded-sm">
-              <img src="/images/logo.jpeg" className="w-20" alt="Bike Service Logo" />
+            <div className="flex items-center space-x-2 mb-4 overflow-hidden w-fit rounded-sm">
+              <img src="/images/logo.jpeg" className="w-30" alt="Bike Service Logo" />
             </div>
-            <p className="text-gray-400 text-sm leading-relaxed">
+            <p className="text-gray-200 text-sm leading-relaxed">
               24/7 bike emergency services, spare parts delivery, and
               professional roadside repair solutions you can trust.
             </p>
@@ -23,7 +23,7 @@ const Footer = () => {
                 href="https://www.instagram.com/roadengo?igsh=MXJvN211NWdwZGh0MA%3D%3D&utm_source=qr"
                 target="_blank"
                 rel="noopener noreferrer"
-                className="hover:text-pink-500 transition-colors"
+                className="hover:text-pink-500 transition-colors bg-gray-600 text-white p-1 rounded-full"
               >
                 <FaInstagram className="text-2xl" />
               </a>
@@ -31,7 +31,7 @@ const Footer = () => {
                 href="https://www.facebook.com/share/1EJ7e62HsW/?mibextid=wwXIfr"
                 target="_blank"
                 rel="noopener noreferrer"
-                className="hover:text-blue-500 transition-colors"
+                className="hover:text-blue-500 transition-colors bg-gray-600 text-white p-1 rounded-full"
               >
                 <FaFacebook className="text-2xl" />
               </a>
@@ -39,7 +39,7 @@ const Footer = () => {
                 href="https://youtube.com/@yourchannel"
                 target="_blank"
                 rel="noopener noreferrer"
-                className="hover:text-red-500 transition-colors"
+                className="hover:text-red-500 transition-colors bg-gray-600 text-white p-1 rounded-full"
               >
                 <FaYoutube className="text-2xl" />
               </a>
@@ -47,7 +47,7 @@ const Footer = () => {
                 href="https://twitter.com/yourhandle"
                 target="_blank"
                 rel="noopener noreferrer"
-                className="hover:text-blue-400 transition-colors"
+                className="hover:text-blue-400 transition-colors bg-gray-600 text-white p-1 rounded-full"
               >
                 <FaXTwitter className="text-2xl" />
               </a>
@@ -117,7 +117,7 @@ const Footer = () => {
             <h3 className="text-lg font-semibold mb-4 text-white">
               Emergency Contact
             </h3>
-            <div className="bg-red-600 text-white p-4 rounded-xl shadow-md">
+            <div className="bg-gray-600 text-white p-4 rounded-xl shadow-md">
               <p className="text-sm font-medium">24/7 Emergency Hotline</p>
               <p className="text-xl font-bold">+91 7900900744</p>
             </div>
@@ -141,8 +141,8 @@ const Footer = () => {
         </div>
 
         {/* Bottom Bar */}
-        <div className="border-t border-gray-800 mt-10 pt-6 text-center">
-          <p className="text-gray-500 text-sm"> 
+        <div className="border-t border-gray-600 mt-10 pt-6 text-center">
+          <p className="text-gray-200 text-sm"> 
             © {new Date().getFullYear()} BikeService. All rights reserved. 
           </p>
         </div>

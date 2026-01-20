@@ -1,33 +1,40 @@
 import React, { useState } from "react";
+import { apiService } from "../routing/apiClient";
 
 const Contact = () => {
   const [result, setResult] = useState("");
   const [activeTab, setActiveTab] = useState("general");
 
-  const onSubmit = async (event) => {
-    event.preventDefault();
-    setResult("Sending...");
-    const formData = new FormData(event.target);
-    formData.append("access_key", "YOUR_ACCESS_KEY_HERE");
-
-    const response = await fetch("https://api.web3forms.com/submit", {
-      method: "POST",
-      body: formData,
-    });
-
-    const data = await response.json();
-    console.log(data);
-    
-    if (data.success) {
-      setResult(
-        "Message Sent Successfully! We'll contact you within 15 minutes."
-      );
-      event.target.reset();
-    } else {
-      console.log("Error", data);
-      setResult(data.message);
-    }
+ const onSubmit = async (event) => {
+  event.preventDefault();
+  setResult("Sending...");
+  
+  const formData = new FormData(event.target);
+  
+  const contactData = {
+    name: formData.get('name'),
+    phone: formData.get('phone'),
+    email: formData.get('email'),
+    formType: activeTab,
+    message: formData.get('message'),
+    serviceType: formData.get('serviceType') || '',
+    vehicleModel: formData.get('vehicleModel') || '',
+    location: formData.get('location') || '',
+    rating: formData.get('rating') ? parseInt(formData.get('rating')) : null
   };
+
+  try {
+    const response = await apiService.createContactForm(contactData);
+    
+    if (response && response.data) {
+      setResult("Message Sent Successfully!  We'll contact you within 15 minutes.");
+      event.target.reset();
+    }
+  } catch (error) {
+    console.error("Error:", error);
+    setResult("Failed to send message. Please call us at +91 7900900744");
+  }
+};
 
   return (
     <div className="bg-gradient-to-br from-red-50 via-white to-pink-50">

@@ -368,12 +368,17 @@ const updateEmergencyStatus = async (id, status) => {
   };
 
   const formatDateTime = (dateString) => {
-    try {
-      return new Date(dateString).toLocaleString("en-IN");
-    } catch {
-      return "Invalid Date";
-    }
-  };
+  if (!dateString) return 'N/A';
+  const date = new Date(dateString);
+  return date.toLocaleString('en-IN', {
+    day: '2-digit',
+    month: 'short',
+    year: 'numeric',
+    hour: '2-digit',
+    minute:  '2-digit',
+    hour12: true
+  });
+};
 
   // Enhanced Assign Modal Component
   const EnhancedAssignModal = () => {
@@ -932,285 +937,332 @@ const updateEmergencyStatus = async (id, status) => {
         )}
 
         {/* APPOINTMENTS TAB */}
-        {activeTab === "appointments" && (
-          <div className="bg-white rounded-lg shadow-lg overflow-hidden">
-            
-            {/* Status Filter Sub-tabs */}
-            <div className="border-b border-gray-200 bg-gray-50 p-3 sm:p-4">
-              <div className="flex flex-wrap gap-2">
-                {[
-                  { id: "all", label: "All Active", color: "gray" },
-                  { id: STATUS.PENDING, label: "Pending", color: "yellow" },
-                  { id: STATUS.CONFIRMED, label: "Confirmed", color: "blue" },
-                  { id: STATUS.IN_PROGRESS, label: "In Progress", color: "purple" }
-                ].map((filter) => {
-                  // Filter logic: Count only non-completed tasks
-                  const activeAppointments = appointments.filter(a => a.status !== "completed");
-                  const count = filter.id === "all" 
-                    ? activeAppointments.length 
-                    : activeAppointments.filter(a => a.status === filter.id).length;
+{activeTab === "appointments" && (
+  <div className="bg-white rounded-lg shadow-lg overflow-hidden">
+    
+    {/* Status Filter Sub-tabs */}
+    <div className="border-b border-gray-200 bg-gray-50 p-3 sm:p-4">
+      <div className="flex flex-wrap gap-2">
+        {[
+          { id: "all", label: "All Active", color: "gray" },
+          { id: STATUS.PENDING, label: "Pending", color: "yellow" },
+          { id:  STATUS.CONFIRMED, label: "Confirmed", color: "blue" },
+          { id: STATUS. IN_PROGRESS, label: "In Progress", color: "purple" },
+          { id: STATUS. COMPLETED, label: "Completed", color: "green" }
+        ].map((filter) => {
+          // Count logic
+          const activeAppointments = filter.id === STATUS. COMPLETED 
+            ? appointments. filter(a => a.status === "completed")
+            : appointments. filter(a => a.status !== "completed");
+          
+          const count = filter.id === "all" 
+            ? activeAppointments.length 
+            : appointments. filter(a => a.status === filter.id).length;
+          
+          return (
+            <button
+              key={filter.id}
+              onClick={() => setAppointmentStatusFilter(filter.id)}
+              className={`px-3 sm:px-4 py-2 rounded-lg font-semibold text-xs sm:text-sm transition-all ${
+                appointmentStatusFilter === filter. id
+                  ? filter.id === STATUS.PENDING
+                    ? "bg-yellow-600 text-white"
+                    :  filter.id === STATUS.CONFIRMED
+                    ? "bg-blue-600 text-white"
+                    : filter.id === STATUS.IN_PROGRESS
+                    ? "bg-purple-600 text-white"
+                    :  filter.id === STATUS.COMPLETED
+                    ? "bg-green-600 text-white"
+                    : "bg-gray-600 text-white"
+                  :  "bg-white text-gray-700 hover:bg-gray-100 border border-gray-300"
+              }`}
+            >
+              {filter.label} ({count})
+            </button>
+          );
+        })}
+      </div>
+    </div>
+
+    {/* Filtering Logic Wrapper */}
+    {(() => {
+      // Filter appointments based on selected tab
+      let filteredAppointments;
+      
+      if (appointmentStatusFilter === "all") {
+        // Show only non-completed (active) appointments
+        filteredAppointments = appointments.filter(a => a.status !== "completed");
+      } else if (appointmentStatusFilter === STATUS.COMPLETED) {
+        // Show only completed appointments
+        filteredAppointments = appointments.filter(a => a.status === "completed");
+      } else {
+        // Show specific status
+        filteredAppointments = appointments.filter(a => a.status === appointmentStatusFilter);
+      }
+
+      return (
+        <>
+          {/* Mobile Card View */}
+          <div className="block lg:hidden">
+            <div className="space-y-4 p-4">
+              {filteredAppointments.map((appointment) => (
+                <div 
+                  key={appointment._id} 
+                  className={`border-2 rounded-lg p-4 space-y-3 ${
+                    appointment.status === 'completed' 
+                      ? 'bg-green-50 border-green-200' 
+                      : 'border-gray-200'
+                  }`}
+                >
                   
-                  return (
-                    <button
-                      key={filter.id}
-                      onClick={() => setAppointmentStatusFilter(filter.id)}
-                      className={`px-3 sm:px-4 py-2 rounded-lg font-semibold text-xs sm:text-sm transition-all ${
-                        appointmentStatusFilter === filter.id
-                          ? filter.id === STATUS.PENDING
-                            ? "bg-yellow-600 text-white"
-                            : filter.id === STATUS.CONFIRMED
-                            ? "bg-blue-600 text-white"
-                            : filter.id === STATUS.IN_PROGRESS
-                            ? "bg-purple-600 text-white"
-                            : "bg-gray-600 text-white"
-                          : "bg-white text-gray-700 hover:bg-gray-100 border border-gray-300"
+                  <div className="flex justify-between items-start">
+                    <div className="flex-1 min-w-0">
+                      <h3 className="font-semibold text-gray-900">{appointment.name}</h3>
+                      <p className="text-sm text-gray-600">{appointment.phone}</p>
+                      <p className="text-sm text-gray-500 truncate">{appointment.email}</p>
+                    </div>
+                    <span
+                      className={`inline-flex px-2 py-1 text-xs font-semibold rounded-full ${
+                        appointment.status === STATUS.PENDING
+                          ? "bg-yellow-100 text-yellow-800"
+                          :  appointment.status === STATUS.CONFIRMED
+                          ? "bg-blue-100 text-blue-800"
+                          : appointment.status === STATUS.IN_PROGRESS
+                          ? "bg-purple-100 text-purple-800"
+                          : appointment.status === STATUS.COMPLETED
+                          ?  "bg-green-100 text-green-800"
+                          : "bg-gray-100 text-gray-800"
                       }`}
                     >
-                      {filter.label} ({count})
-                    </button>
-                  );
-                })}
-              </div>
-            </div>
-
-            {/* Filtering Logic Wrapper */}
-            {(() => {
-              // 1. Get all active (not completed) appointments
-              const activeAppointments = appointments.filter(a => a.status !== "completed");
-              
-              // 2. Apply the selected sub-tab filter
-              const filteredAppointments = appointmentStatusFilter === "all"
-                ? activeAppointments
-                : activeAppointments.filter(a => a.status === appointmentStatusFilter);
-
-              return (
-                <>
-                  {/* Mobile Card View */}
-                  <div className="block lg:hidden">
-                    <div className="space-y-4 p-4">
-                      {filteredAppointments.map((appointment) => (
-                        <div key={appointment._id} className="border border-gray-200 rounded-lg p-4 space-y-3">
-                          
-                          <div className="flex justify-between items-start">
-                            <div className="flex-1 min-w-0">
-                              <h3 className="font-semibold text-gray-900">{appointment.name}</h3>
-                              <p className="text-sm text-gray-600">{appointment.phone}</p>
-                              <p className="text-sm text-gray-500 truncate">{appointment.email}</p>
-                            </div>
-                            <span
-                              className={`inline-flex px-2 py-1 text-xs font-semibold rounded-full ${
-                                appointment.status === STATUS.PENDING
-                                  ? "bg-yellow-100 text-yellow-800"
-                                  : appointment.status === STATUS.CONFIRMED
-                                  ? "bg-blue-100 text-blue-800"
-                                  : appointment.status === STATUS.IN_PROGRESS
-                                  ? "bg-purple-100 text-purple-800"
-                                  : appointment.status === STATUS.COMPLETED
-                                  ? "bg-green-100 text-green-800"
-                                  : "bg-gray-100 text-gray-800"
-                              }`}
-                            >
-                              {appointment.status?.toUpperCase()}
-                            </span>
-                          </div>
-                          
-                          <div className="space-y-2">
-                            <div>
-                              <p className="text-xs text-gray-500">Service</p>
-                              <p className="text-sm font-medium">{appointment.serviceType}</p>
-                              <p className="text-sm text-gray-600">{appointment.bikeModel}</p>
-                            </div>
-                            
-                            <div>
-                              <p className="text-xs text-gray-500">Date & Time</p>
-                              <p className="text-sm font-medium">{formatDate(appointment.serviceDate)}</p>
-                              <p className="text-sm text-gray-600">{appointment.serviceTime}</p>
-                            </div>
-                            
-                            <div>
-                              <p className="text-xs text-gray-500">Address</p>
-                              <p className="text-sm text-gray-600 truncate">{appointment.address}</p>
-                            </div>
-                            
-                            {appointment.assignedMechanic && (
-                              <div>
-                                <p className="text-xs text-gray-500">Assigned Mechanic</p>
-                                <p className="text-sm font-medium">
-                                  {appointment?.assignedMechanic?.name || "Unknown"}
-                                </p>
-                              </div>
-                            )}
-                          </div>
-                          
-                          <div className="pt-3 border-t border-gray-100 space-y-2">
-                            <select
-                              value={appointment.status}
-                              onChange={(e) => updateAppointmentStatus(appointment._id, e.target.value)}
-                              disabled={loading}
-                              className="w-full border border-gray-300 rounded px-3 py-2 text-sm focus:ring-2 focus:ring-blue-500 focus:border-transparent disabled:opacity-50"
-                            >
-                              <option value={STATUS.PENDING}>Pending</option>
-                              <option value={STATUS.CONFIRMED}>Confirmed</option>
-                              <option value={STATUS.IN_PROGRESS}>In Progress</option>
-                              <option value={STATUS.COMPLETED}>Completed</option>
-                              <option value={STATUS.CANCELLED}>Cancelled</option>
-                            </select>
-                            {!appointment.assignedMechanic && (
-                              <button
-                                onClick={() => {
-                                  setSelectedTask({ ...appointment, taskType: "appointment" });
-                                  setShowAssignModal(true);
-                                  setError(null);
-                                }}
-                                disabled={loading}
-                                className="w-full bg-purple-600 hover:bg-purple-700 text-white px-3 py-2 rounded text-sm disabled:opacity-50"
-                              >
-                                Assign Mechanic
-                              </button>
-                            )}
-                          </div>
-                        </div>
-                      ))}
+                      {appointment.status?. toUpperCase()}
+                    </span>
+                  </div>
+                  
+                  <div className="space-y-2">
+                    <div>
+                      <p className="text-xs text-gray-500">Service</p>
+                      <p className="text-sm font-medium">{appointment.serviceType}</p>
+                      <p className="text-sm text-gray-600">{appointment.bikeModel}</p>
                     </div>
-                  </div>
-
-                  {/* Desktop Table View */}
-                  <div className="hidden lg:block overflow-x-auto">
-                    <table className="w-full">
-                      <thead className="bg-gray-50">
-                        <tr>
-                          <th className="px-4 lg:px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                            Customer
-                          </th>
-                          <th className="px-4 lg:px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                            Service Details
-                          </th>
-                          <th className="px-4 lg:px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                            Date & Time
-                          </th>
-                          <th className="px-4 lg:px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                            Status
-                          </th>
-                          <th className="px-4 lg:px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                            Assigned Mechanic
-                          </th>
-                          <th className="px-4 lg:px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                            Actions
-                          </th>
-                        </tr>
-                      </thead>
-                      <tbody className="bg-white divide-y divide-gray-200">
-                        {filteredAppointments.map((appointment) => (
-                          <tr key={appointment._id} className="hover:bg-gray-50">
-                            <td className="px-4 lg:px-6 py-4 whitespace-nowrap">
-                              <div>
-                                <div className="font-semibold text-gray-900">{appointment.name}</div>
-                                <div className="text-sm text-gray-600">{appointment.phone}</div>
-                                <div className="text-sm text-gray-500">{appointment.email}</div>
-                              </div>
-                            </td>
-                            <td className="px-4 lg:px-6 py-4">
-                              <div>
-                                <div className="font-medium text-gray-900">{appointment.serviceType}</div>
-                                <div className="text-sm text-gray-600">{appointment.bikeModel}</div>
-                                <div className="text-sm text-gray-500 truncate max-w-xs">{appointment.address}</div>
-                              </div>
-                            </td>
-                            <td className="px-4 lg:px-6 py-4 whitespace-nowrap">
-                              <div>
-                                <div className="text-sm font-medium text-gray-900">
-                                  {formatDate(appointment.serviceDate)}
-                                </div>
-                                <div className="text-sm text-gray-600">{appointment.serviceTime}</div>
-                              </div>
-                            </td>
-                            <td className="px-4 lg:px-6 py-4 whitespace-nowrap">
-                              <span
-                                className={`inline-flex px-2 py-1 text-xs font-semibold rounded-full ${
-                                  appointment.status === STATUS.PENDING
-                                    ? "bg-yellow-100 text-yellow-800"
-                                    : appointment.status === STATUS.CONFIRMED
-                                    ? "bg-blue-100 text-blue-800"
-                                    : appointment.status === STATUS.IN_PROGRESS
-                                    ? "bg-purple-100 text-purple-800"
-                                    : appointment.status === STATUS.COMPLETED
-                                    ? "bg-green-100 text-green-800"
-                                    : "bg-gray-100 text-gray-800"
-                                }`}
-                              >
-                                {appointment.status?.toUpperCase()}
-                              </span>
-                            </td>
-                            <td className="px-4 lg:px-6 py-4 whitespace-nowrap">
-                              {appointment.assignedMechanic ? (
-                                <div className="text-sm">
-                                  <div className="font-medium text-gray-900">
-                                    {appointment?.assignedMechanic?.name || "Unknown"}
-                                  </div>
-                                  <div className="text-gray-500">Assigned</div>
-                                </div>
-                              ) : (
-                                <span className="text-sm text-gray-500">Not Assigned</span>
-                              )}
-                            </td>
-                            <td className="px-4 lg:px-6 py-4 whitespace-nowrap">
-                              <div className="flex flex-col space-y-2">
-                                <select
-                                  value={appointment.status}
-                                  onChange={(e) => updateAppointmentStatus(appointment._id, e.target.value)}
-                                  disabled={loading}
-                                  className="border border-gray-300 rounded px-2 py-1 text-sm focus:ring-2 focus:ring-blue-500 focus:border-transparent disabled:opacity-50"
-                                >
-                                  <option value={STATUS.PENDING}>Pending</option>
-                                  <option value={STATUS.CONFIRMED}>Confirmed</option>
-                                  <option value={STATUS.IN_PROGRESS}>In Progress</option>
-                                  <option value={STATUS.COMPLETED}>Completed</option>
-                                  <option value={STATUS.CANCELLED}>Cancelled</option>
-                                </select>
-                                {!appointment.assignedMechanic && (
-                                  <button
-                                    onClick={() => {
-                                      setSelectedTask({ ...appointment, taskType: "appointment" });
-                                      setShowAssignModal(true);
-                                      setError(null);
-                                    }}
-                                    disabled={loading}
-                                    className="bg-purple-600 hover:bg-purple-700 text-white px-3 py-1 rounded text-xs disabled:opacity-50"
-                                  >
-                                    Assign Mechanic
-                                  </button>
-                                )}
-                              </div>
-                            </td>
-                          </tr>
-                        ))}
-                      </tbody>
-                    </table>
-                  </div>
-
-                  {/* Empty State */}
-                  {filteredAppointments.length === 0 && !loading && (
-                    <div className="text-center py-12">
-                      <div className="text-6xl mb-4">
-                        {appointmentStatusFilter === STATUS.PENDING ? "⏳" : 
-                         appointmentStatusFilter === STATUS.CONFIRMED ? "✅" : 
-                         appointmentStatusFilter === STATUS.IN_PROGRESS ? "🔧" : "📅"}
+                    
+                    {/* Show Service Date/Time for non-completed */}
+                    {appointment.status !== 'completed' && (
+                      <div>
+                        <p className="text-xs text-gray-500">Scheduled Service</p>
+                        <p className="text-sm font-medium">{formatDate(appointment.serviceDate)}</p>
+                        <p className="text-sm text-gray-600">{appointment.serviceTime}</p>
                       </div>
-                      <h3 className="text-lg font-semibold text-gray-900 mb-2">
-                        No {appointmentStatusFilter !== "all" ? appointmentStatusFilter.charAt(0).toUpperCase() + appointmentStatusFilter.slice(1).replace("-", " ") : "Active"} Appointments
-                      </h3>
-                      <p className="text-gray-600">
-                        {appointmentStatusFilter === "all" 
-                          ? "No active appointments found"
-                          : `No ${appointmentStatusFilter.replace("-", " ")} appointments found`}
-                      </p>
+                    )}
+                    
+                    <div>
+                      <p className="text-xs text-gray-500">Address</p>
+                      <p className="text-sm text-gray-600 truncate">{appointment.address}</p>
+                    </div>
+                    
+                    {/* ✅ SHOW BOOKING TIME */}
+                    <div className="mt-2 p-2 bg-blue-50 rounded border border-blue-200">
+                      <p className="text-xs font-semibold text-blue-700">⏰ Booking Time</p>
+                      <p className="text-sm text-blue-900">{formatDateTime(appointment.createdAt)}</p>
+                    </div>
+                    
+                    {/* ✅ SHOW COMPLETED TIME (if completed) */}
+                    {appointment.status === 'completed' && appointment.completedAt && (
+                      <div className="mt-2 p-2 bg-green-50 rounded border border-green-200">
+                        <p className="text-xs font-semibold text-green-700">✅ Completed Time</p>
+                        <p className="text-sm text-green-900">{formatDateTime(appointment.completedAt)}</p>
+                      </div>
+                    )}
+                    
+                    {/* ⚠️ Warning if completed but no timestamp */}
+                    {appointment. status === 'completed' && ! appointment.completedAt && (
+                      <div className="mt-2 p-2 bg-red-50 rounded border border-red-200">
+                        <p className="text-xs text-red-600">⚠️ Completed but timestamp missing</p>
+                      </div>
+                    )}
+                    
+                    {appointment.assignedMechanic && (
+                      <div>
+                        <p className="text-xs text-gray-500">Assigned Mechanic</p>
+                        <p className="text-sm font-medium">
+                          {appointment?. assignedMechanic?.name || "Unknown"}
+                        </p>
+                      </div>
+                    )}
+                  </div>
+                  
+                  {/* ✅ ACTIONS - Only show Assign button for non-completed without mechanic */}
+                  {appointment.status !== 'completed' && ! appointment.assignedMechanic && (
+                    <div className="pt-3 border-t border-gray-100">
+                      <button
+                        onClick={() => {
+                          setSelectedTask({ ...appointment, taskType: "appointment" });
+                          setShowAssignModal(true);
+                          setError(null);
+                        }}
+                        disabled={loading}
+                        className="w-full bg-purple-600 hover:bg-purple-700 text-white px-3 py-2 rounded text-sm disabled:opacity-50"
+                      >
+                        Assign Mechanic
+                      </button>
                     </div>
                   )}
-                </>
-              );
-            })()}
+                </div>
+              ))}
+            </div>
           </div>
-        )}
+
+          {/* Desktop Table View */}
+          <div className="hidden lg:block overflow-x-auto">
+            <table className="w-full">
+              <thead className="bg-gray-50">
+                <tr>
+                  <th className="px-4 lg:px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                    Customer
+                  </th>
+                  <th className="px-4 lg:px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                    Service Details
+                  </th>
+                  <th className="px-4 lg:px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                    Timestamps
+                  </th>
+                  <th className="px-4 lg:px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                    Status
+                  </th>
+                  <th className="px-4 lg:px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                    Assigned Mechanic
+                  </th>
+                  <th className="px-4 lg:px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                    Actions
+                  </th>
+                </tr>
+              </thead>
+              <tbody className="bg-white divide-y divide-gray-200">
+                {filteredAppointments.map((appointment) => (
+                  <tr 
+                    key={appointment._id} 
+                    className={`hover:bg-gray-50 ${
+                      appointment.status === 'completed' ?  'bg-green-50' : ''
+                    }`}
+                  >
+                    <td className="px-4 lg:px-6 py-4 whitespace-nowrap">
+                      <div>
+                        <div className="font-semibold text-gray-900">{appointment.name}</div>
+                        <div className="text-sm text-gray-600">{appointment.phone}</div>
+                        <div className="text-sm text-gray-500">{appointment.email}</div>
+                      </div>
+                    </td>
+                    <td className="px-4 lg:px-6 py-4">
+                      <div>
+                        <div className="font-medium text-gray-900">{appointment.serviceType}</div>
+                        <div className="text-sm text-gray-600">{appointment.bikeModel}</div>
+                        <div className="text-sm text-gray-500 truncate max-w-xs">{appointment. address}</div>
+                        {appointment.status !== 'completed' && (
+                          <div className="text-xs text-blue-600 mt-1">
+                            📅 Scheduled: {formatDate(appointment.serviceDate)} {appointment.serviceTime}
+                          </div>
+                        )}
+                      </div>
+                    </td>
+                    {/* ✅ NEW COLUMN:  Timestamps */}
+                    <td className="px-4 lg:px-6 py-4 whitespace-nowrap">
+                      <div className="space-y-1">
+                        <div>
+                          <p className="text-xs text-blue-600 font-semibold">⏰ Booked</p>
+                          <p className="text-sm text-gray-900">{formatDateTime(appointment.createdAt)}</p>
+                        </div>
+                        {appointment.status === 'completed' && appointment.completedAt && (
+                          <div>
+                            <p className="text-xs text-green-600 font-semibold">✅ Completed</p>
+                            <p className="text-sm text-green-700">{formatDateTime(appointment.completedAt)}</p>
+                          </div>
+                        )}
+                        {appointment.status === 'completed' && !appointment.completedAt && (
+                          <div>
+                            <p className="text-xs text-red-600">⚠️ Missing timestamp</p>
+                          </div>
+                        )}
+                      </div>
+                    </td>
+                    <td className="px-4 lg:px-6 py-4 whitespace-nowrap">
+                      <span
+                        className={`inline-flex px-2 py-1 text-xs font-semibold rounded-full ${
+                          appointment.status === STATUS. PENDING
+                            ? "bg-yellow-100 text-yellow-800"
+                            : appointment. status === STATUS.CONFIRMED
+                            ? "bg-blue-100 text-blue-800"
+                            : appointment.status === STATUS.IN_PROGRESS
+                            ? "bg-purple-100 text-purple-800"
+                            : appointment.status === STATUS. COMPLETED
+                            ? "bg-green-100 text-green-800"
+                            : "bg-gray-100 text-gray-800"
+                        }`}
+                      >
+                        {appointment.status?.toUpperCase()}
+                      </span>
+                    </td>
+                    <td className="px-4 lg:px-6 py-4 whitespace-nowrap">
+                      {appointment.assignedMechanic ?  (
+                        <div className="text-sm">
+                          <div className="font-medium text-gray-900">
+                            {appointment?.assignedMechanic?.name || "Unknown"}
+                          </div>
+                          <div className="text-gray-500">Assigned</div>
+                        </div>
+                      ) : (
+                        <span className="text-sm text-gray-500">Not Assigned</span>
+                      )}
+                    </td>
+                    <td className="px-4 lg:px-6 py-4 whitespace-nowrap">
+                      {/* ✅ ONLY SHOW ASSIGN BUTTON - NO DROPDOWN */}
+                      {appointment. status !== 'completed' && ! appointment.assignedMechanic && (
+                        <button
+                          onClick={() => {
+                            setSelectedTask({ ...appointment, taskType: "appointment" });
+                            setShowAssignModal(true);
+                            setError(null);
+                          }}
+                          disabled={loading}
+                          className="bg-purple-600 hover:bg-purple-700 text-white px-3 py-1 rounded text-xs disabled:opacity-50"
+                        >
+                          Assign Mechanic
+                        </button>
+                      )}
+                      {appointment.status === 'completed' && (
+                        <span className="text-xs text-green-600 font-medium">✅ Done</span>
+                      )}
+                    </td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+          </div>
+
+          {/* Empty State */}
+          {filteredAppointments.length === 0 && ! loading && (
+            <div className="text-center py-12">
+              <div className="text-6xl mb-4">
+                {appointmentStatusFilter === STATUS.PENDING ?  "⏳" : 
+                 appointmentStatusFilter === STATUS. CONFIRMED ? "✅" : 
+                 appointmentStatusFilter === STATUS.IN_PROGRESS ? "🔧" : 
+                 appointmentStatusFilter === STATUS.COMPLETED ?  "✅" : "📅"}
+              </div>
+              <h3 className="text-lg font-semibold text-gray-900 mb-2">
+                No {appointmentStatusFilter !== "all" ? appointmentStatusFilter. charAt(0).toUpperCase() + appointmentStatusFilter.slice(1).replace("-", " ") : "Active"} Appointments
+              </h3>
+              <p className="text-gray-600">
+                {appointmentStatusFilter === "all" 
+                  ? "No active appointments found"
+                  : appointmentStatusFilter === STATUS.COMPLETED
+                  ? "No completed appointments yet"
+                  : `No ${appointmentStatusFilter. replace("-", " ")} appointments found`}
+              </p>
+            </div>
+          )}
+        </>
+      );
+    })()}
+  </div>
+)}
 
        {/* EMERGENCIES TAB */}
 {activeTab === "emergencies" && (
@@ -1223,16 +1275,21 @@ const updateEmergencyStatus = async (id, status) => {
           { id: "all", label: "All Active", color: "gray" },
           { id: "pending", label: "Pending", color: "yellow" },
           { id: "assigned", label: "Assigned", color: "blue" },
-          { id: "in-progress", label: "In Progress", color: "purple" }
+          { id: "in-progress", label: "In Progress", color: "purple" },
+          { id: "completed", label: "Completed", color: "green" }  // ✅ ADDED
         ].map((filter) => {
-          const activeEmergencies = emergencies.filter(e => e. status !== "completed");
+          // Count logic
+          const activeEmergencies = filter.id === "completed" 
+            ? emergencies.filter(e => e. status === "completed")
+            : emergencies.filter(e => e.status !== "completed");
+          
           const count = filter.id === "all" 
-            ? activeEmergencies. length 
-            : activeEmergencies.filter(e => (e.status || "pending") === filter.id).length;
+            ? activeEmergencies.length 
+            : emergencies.filter(e => (e.status || "pending") === filter.id).length;
           
           return (
             <button
-              key={filter.id}
+              key={filter. id}
               onClick={() => setEmergencyStatusFilter(filter.id)}
               className={`px-3 sm:px-4 py-2 rounded-lg font-semibold text-xs sm:text-sm transition-all ${
                 emergencyStatusFilter === filter.id
@@ -1240,8 +1297,10 @@ const updateEmergencyStatus = async (id, status) => {
                     ? "bg-yellow-600 text-white"
                     : filter.id === "assigned"
                     ? "bg-blue-600 text-white"
-                    : filter.id === "in-progress"
+                    :  filter.id === "in-progress"
                     ? "bg-purple-600 text-white"
+                    : filter.id === "completed"
+                    ? "bg-green-600 text-white"
                     : "bg-red-600 text-white"
                   : "bg-white text-gray-700 hover:bg-gray-100 border border-gray-300"
               }`}
@@ -1254,11 +1313,19 @@ const updateEmergencyStatus = async (id, status) => {
     </div>
 
     {(() => {
-      // Filter emergencies:  hide completed, filter by status
-      const activeEmergencies = emergencies.filter(e => e.status !== "completed");
-      const filteredEmergencies = emergencyStatusFilter === "all"
-        ? activeEmergencies
-        : activeEmergencies.filter(e => (e.status || "pending") === emergencyStatusFilter);
+      // ✅ UPDATED FILTER LOGIC
+      let filteredEmergencies;
+      
+      if (emergencyStatusFilter === "all") {
+        // Show only non-completed (active) emergencies
+        filteredEmergencies = emergencies.filter(e => e. status !== "completed");
+      } else if (emergencyStatusFilter === "completed") {
+        // Show only completed emergencies
+        filteredEmergencies = emergencies.filter(e => e.status === "completed");
+      } else {
+        // Show specific status
+        filteredEmergencies = emergencies.filter(e => (e.status || "pending") === emergencyStatusFilter);
+      }
 
       return (
         <>
@@ -1266,7 +1333,14 @@ const updateEmergencyStatus = async (id, status) => {
           <div className="block lg:hidden">
             <div className="space-y-4 p-4">
               {filteredEmergencies.map((emergency) => (
-                <div key={emergency._id} className="border border-gray-200 rounded-lg p-4 space-y-3">
+                <div 
+                  key={emergency._id} 
+                  className={`border-2 rounded-lg p-4 space-y-3 ${
+                    emergency.status === 'completed' 
+                      ? 'bg-green-50 border-green-200' 
+                      :  'border-gray-200'
+                  }`}
+                >
                   <div className="flex justify-between items-start">
                     <div className="flex-1 min-w-0">
                       <h3 className="font-semibold text-gray-900">{emergency.name}</h3>
@@ -1280,11 +1354,13 @@ const updateEmergencyStatus = async (id, status) => {
                         className={`inline-flex px-2 py-1 text-xs font-semibold rounded-full ${
                           (emergency.status || "pending") === "pending"
                             ? "bg-yellow-100 text-yellow-800"
-                            :  (emergency.status || "pending") === "assigned"
+                            : (emergency.status || "pending") === "assigned"
                             ? "bg-blue-100 text-blue-800"
                             :  (emergency.status || "pending") === "in-progress"
                             ? "bg-purple-100 text-purple-800"
-                            : "bg-gray-100 text-gray-800"
+                            : (emergency.status || "pending") === "completed"
+                            ? "bg-green-100 text-green-800"
+                            :  "bg-gray-100 text-gray-800"
                         }`}
                       >
                         {(emergency.status || "pending").toUpperCase()}
@@ -1308,10 +1384,19 @@ const updateEmergencyStatus = async (id, status) => {
                       <p className="text-sm text-gray-600 truncate">{emergency.location}</p>
                     </div>
                     
-                    <div>
-                      <p className="text-xs text-gray-500">Request Time</p>
-                      <p className="text-sm text-gray-600">{formatDateTime(emergency.createdAt)}</p>
+                    {/* ✅ SHOW BOOKING TIME */}
+                    <div className="mt-2 p-2 bg-blue-50 rounded border border-blue-200">
+                      <p className="text-xs font-semibold text-blue-700">⏰ Booking Time</p>
+                      <p className="text-sm text-blue-900">{formatDateTime(emergency.createdAt)}</p>
                     </div>
+                    
+                    {/* ✅ SHOW COMPLETED TIME (if completed) */}
+                    {emergency.status === 'completed' && emergency.completedAt && (
+                      <div className="mt-2 p-2 bg-green-50 rounded border border-green-200">
+                        <p className="text-xs font-semibold text-green-700">✅ Completed Time</p>
+                        <p className="text-sm text-green-900">{formatDateTime(emergency.completedAt)}</p>
+                      </div>
+                    )}
                     
                     {emergency.assignedMechanic && (
                       <div>
@@ -1323,8 +1408,8 @@ const updateEmergencyStatus = async (id, status) => {
                     )}
                   </div>
                   
-                  {/* REMOVED: Actions dropdown for mobile */}
-                  {! emergency.assignedMechanic && (
+                  {/* Show assign button only for non-completed emergencies */}
+                  {emergency.status !== 'completed' && ! emergency.assignedMechanic && (
                     <div className="pt-3 border-t border-gray-100">
                       <button
                         onClick={() => {
@@ -1359,6 +1444,9 @@ const updateEmergencyStatus = async (id, status) => {
                     Location
                   </th>
                   <th className="px-4 lg:px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                    Timestamps
+                  </th>
+                  <th className="px-4 lg:px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
                     Status
                   </th>
                   <th className="px-4 lg:px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
@@ -1371,12 +1459,16 @@ const updateEmergencyStatus = async (id, status) => {
               </thead>
               <tbody className="bg-white divide-y divide-gray-200">
                 {filteredEmergencies.map((emergency) => (
-                  <tr key={emergency._id} className="hover:bg-gray-50">
+                  <tr 
+                    key={emergency._id} 
+                    className={`hover:bg-gray-50 ${
+                      emergency.status === 'completed' ?  'bg-green-50' : ''
+                    }`}
+                  >
                     <td className="px-4 lg:px-6 py-4 whitespace-nowrap">
                       <div>
                         <div className="font-semibold text-gray-900">{emergency.name}</div>
                         <div className="text-sm text-gray-600">{emergency.phone}</div>
-                        <div className="text-xs text-gray-500">{formatDateTime(emergency.createdAt)}</div>
                       </div>
                     </td>
                     <td className="px-4 lg:px-6 py-4">
@@ -1392,23 +1484,40 @@ const updateEmergencyStatus = async (id, status) => {
                         {emergency.location}
                       </div>
                     </td>
+                    {/* ✅ NEW COLUMN:  Timestamps */}
+                    <td className="px-4 lg:px-6 py-4 whitespace-nowrap">
+                      <div className="space-y-1">
+                        <div>
+                          <p className="text-xs text-blue-600 font-semibold">⏰ Booked</p>
+                          <p className="text-sm text-gray-900">{formatDateTime(emergency.createdAt)}</p>
+                        </div>
+                        {emergency.status === 'completed' && emergency.completedAt && (
+                          <div>
+                            <p className="text-xs text-green-600 font-semibold">✅ Completed</p>
+                            <p className="text-sm text-green-700">{formatDateTime(emergency.completedAt)}</p>
+                          </div>
+                        )}
+                      </div>
+                    </td>
                     <td className="px-4 lg:px-6 py-4 whitespace-nowrap">
                       <span
                         className={`inline-flex px-2 py-1 text-xs font-semibold rounded-full ${
                           (emergency.status || "pending") === "pending"
                             ? "bg-yellow-100 text-yellow-800"
-                            : (emergency.status || "pending") === "assigned"
-                            ? "bg-blue-100 text-blue-800"
-                            : (emergency. status || "pending") === "in-progress"
+                            :  (emergency.status || "pending") === "assigned"
+                            ?  "bg-blue-100 text-blue-800"
+                            : (emergency.status || "pending") === "in-progress"
                             ? "bg-purple-100 text-purple-800"
-                            :  "bg-gray-100 text-gray-800"
+                            : (emergency.status || "pending") === "completed"
+                            ? "bg-green-100 text-green-800"
+                            : "bg-gray-100 text-gray-800"
                         }`}
                       >
                         {(emergency.status || "pending").toUpperCase()}
                       </span>
                     </td>
                     <td className="px-4 lg:px-6 py-4 whitespace-nowrap">
-                      {emergency.assignedMechanic ? (
+                      {emergency.assignedMechanic ?  (
                         <div className="text-sm">
                           <div className="font-medium text-gray-900">
                             {mechanics.find((m) => m._id === emergency.assignedMechanic)?.name || "Unknown"}
@@ -1420,8 +1529,7 @@ const updateEmergencyStatus = async (id, status) => {
                       )}
                     </td>
                     <td className="px-4 lg:px-6 py-4 whitespace-nowrap">
-                      {/* REMOVED:  Dropdown when mechanic is assigned */}
-                      {!emergency.assignedMechanic && (
+                      {emergency.status !== 'completed' && ! emergency.assignedMechanic && (
                         <button
                           onClick={() => {
                             setSelectedTask({ ...emergency, taskType: "emergency" });
@@ -1445,16 +1553,19 @@ const updateEmergencyStatus = async (id, status) => {
           {filteredEmergencies.length === 0 && ! loading && (
             <div className="text-center py-12">
               <div className="text-6xl mb-4">
-                {emergencyStatusFilter === "pending" ? "⏳" :  
+                {emergencyStatusFilter === "pending" ? "⏳" : 
                  emergencyStatusFilter === "assigned" ? "👨‍🔧" : 
-                 emergencyStatusFilter === "in-progress" ? "🔧" : "✅"}
+                 emergencyStatusFilter === "in-progress" ? "🔧" : 
+                 emergencyStatusFilter === "completed" ? "✅" : "📋"}
               </div>
               <h3 className="text-lg font-semibold text-gray-900 mb-2">
-                No {emergencyStatusFilter !== "all" ? emergencyStatusFilter. charAt(0).toUpperCase() + emergencyStatusFilter.slice(1).replace("-", " ") : "Active"} Emergencies
+                No {emergencyStatusFilter !== "all" ?  emergencyStatusFilter. charAt(0).toUpperCase() + emergencyStatusFilter.slice(1).replace("-", " ") : "Active"} Emergencies
               </h3>
               <p className="text-gray-600">
                 {emergencyStatusFilter === "all" 
                   ? "No active emergency requests"
+                  : emergencyStatusFilter === "completed"
+                  ? "No completed emergencies yet"
                   : `No ${emergencyStatusFilter.replace("-", " ")} emergencies found`}
               </p>
             </div>

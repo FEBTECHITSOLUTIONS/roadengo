@@ -1,9 +1,17 @@
 import React from "react";
 import { Link } from "react-router-dom";
-import { FaInstagram, FaFacebook, FaYoutube, FaTwitter, FaPhoneAlt, FaEnvelope, FaMapMarkerAlt } from "react-icons/fa";
+import { FaInstagram, FaFacebook, FaYoutube, FaPhoneAlt, FaEnvelope, FaMapMarkerAlt } from "react-icons/fa";
 import { FaXTwitter } from "react-icons/fa6";
 
 const Footer = () => {
+  // Function to scroll to top when a link is clicked
+  const scrollToTop = () => {
+    window.scrollTo({
+      top: 0,
+      behavior: "smooth", // Smooth scrolling effect
+    });
+  };
+
   return (
     <footer className="bg-red-800 text-gray-100">
       <div className="max-w-7xl mx-auto px-4 py-12">
@@ -23,46 +31,47 @@ const Footer = () => {
                 href="https://www.instagram.com/roadengo?igsh=MXJvN211NWdwZGh0MA%3D%3D&utm_source=qr"
                 target="_blank"
                 rel="noopener noreferrer"
-                className="hover:text-red-900 transition-colors bg-pink-600 text-white p-1.5 rounded-full"
+                className="hover:text-pink-500 transition-colors bg-white text-red-800 p-1.5 rounded-full"
               >
-                <FaInstagram className="text-2xl" />
+                <FaInstagram className="text-xl" />
               </a>
               <a
                 href="https://www.facebook.com/share/1EJ7e62HsW/?mibextid=wwXIfr"
                 target="_blank"
                 rel="noopener noreferrer"
-                className="hover:text-blue-800 transition-colors bg-blue-600 text-white p-1.5 rounded-full"
+                className="hover:text-blue-600 transition-colors bg-white text-red-800 p-1.5 rounded-full"
               >
-                <FaFacebook className="text-2xl" />
+                <FaFacebook className="text-xl" />
               </a>
               <a
                 href="https://youtube.com/@yourchannel"
                 target="_blank"
                 rel="noopener noreferrer"
-                className="hover:text-red-900 transition-colors bg-red-600 text-white p-1.5 rounded-full"
+                className="hover:text-red-600 transition-colors bg-white text-red-800 p-1.5 rounded-full"
               >
-                <FaYoutube className="text-2xl" />
+                <FaYoutube className="text-xl" />
               </a>
               <a
                 href="https://twitter.com/yourhandle"
                 target="_blank"
                 rel="noopener noreferrer"
-                className="hover:text-blue-600 transition-colors bg-black text-white p-1.5 rounded-full"
+                className="hover:text-black transition-colors bg-white text-red-800 p-1.5 rounded-full"
               >
-                <FaXTwitter className="text-2xl" />
+                <FaXTwitter className="text-xl" />
               </a>
             </div>
           </div>
 
-          {/* Quick Links */}
+          {/* Quick Links - UPDATED WITH SCROLL TO TOP */}
           <div>
             <h3 className="text-lg font-semibold mb-4 text-white">
               Quick Links
             </h3>
-            <ul className="space-y-2">
+            <ul className="space-y-2 text-gray-300 text-sm">
               <li>
                 <Link
                   to="/services"
+                  onClick={scrollToTop}
                   className="hover:text-white transition-colors"
                 >
                   Services
@@ -71,6 +80,7 @@ const Footer = () => {
               <li>
                 <Link
                   to="/about"
+                  onClick={scrollToTop}
                   className="hover:text-white transition-colors"
                 >
                   About Us
@@ -79,9 +89,28 @@ const Footer = () => {
               <li>
                 <Link
                   to="/contact"
+                  onClick={scrollToTop}
                   className="hover:text-white transition-colors"
                 >
                   Contact
+                </Link>
+              </li>
+              <li>
+                <Link
+                  to="/terms-and-conditions"
+                  onClick={scrollToTop}
+                  className="hover:text-white transition-colors"
+                >
+                  Terms & Conditions
+                </Link>
+              </li>
+              <li>
+                <Link
+                  to="/privacy-policy"
+                  onClick={scrollToTop}
+                  className="hover:text-white transition-colors"
+                >
+                  Privacy Policy
                 </Link>
               </li>
             </ul>
@@ -92,10 +121,11 @@ const Footer = () => {
             <h3 className="text-lg font-semibold mb-4 text-white">
               For Professionals
             </h3>
-            <ul className="space-y-2">
+            <ul className="space-y-2 text-gray-300 text-sm">
               <li>
                 <Link
                   to="/admin/login"
+                  onClick={scrollToTop}
                   className="hover:text-white transition-colors"
                 >
                   Admin Login
@@ -104,6 +134,7 @@ const Footer = () => {
               <li>
                 <Link
                   to="/mechanic/login"
+                  onClick={scrollToTop}
                   className="hover:text-white transition-colors"
                 >
                   Mechanics Login
@@ -163,8 +194,8 @@ const Footer = () => {
         </div>
 
         {/* Bottom Bar */}
-        <div className="border-t border-gray-600 mt-10 pt-6 text-center">
-          <p className="text-gray-200 text-sm"> 
+        <div className="border-t border-red-700 mt-10 pt-6 text-center">
+          <p className="text-gray-300 text-sm"> 
             © {new Date().getFullYear()} Roadengo. All rights reserved. 
           </p>
         </div>

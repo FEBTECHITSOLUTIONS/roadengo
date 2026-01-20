@@ -38,7 +38,7 @@ const Booking = () => {
       subText: "Available 24/7",
       color: "orange",
       features: ["Direct call", "Immediate help", "No booking needed"],
-      phone: "+91 9876543210",
+      phone: "+91 7900900744",
       isPhoneService: true,
     },
   ];

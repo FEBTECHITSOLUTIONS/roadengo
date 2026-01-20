@@ -211,7 +211,7 @@ const Contact = () => {
                       name="phone"
                       required
                       className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:border-red-500 focus:ring-2 focus:ring-red-100"
-                      placeholder="+91 9876543210"
+                      placeholder="+91 7900900744"
                     />
                   </div>
                 </div>

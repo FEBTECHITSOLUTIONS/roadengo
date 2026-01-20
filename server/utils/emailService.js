@@ -189,7 +189,7 @@ const sendCustomerConfirmationEmail = async ({ to, name, formType, message, serv
         </div>
 
         <p style="font-size: 14px; color: #9ca3af; margin: 40px 0 0 0; padding-top: 20px; border-top: 1px solid #e5e7eb; text-align: center;">
-          RoadEngo • <a href="https://roadengo-orcin.vercel.app" style="color: #6b7280; text-decoration: none;">Visit Website</a>
+          RoadEngo • <a href="https://roadengo.com" style="color: #6b7280; text-decoration: none;">Visit Website</a>
         </p>
       </div>
     `;
@@ -254,7 +254,7 @@ const sendCustomerConfirmationEmail = async ({ to, name, formType, message, serv
         </div>
 
         <p style="font-size: 14px; color: #9ca3af; margin: 40px 0 0 0; padding-top: 20px; border-top: 1px solid #e5e7eb; text-align: center;">
-          RoadEngo • <a href="https://roadengo-orcin.vercel.app" style="color: #3b82f6; text-decoration: none;">Visit Website</a>
+          RoadEngo • <a href="https://roadengo.com" style="color: #3b82f6; text-decoration: none;">Visit Website</a>
         </p>
       </div>
     `;
@@ -314,7 +314,7 @@ const sendCustomerConfirmationEmail = async ({ to, name, formType, message, serv
         </div>
 
         <p style="font-size: 14px; color:  #9ca3af; margin:  40px 0 0 0; padding-top: 20px; border-top: 1px solid #e5e7eb; text-align: center;">
-          RoadEngo Emergency • <a href="https://roadengo-orcin.vercel.app" style="color: #dc2626; text-decoration:  none;">Visit Website</a>
+          RoadEngo Emergency • <a href="https://roadengo.com" style="color: #dc2626; text-decoration:  none;">Visit Website</a>
         </p>
       </div>
     `;
@@ -362,7 +362,7 @@ const sendCustomerConfirmationEmail = async ({ to, name, formType, message, serv
         </div>
 
         <p style="font-size: 14px; color: #9ca3af; margin: 40px 0 0 0; padding-top: 20px; border-top: 1px solid #e5e7eb; text-align: center;">
-          RoadEngo • <a href="https://roadengo-orcin.vercel.app" style="color: #f59e0b; text-decoration: none;">Visit Website</a>
+          RoadEngo • <a href="https://roadengo.com" style="color: #f59e0b; text-decoration: none;">Visit Website</a>
         </p>
       </div>
     `;

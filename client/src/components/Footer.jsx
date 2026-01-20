@@ -1,6 +1,6 @@
 import React from "react";
 import { Link } from "react-router-dom";
-import { FaInstagram, FaFacebook, FaYoutube, FaTwitter } from "react-icons/fa";
+import { FaInstagram, FaFacebook, FaYoutube, FaTwitter, FaPhoneAlt, FaEnvelope, FaMapMarkerAlt } from "react-icons/fa";
 import { FaXTwitter } from "react-icons/fa6";
 
 const Footer = () => {
@@ -23,7 +23,7 @@ const Footer = () => {
                 href="https://www.instagram.com/roadengo?igsh=MXJvN211NWdwZGh0MA%3D%3D&utm_source=qr"
                 target="_blank"
                 rel="noopener noreferrer"
-                className="hover:text-pink-500 transition-colors bg-gray-600 text-white p-1 rounded-full"
+                className="hover:text-red-900 transition-colors bg-pink-600 text-white p-1.5 rounded-full"
               >
                 <FaInstagram className="text-2xl" />
               </a>
@@ -31,7 +31,7 @@ const Footer = () => {
                 href="https://www.facebook.com/share/1EJ7e62HsW/?mibextid=wwXIfr"
                 target="_blank"
                 rel="noopener noreferrer"
-                className="hover:text-blue-500 transition-colors bg-gray-600 text-white p-1 rounded-full"
+                className="hover:text-blue-800 transition-colors bg-blue-600 text-white p-1.5 rounded-full"
               >
                 <FaFacebook className="text-2xl" />
               </a>
@@ -39,7 +39,7 @@ const Footer = () => {
                 href="https://youtube.com/@yourchannel"
                 target="_blank"
                 rel="noopener noreferrer"
-                className="hover:text-red-500 transition-colors bg-gray-600 text-white p-1 rounded-full"
+                className="hover:text-red-900 transition-colors bg-red-600 text-white p-1.5 rounded-full"
               >
                 <FaYoutube className="text-2xl" />
               </a>
@@ -47,7 +47,7 @@ const Footer = () => {
                 href="https://twitter.com/yourhandle"
                 target="_blank"
                 rel="noopener noreferrer"
-                className="hover:text-blue-400 transition-colors bg-gray-600 text-white p-1 rounded-full"
+                className="hover:text-blue-600 transition-colors bg-black text-white p-1.5 rounded-full"
               >
                 <FaXTwitter className="text-2xl" />
               </a>
@@ -112,30 +112,52 @@ const Footer = () => {
             </ul>
           </div>
 
-          {/* Emergency Contact */}
+          {/* Contact Us */}
           <div>
             <h3 className="text-lg font-semibold mb-4 text-white">
-              Emergency Contact
+              Contact Us
             </h3>
-            <div className="bg-gray-600 text-white p-4 rounded-xl shadow-md">
-              <p className="text-sm font-medium">24/7 Emergency Hotline</p>
-              <p className="text-xl font-bold">+91 7900900744</p>
-            </div>
-            <div className="flex items-center gap-4 mt-4">
-              <a
-                href="https://wa.me/7900900744"
-                target="_blank"
-                rel="noopener noreferrer"
-                className="hover:text-green-400 transition-colors"
-              >
-                <i className="ri-whatsapp-fill text-2xl"></i>
-              </a>
-              <a
-                href="tel:+917900900744"
-                className="hover:text-blue-400 transition-colors"
-              >
-                <i className="ri-phone-fill text-2xl"></i>
-              </a>
+            <div className="space-y-4">
+              
+              {/* Phone */}
+              <div className="flex items-center gap-3">
+                <div className="bg-white p-1.5 rounded-md flex items-center justify-center">
+                  <FaPhoneAlt className="text-red-800 text-sm" />
+                </div>
+                <a 
+                  href="tel:+917900900744" 
+                  className="text-gray-100 hover:text-white transition-colors text-sm font-medium"
+                >
+                  +91 7900900744
+                </a>
+              </div>
+
+              {/* Email */}
+              <div className="flex items-center gap-3">
+                <div className="bg-white p-1.5 rounded-md flex items-center justify-center">
+                  <FaEnvelope className="text-red-800 text-sm" />
+                </div>
+                <a 
+                  href="mailto:support@roadengo.com" 
+                  className="text-gray-100 hover:text-white transition-colors text-sm font-medium"
+                >
+                  support@roadengo.com
+                </a>
+              </div>
+
+              {/* Address */}
+              <div className="flex items-start gap-3">
+                <div className="bg-white p-1.5 rounded-md flex items-center justify-center mt-0.5">
+                  <FaMapMarkerAlt className="text-red-800 text-sm" />
+                </div>
+                <p className="text-gray-100 text-sm leading-relaxed font-medium">
+                  Lakshar road near<br />
+                  sati kund, Haridwar<br />
+                  Uttarakhand 249408<br />
+                  India
+                </p>
+              </div>
+
             </div>
           </div>
         </div>
@@ -143,7 +165,7 @@ const Footer = () => {
         {/* Bottom Bar */}
         <div className="border-t border-gray-600 mt-10 pt-6 text-center">
           <p className="text-gray-200 text-sm"> 
-            © {new Date().getFullYear()} BikeService. All rights reserved. 
+            © {new Date().getFullYear()} Roadengo. All rights reserved. 
           </p>
         </div>
       </div>

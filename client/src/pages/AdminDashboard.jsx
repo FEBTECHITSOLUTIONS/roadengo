@@ -22,6 +22,9 @@ const AdminDashboard = () => {
   const [showCreateMechanicModal, setShowCreateMechanicModal] = useState(false);
   const [selectedTask, setSelectedTask] = useState(null);
 
+  const [notification, setNotification] = useState(null); 
+  const [viewDetails, setViewDetails] = useState({ show: false, content: "", title: "" });
+
   const [newMechanic, setNewMechanic] = useState({
     name: "",
     email: "",
@@ -110,6 +113,15 @@ const AdminDashboard = () => {
     }
   }, [fetchAppointments, fetchEmergencies, fetchInquiries, fetchMechanics, fetchContactForms]);
 
+  // Helper to show notification
+  const showNotification = (message, type = "success") => {
+    setNotification({ message, type });
+    // Auto hide after 3 seconds
+    setTimeout(() => {
+      setNotification(null);
+    }, 3000);
+  };
+
   // Auth check and initial fetch
   useEffect(() => {
     const token = localStorage.getItem("adminToken");
@@ -120,6 +132,29 @@ const AdminDashboard = () => {
     }
     fetchAllData();
   }, [navigate, fetchAllData]);
+
+
+  // Scroll Lock Effect
+  useEffect(() => {
+    if (viewDetails.show || showAssignModal || showCreateMechanicModal) {
+      document.body.style.overflow = "hidden";
+      document.documentElement.style.overflow = "hidden";
+      document.body.style.height = "100%";
+      document.documentElement.style.height = "100%";
+    } else {
+      document.body.style.overflow = "unset";
+      document.documentElement.style.overflow = "unset";
+      document.body.style.height = "unset";
+      document.documentElement.style.height = "unset";
+    }
+
+    return () => {
+      document.body.style.overflow = "unset";
+      document.documentElement.style.overflow = "unset";
+      document.body.style.height = "unset";
+      document.documentElement.style.height = "unset";
+    };
+  }, [viewDetails.show, showAssignModal, showCreateMechanicModal]);
 
   // Auto-update polling (30 seconds)
   const POLL_INTERVAL = 30000;
@@ -199,7 +234,7 @@ const AdminDashboard = () => {
         experience: 0,
         location: { city: "" },
       });
-      alert("✅ Mechanic created successfully!");
+      showNotification("Mechanic created successfully!", "success");
     } catch (error) {
       console.error("Error creating mechanic:", error);
       setError(`Failed to create mechanic:  ${error.response?.data?.message || error.message}`);
@@ -247,7 +282,7 @@ const handleAssignTask = async (mechanicId) => {
     }
 
     const actionText = previousMechanicId ? "✅ Mechanic re-assigned successfully!" : "✅ Task assigned successfully!";
-    alert(actionText);
+    showNotification(actionText, "success");
     
     await fetchAllData(false);
     setShowAssignModal(false);
@@ -255,6 +290,7 @@ const handleAssignTask = async (mechanicId) => {
   } catch (error) {
     console.error("Error assigning task:", error);
     setError(`Assignment failed: ${error.response?.data?.message || error.message}`);
+    showNotification(`Assignment failed: ${error.response?.data?.message || error.message}`, "error");
   } finally {
     setLoading(false);
   }
@@ -268,6 +304,7 @@ const handleAssignTask = async (mechanicId) => {
     } catch (error) {
       console.error("Error updating appointment:", error);
       setError("Failed to update appointment status");
+      showNotification("Failed to update appointment status", "error");
     } finally {
       setLoading(false);
     }
@@ -281,6 +318,7 @@ const handleAssignTask = async (mechanicId) => {
     } catch (error) {
       console.error("Error updating inquiry:", error);
       setError("Failed to update inquiry status");
+      showNotification("Failed to update inquiry status", "error");
     } finally {
       setLoading(false);
     }
@@ -294,6 +332,7 @@ const handleAssignTask = async (mechanicId) => {
   } catch (error) {
     console.error("Error updating contact form:", error);
     setError("Failed to update contact form status");
+    showNotification("Failed to update contact form status", "error");
   } finally {
     setLoading(false);
   }
@@ -307,6 +346,7 @@ const updateEmergencyStatus = async (id, status) => {
   } catch (error) {
     console.error("Error updating emergency:", error);
     setError("Failed to update emergency status");
+    showNotification("Failed to update emergency status", "error");
   } finally {
     setLoading(false);
   }
@@ -545,8 +585,9 @@ const updateEmergencyStatus = async (id, status) => {
       <div className="container mx-auto px-2 sm:px-4 py-4 sm:py-6 md:py-8">
         {/* Header */}
         <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center mb-6 sm:mb-8 space-y-4 sm:space-y-0">
-          <h1 className="text-xl sm:text-2xl md:text-3xl font-bold text-gray-900">
-            🏍️ RoadEngo Admin
+          <h1 className="flex text-xl sm:text-2xl md:text-3xl font-bold text-gray-900 gap-2 items-center">
+            <img src="/images/Roadengo-Logo.jpeg" className="w-25 " alt="logo" /> 
+            <span className="items-center flex">Admin</span>
           </h1>
           <div className="flex flex-wrap items-center gap-2 sm:gap-3 md:gap-4 w-full sm:w-auto">
             <button
@@ -593,7 +634,7 @@ const updateEmergencyStatus = async (id, status) => {
               Appointments
             </h3>
             <p className="text-lg sm:text-2xl md:text-3xl font-bold text-blue-600">
-              {appointments. length}
+              {appointments.filter(e => e.status !== "completed").length}
             </p>
           </div>
           <div className="bg-white p-3 sm:p-4 md:p-6 rounded-lg shadow">
@@ -601,7 +642,7 @@ const updateEmergencyStatus = async (id, status) => {
               <span className="hidden sm:inline">Emergency </span>Requests
             </h3>
             <p className="text-lg sm:text-2xl md:text-3xl font-bold text-red-600">
-              {emergencies.length}
+              {emergencies.filter(e => e.status !== "completed").length}
             </p>
           </div>
           <div className="bg-white p-3 sm:p-4 md:p-6 rounded-lg shadow">
@@ -609,7 +650,7 @@ const updateEmergencyStatus = async (id, status) => {
               <span className="hidden sm:inline">Cart </span>Inquiries
             </h3>
             <p className="text-lg sm:text-2xl md:text-3xl font-bold text-green-600">
-              {inquiries.length}
+              {inquiries.filter(e => e.status !== "completed").length}
             </p>
           </div>
 
@@ -618,7 +659,7 @@ const updateEmergencyStatus = async (id, status) => {
               <span className="hidden sm:inline">Contact </span>Forms
             </h3>
             <p className="text-lg sm:text-2xl md:text-3xl font-bold text-indigo-600">
-              {contactForms.length}
+              {contactForms.filter(e => e.status !== "resolved" && e.status !== "closed").length}
             </p>
           </div>
 
@@ -653,7 +694,7 @@ const updateEmergencyStatus = async (id, status) => {
             >
               <span className="hidden sm:inline">Appointments </span>
               <span className="sm:hidden">Apt </span>
-              ({appointments.length})
+              ({appointments.filter(a => a.status !== "completed").length})
             </button>
             <button
               onClick={() => setActiveTab("emergencies")}
@@ -665,7 +706,7 @@ const updateEmergencyStatus = async (id, status) => {
             >
               <span className="hidden sm:inline">Emergencies </span>
               <span className="sm:hidden">Emg </span>
-              ({emergencies.length})
+              ({emergencies.filter(e => e.status !== "completed").length})
             </button>
             <button
               onClick={() => setActiveTab("inquiries")}
@@ -675,7 +716,7 @@ const updateEmergencyStatus = async (id, status) => {
                   : "bg-white text-gray-700 hover:bg-gray-50"
               }`}
             >
-              <span className="hidden sm:inline">Cart </span>Inquiries ({inquiries.length})
+              <span className="hidden sm:inline">Cart </span>Inquiries ({inquiries.filter(a => a.status !== "completed").length})
             </button>
 
             <button
@@ -686,7 +727,7 @@ const updateEmergencyStatus = async (id, status) => {
                   : "bg-white text-gray-700 hover:bg-gray-50"
               }`}
             >
-              <span className="hidden sm:inline">Contact </span>Forms ({contactForms.length})
+              <span className="hidden sm:inline">Contact </span>Forms ({contactForms.filter(a => a.status !== "resolved" && a.status !== "closed").length})
             </button>
             <button
               onClick={() => setActiveTab("mechanics")}
@@ -895,7 +936,7 @@ const updateEmergencyStatus = async (id, status) => {
             {/* Mobile Card View */}
             <div className="block lg:hidden">
               <div className="space-y-4 p-4">
-                {appointments. map((appointment) => (
+                {appointments.map((appointment) => (
                   <div key={appointment._id} className="border border-gray-200 rounded-lg p-4 space-y-3">
                      
                     <div className="flex justify-between items-start">
@@ -906,7 +947,7 @@ const updateEmergencyStatus = async (id, status) => {
                       </div>
                       <span
                         className={`inline-flex px-2 py-1 text-xs font-semibold rounded-full ${
-                          appointment.status === STATUS. PENDING
+                          appointment.status === STATUS.PENDING
                             ? "bg-yellow-100 text-yellow-800"
                             : appointment.status === STATUS.CONFIRMED
                             ? "bg-blue-100 text-blue-800"
@@ -1508,7 +1549,7 @@ ${inquiry. cartItems?.map(item => `- ${item.name} (${item.brand || "N/A"}) x${it
 📊 Status: ${inquiry.status?. toUpperCase()}
 📅 Date: ${formatDateTime(inquiry.createdAt)}
                         `.trim();
-                        alert(details);
+                        setViewDetails({ show: true, content: details, title: "Contact Form Details" });
                       }}
                       className="w-full text-sm text-blue-600 hover:text-blue-800 font-medium py-1"
                     >
@@ -1622,7 +1663,7 @@ ${inquiry.cartItems?. map(item => `- ${item.name} (${item.brand || "N/A"}) x${it
 📊 Status: ${inquiry. status?.toUpperCase()}
 📅 Date: ${formatDateTime(inquiry.createdAt)}
                           `.trim();
-                          alert(details);
+                          setViewDetails({ show: true, content: details, title: "Cart Inquiry Details" });
                         }}
                         className="text-xs text-blue-600 hover:text-blue-800 font-medium"
                       >
@@ -1819,7 +1860,7 @@ ${form.rating ? `⭐ Rating: ${'⭐'.repeat(form.rating)}` : ''}
 📅 Submitted: ${formatDateTime(form.createdAt)}
 🆔 Form ID: ${form._id}
                         `.trim();
-                        alert(details);
+                        setViewDetails({ show: true, content: details, title: "Contact Form Details" });
                       }}
                       className="w-full text-sm text-indigo-600 hover:text-indigo-800 font-medium py-1"
                     >
@@ -1942,7 +1983,7 @@ ${form.rating ? `⭐ Rating: ${'⭐'. repeat(form.rating)}` : ''}
 📅 Submitted: ${formatDateTime(form.createdAt)}
 🆔 Form ID: ${form._id}
                           `.trim();
-                          alert(details);
+                          setViewDetails({ show: true, content: details, title: "Contact Form Details" });
                         }}
                         className="text-indigo-600 hover:text-indigo-900 font-medium"
                       >
@@ -2173,6 +2214,64 @@ ${form.rating ? `⭐ Rating: ${'⭐'. repeat(form.rating)}` : ''}
 
         {/* Enhanced Assign Modal */}
         <EnhancedAssignModal />
+
+        {/* --- NEW: TOAST NOTIFICATION COMPONENT --- */}
+        {notification && (
+          <div className={`fixed top-5 right-5 z-[100] flex items-center p-4 mb-4 text-gray-500 bg-white rounded-lg shadow-xl border-l-4 transition-all duration-300 transform translate-y-0 ${
+            notification.type === "success" ? "border-green-500" : "border-red-500"
+          }`}>
+            <div className={`inline-flex items-center justify-center flex-shrink-0 w-8 h-8 rounded-lg ${
+              notification.type === "success" ? "text-green-500 bg-green-100" : "text-red-500 bg-red-100"
+            }`}>
+              {notification.type === "success" ? (
+                <svg className="w-5 h-5" fill="currentColor" viewBox="0 0 20 20"><path fillRule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clipRule="evenodd"></path></svg>
+              ) : (
+                <svg className="w-5 h-5" fill="currentColor" viewBox="0 0 20 20"><path fillRule="evenodd" d="M4.293 4.293a1 1 0 011.414 0L10 8.586l4.293-4.293a1 1 0 111.414 1.414L11.414 10l4.293 4.293a1 1 0 01-1.414 1.414L10 11.414l-4.293 4.293a1 1 0 01-1.414-1.414L8.586 10 4.293 5.707a1 1 0 010-1.414z" clipRule="evenodd"></path></svg>
+              )}
+            </div>
+            <div className="ml-3 text-sm font-semibold text-gray-800">{notification.message}</div>
+            <button 
+              onClick={() => setNotification(null)}
+              className="ml-auto -mx-1.5 -my-1.5 bg-white text-gray-400 hover:text-gray-900 rounded-lg focus:ring-2 focus:ring-gray-300 p-1.5 hover:bg-gray-100 inline-flex h-8 w-8"
+            >
+              <span className="sr-only">Close</span>
+              <svg className="w-5 h-5" fill="currentColor" viewBox="0 0 20 20"><path fillRule="evenodd" d="M4.293 4.293a1 1 0 011.414 0L10 8.586l4.293-4.293a1 1 0 111.414 1.414L11.414 10l4.293 4.293a1 1 0 01-1.414 1.414L10 11.414l-4.293 4.293a1 1 0 01-1.414-1.414L8.586 10 4.293 5.707a1 1 0 010-1.414z" clipRule="evenodd"></path></svg>
+            </button>
+          </div>
+        )}
+
+        {/* --- NEW: DETAILS MODAL (Replacement for Alert View) --- */}
+        {viewDetails.show && (
+          <div className="fixed inset-0 bg-black/40 backdrop-blur-3xl bg-opacity-50 z-[60] flex items-center justify-center p-4 backdrop-blur-sm">
+            <div className="bg-white rounded-xl shadow-2xl w-full max-w-2xl overflow-hidden transform transition-all scale-100">
+              {/* Header */}
+              <div className="bg-gray-50 px-6 py-4 border-b border-gray-100 flex justify-between items-center">
+                <h3 className="text-lg font-bold text-gray-800">{viewDetails.title}</h3>
+                <button 
+                  onClick={() => setViewDetails({ ...viewDetails, show: false })}
+                  className="text-gray-400 hover:text-red-500 transition-colors"
+                >
+                  <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M6 18L18 6M6 6l12 12"></path></svg>
+                </button>
+              </div>
+              {/* Body */}
+              <div className="p-6 max-h-[70vh] overflow-y-auto">
+                <pre className="whitespace-pre-wrap font-sans text-sm text-gray-600 bg-gray-50 p-4 rounded-lg border border-gray-200">
+                  {viewDetails.content}
+                </pre>
+              </div>
+              {/* Footer */}
+              <div className="bg-gray-50 px-6 py-3 flex justify-end">
+                <button
+                  onClick={() => setViewDetails({ ...viewDetails, show: false })}
+                  className="bg-gray-800 text-white px-4 py-2 rounded-lg hover:bg-gray-900 transition-colors text-sm font-medium"
+                >
+                  Close
+                </button>
+              </div>
+            </div>
+          </div>
+        )}
       </div>
     </div>
   );

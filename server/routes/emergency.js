@@ -117,12 +117,13 @@ router.post('/', async (req, res) => {
 });
 
 // Update emergency
-router.patch('/:id', authMiddleware, async (req, res) => {
+router. patch('/:id', authMiddleware, async (req, res) => {
   try {
-    const { id } = req.params;
+    const { id } = req. params;
     const updateData = req.body;
     
-    console.log('Updating emergency:', id, updateData);
+    console.log('📝 Updating emergency:', id);
+    console.log('📝 Update data:', updateData);
     
     // Remove undefined/null values
     Object.keys(updateData).forEach(key => {
@@ -131,24 +132,31 @@ router.patch('/:id', authMiddleware, async (req, res) => {
       }
     });
     
+    // ✅ CRITICAL: Set completedAt when status becomes 'completed'
+    if (updateData.status === 'completed') {
+      updateData.completedAt = new Date();
+      console.log('✅ Setting completedAt:', updateData.completedAt);
+    }
+    
     const emergency = await Emergency.findByIdAndUpdate(
       id, 
       { ...updateData, updatedAt: new Date() }, 
-      { new: true, runValidators: true }
+      { new: true, runValidators:  true }
     ).populate('assignedMechanic', 'name email phone');
     
     if (!emergency) {
-      return res.status(404).json({ message: 'Emergency request not found' });
+      return res.status(404).json({ message: 'Emergency not found' });
     }
     
-    console.log('Emergency updated successfully');
+    console.log('✅ Emergency updated successfully');
+    console.log('✅ completedAt value:', emergency.completedAt);
     
     res.json({
-      message: 'Emergency request updated successfully',
+      message: 'Emergency updated successfully',
       emergency
     });
   } catch (error) {
-    console.error('Error updating emergency:', error);
+    console.error('❌ Error updating emergency:', error);
     
     if (error.name === 'ValidationError') {
       const validationErrors = Object.values(error.errors).map(err => err.message);
@@ -159,7 +167,7 @@ router.patch('/:id', authMiddleware, async (req, res) => {
     }
     
     res.status(500).json({ 
-      message: 'Error updating emergency request', 
+      message: 'Error updating emergency', 
       error: error.message 
     });
   }

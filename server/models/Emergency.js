@@ -13,7 +13,7 @@ const emergencySchema = new mongoose.Schema({
     match: [/^[0-9]{10}$/, 'Phone number must be 10 digits']
   },
   location: {
-    type: String,
+    type:  String,
     required: [true, 'Location is required'],
     minlength: [10, 'Please provide detailed location with landmarks']
   },
@@ -26,11 +26,10 @@ const emergencySchema = new mongoose.Schema({
     required: [true, 'Issue description is required'],
     minlength: [10, 'Please provide detailed description of the issue']
   },
-
   status: {
     type: String,
     enum: ['pending', 'assigned', 'in-progress', 'completed', 'cancelled'],
-    default: 'pending'
+    default:  'pending'
   },
   priority: {
     type: Number,
@@ -40,7 +39,7 @@ const emergencySchema = new mongoose.Schema({
     }
   },
   assignedMechanic: {
-    type: mongoose.Schema.Types.ObjectId,
+    type: mongoose. Schema.Types.ObjectId,
     ref: 'Mechanic',
     default: null
   },
@@ -50,7 +49,7 @@ const emergencySchema = new mongoose.Schema({
     default: ''
   },
   userId: {
-    type: mongoose.Schema.Types.ObjectId,
+    type: mongoose. Schema.Types.ObjectId,
     ref: 'User'
   },
   serviceCategory: {
@@ -62,7 +61,7 @@ const emergencySchema = new mongoose.Schema({
     longitude: Number
   },
   estimatedArrival: {
-    type: Date,
+    type:  Date,
     default: null
   },
   actualArrival: {
@@ -70,7 +69,7 @@ const emergencySchema = new mongoose.Schema({
     default: null
   },
   resolutionTime: {
-    type: Number, // in minutes
+    type: Number,
     default: null
   },
   cost: {
@@ -78,7 +77,7 @@ const emergencySchema = new mongoose.Schema({
     default: 0
   },
   paymentStatus: {
-    type: String,
+    type:  String,
     enum: ['pending', 'paid', 'cash-on-service'],
     default: 'pending'
   },
@@ -100,21 +99,50 @@ const emergencySchema = new mongoose.Schema({
     type: String,
     maxlength: [500, 'Feedback cannot exceed 500 characters'],
     default: ''
+  },
+  completedAt: {
+    type:  Date,
+    default: null
   }
 }, {
   timestamps: true
+});
+
+// ✅ CRITICAL MIDDLEWARE - Auto-set completedAt when status becomes 'completed'
+emergencySchema. pre('save', function(next) {
+  const priorityMap = { low: 1, medium: 2, high:  3, critical: 4 };
+  this.priority = priorityMap[this.urgencyLevel] || 2;
+  
+  // Set completedAt when status changes to 'completed'
+  if (this.isModified('status') && this.status === 'completed' && ! this.completedAt) {
+    this.completedAt = new Date();
+    console.log('✅ [Middleware] Setting completedAt for emergency:', this._id);
+  }
+  
+  next();
+});
+
+// ✅ MIDDLEWARE for findOneAndUpdate (when updating via admin panel)
+emergencySchema.pre('findOneAndUpdate', function(next) {
+  const update = this.getUpdate();
+  
+  // Check if status is being updated to 'completed'
+  const newStatus = update.status || update.$set?. status;
+  
+  if (newStatus === 'completed') {
+    // Set completedAt if not already set
+    if (!update.completedAt && ! update.$set?.completedAt) {
+      this.set({ completedAt: new Date() });
+      console.log('✅ [Middleware] Auto-setting completedAt in findOneAndUpdate');
+    }
+  }
+  
+  next();
 });
 
 // Index for efficient queries
 emergencySchema.index({ urgencyLevel: -1, createdAt: -1 });
 emergencySchema.index({ assignedMechanic: 1, status: 1 });
 emergencySchema.index({ coordinates: '2dsphere' });
-
-// Pre-save middleware to set priority
-emergencySchema.pre('save', function(next) {
-  const priorityMap = { low: 1, medium: 2, high: 3, critical: 4 };
-  this.priority = priorityMap[this.urgencyLevel] || 2;
-  next();
-});
 
 module.exports = mongoose.model('Emergency', emergencySchema);

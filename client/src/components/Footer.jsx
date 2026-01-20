@@ -1,15 +1,21 @@
 import React from "react";
-import { Link } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom"; // ADDED: useNavigate
 import { FaInstagram, FaFacebook, FaYoutube, FaPhoneAlt, FaEnvelope, FaMapMarkerAlt } from "react-icons/fa";
 import { FaXTwitter } from "react-icons/fa6";
 
 const Footer = () => {
-  // Function to scroll to top when a link is clicked
-  const scrollToTop = () => {
+  const navigate = useNavigate(); 
+
+  // Function to handle delay and scroll
+  const handleLinkClick = (e, path) => {
+    e.preventDefault(); 
     window.scrollTo({
       top: 0,
-      behavior: "smooth", // Smooth scrolling effect
+      behavior: "smooth",
     });
+    setTimeout(() => {
+      navigate(path);
+    }, 200);
   };
 
   return (
@@ -62,7 +68,7 @@ const Footer = () => {
             </div>
           </div>
 
-          {/* Quick Links - UPDATED WITH SCROLL TO TOP */}
+          {/* Quick Links - UPDATED WITH 1 SEC DELAY */}
           <div>
             <h3 className="text-lg font-semibold mb-4 text-white">
               Quick Links
@@ -70,8 +76,7 @@ const Footer = () => {
             <ul className="space-y-2 text-gray-300 text-sm">
               <li>
                 <Link
-                  to="/services"
-                  onClick={scrollToTop}
+                  onClick={(e) => handleLinkClick(e, "/services")}
                   className="hover:text-white transition-colors"
                 >
                   Services
@@ -79,8 +84,7 @@ const Footer = () => {
               </li>
               <li>
                 <Link
-                  to="/about"
-                  onClick={scrollToTop}
+                  onClick={(e) => handleLinkClick(e, "/about")}
                   className="hover:text-white transition-colors"
                 >
                   About Us
@@ -88,8 +92,7 @@ const Footer = () => {
               </li>
               <li>
                 <Link
-                  to="/contact"
-                  onClick={scrollToTop}
+                  onClick={(e) => handleLinkClick(e, "/contact")}
                   className="hover:text-white transition-colors"
                 >
                   Contact
@@ -97,8 +100,7 @@ const Footer = () => {
               </li>
               <li>
                 <Link
-                  to="/terms-and-conditions"
-                  onClick={scrollToTop}
+                  onClick={(e) => handleLinkClick(e, "/terms-and-conditions")}
                   className="hover:text-white transition-colors"
                 >
                   Terms & Conditions
@@ -106,8 +108,7 @@ const Footer = () => {
               </li>
               <li>
                 <Link
-                  to="/privacy-policy"
-                  onClick={scrollToTop}
+                  onClick={(e) => handleLinkClick(e, "/privacy-policy")}
                   className="hover:text-white transition-colors"
                 >
                   Privacy Policy
@@ -116,7 +117,7 @@ const Footer = () => {
             </ul>
           </div>
 
-          {/* For Professionals */}
+          {/* For Professionals - UPDATED WITH 1 SEC DELAY */}
           <div>
             <h3 className="text-lg font-semibold mb-4 text-white">
               For Professionals
@@ -125,7 +126,7 @@ const Footer = () => {
               <li>
                 <Link
                   to="/admin/login"
-                  onClick={scrollToTop}
+                  onClick={(e) => handleLinkClick(e, "/admin/login")}
                   className="hover:text-white transition-colors"
                 >
                   Admin Login
@@ -134,7 +135,7 @@ const Footer = () => {
               <li>
                 <Link
                   to="/mechanic/login"
-                  onClick={scrollToTop}
+                  onClick={(e) => handleLinkClick(e, "/mechanic/login")}
                   className="hover:text-white transition-colors"
                 >
                   Mechanics Login

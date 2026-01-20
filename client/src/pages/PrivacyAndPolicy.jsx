@@ -1,7 +1,21 @@
 import React from "react";
-import { Link } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
 
 const PrivacyPolicy = () => {
+
+  const navigate = useNavigate(); 
+
+  const handleLinkClick = (e, path) => {
+    e.preventDefault(); 
+    window.scrollTo({
+      top: 0,
+      behavior: "smooth",
+    });
+    setTimeout(() => {
+      navigate(path);
+    }, 300);
+  };
+
   return (
     <div className="bg-gray-50 min-h-screen py-10 px-4 sm:px-6 lg:px-8">
       <div className="max-w-4xl mx-auto bg-white shadow-lg rounded-2xl overflow-hidden">
@@ -127,7 +141,7 @@ const PrivacyPolicy = () => {
         {/* Footer / Back Button */}
         <div className="bg-gray-100 p-6 flex justify-center">
           <Link 
-            to="/" 
+            onClick={(e) => handleLinkClick(e, "/")}
             className="bg-red-800 hover:bg-red-900 text-white font-semibold py-3 px-8 rounded-lg shadow-md transition-all transform hover:scale-105"
           >
             Back to Home

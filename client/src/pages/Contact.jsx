@@ -16,11 +16,13 @@ const Contact = () => {
     phone: formData.get('phone'),
     email: formData.get('email'),
     formType: activeTab,
-    message: formData.get('message'),
+    message: formData. get('message'),
     serviceType: formData.get('serviceType') || '',
     vehicleModel: formData.get('vehicleModel') || '',
-    location: formData.get('location') || '',
-    rating: formData.get('rating') ? parseInt(formData.get('rating')) : null
+    location:  formData.get('location') || '',
+    rating: formData. get('rating') ? parseInt(formData.get('rating')) : null,
+    preferredDateTime: formData.get('preferredDateTime') || '',
+    emergencyType: formData.get('emergencyType') || ''
   };
 
   try {
@@ -28,7 +30,7 @@ const Contact = () => {
     
     if (response && response.data) {
       setResult("Message Sent Successfully!  We'll contact you within 15 minutes.");
-      event.target.reset();
+      event.target. reset();
     }
   } catch (error) {
     console.error("Error:", error);
@@ -236,9 +238,9 @@ const Contact = () => {
                           Bike Brand
                         </label>
                         <select
-                          name="bike_brand"
-                          className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:border-red-500 focus:ring-2 focus:ring-red-100"
-                        >
+                        name="vehicleModel"
+                        className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:border-red-500 focus:ring-2 focus:ring-red-100"
+                      >
                           <option value="">Select Brand</option>
                           <option value="Honda">Honda</option>
                           <option value="Hero">Hero</option>
@@ -253,7 +255,7 @@ const Contact = () => {
                           Service Type
                         </label>
                         <select
-                          name="service_type"
+                          name="serviceType"
                           className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:border-red-500 focus:ring-2 focus:ring-red-100"
                         >
                           <option value="">Select Service</option>
@@ -275,8 +277,8 @@ const Contact = () => {
                       </label>
                       <input
                         type="datetime-local"
-                        name="preferred_datetime"
-                        className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:border-red-500 focus:ring-2 focus:ring-red-100"
+                        name="preferredDateTime"
+                        className="w-full px-4 py-3 border border-gray-300 rounded-lg focus: outline-none focus:border-red-500 focus:ring-2 focus:ring-red-100"
                       />
                     </div>
                   </>
@@ -288,7 +290,7 @@ const Contact = () => {
                       Emergency Type
                     </label>
                     <select
-                      name="emergency_type"
+                      name="emergencyType"
                       className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:border-red-500 focus:ring-2 focus:ring-red-100"
                     >
                       <option value="">Select Emergency</option>

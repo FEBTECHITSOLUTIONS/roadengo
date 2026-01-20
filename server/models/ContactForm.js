@@ -56,6 +56,14 @@ const contactFormSchema = new mongoose.Schema({
     min: 1,
     max:  5
   },
+  preferredDateTime: {
+  type:  String,
+  default: ''
+},
+emergencyType: {
+  type: String,
+  default: ''
+},
   status: {
     type: String,
     enum: ['pending', 'contacted', 'resolved', 'closed'],

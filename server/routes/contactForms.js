@@ -28,7 +28,7 @@ router.get('/', authMiddleware, async (req, res) => {
 // Create new contact form (Public)
 router.post('/', async (req, res) => {
   try {
-    const { name, phone, email, formType, message, serviceType, vehicleModel, location, rating } = req.body;
+    const { name, phone, email, formType, message, serviceType, vehicleModel, location, rating, preferredDateTime, emergencyType } = req.body;
     
     // Validate required fields
     if (!name || !phone || ! email || !formType || !message) {
@@ -39,43 +39,55 @@ router.post('/', async (req, res) => {
     }
 
     // Create contact form
-    const contactForm = new ContactForm({
-      name,
-      phone,
-      email,
-      formType,
-      message,
-      serviceType,
-      vehicleModel,
-      location,
-      rating
-    });
+const contactForm = new ContactForm({
+  name,
+  phone,
+  email,
+  formType,
+  message,
+  serviceType,
+  vehicleModel,
+  location,
+  rating,
+  preferredDateTime,
+  emergencyType
+});
 
     await contactForm.save();
     console.log('✅ Contact form saved:', contactForm._id);
 
     // Send email to admin
-    const adminEmailResult = await sendContactFormEmailToAdmin({
-      name,
-      phone,
-      email,
-      formType:  formType.charAt(0).toUpperCase() + formType.slice(1) + ' Inquiry',
-      message,
-      serviceType,
-      vehicleModel,
-      rating
-    });
+const adminEmailResult = await sendContactFormEmailToAdmin({
+  name,
+  phone,
+  email,
+  formType:  formType.charAt(0).toUpperCase() + formType.slice(1) + ' Inquiry',
+  message,
+  serviceType,
+  vehicleModel,
+  location,
+  rating,
+  preferredDateTime,
+  emergencyType
+});
 
     if (adminEmailResult.success) {
       contactForm.emailSent = true;
       await contactForm.save();
     }
 
-    // Send confirmation to customer
+      // Send confirmation to customer
     await sendCustomerConfirmationEmail({
       to: email,
       name,
-      formType: formType.charAt(0).toUpperCase() + formType.slice(1) + ' Inquiry'
+      formType: formType.charAt(0).toUpperCase() + formType.slice(1) + ' Inquiry',
+      message,
+      serviceType,
+      vehicleModel,
+      location,
+      rating,
+      preferredDateTime:  req.body.preferredDateTime || '',
+      emergencyType: req. body.emergencyType || ''
     });
 
     res.status(201).json({

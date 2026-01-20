@@ -53,7 +53,7 @@ const sendEmailToCustomer = async ({ to, subject, html, text }) => {
     return { success: true, messageId: info.messageId };
   } catch (error) {
     console.error('❌ Failed to send customer email:', error.message);
-    return { success: false, error: error. message };
+    return { success: false, error: error.message };
   }
 };
 

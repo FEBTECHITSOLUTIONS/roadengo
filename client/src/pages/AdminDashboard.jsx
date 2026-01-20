@@ -2324,7 +2324,7 @@ ${form.rating ? `⭐ Rating: ${'⭐'.repeat(form.rating)}` : ''}
 
         {/* --- NEW: DETAILS MODAL (Replacement for Alert View) --- */}
         {viewDetails.show && (
-          <div className="fixed inset-0 bg-black/40 backdrop-blur-3xl bg-opacity-50 z-[60] flex items-center justify-center p-4 backdrop-blur-sm">
+          <div className="fixed inset-0 bg-black/40 backdrop-blur-3xl bg-opacity-50 z-[60] flex items-center justify-center p-4">
             <div className="bg-white rounded-xl shadow-2xl w-full max-w-2xl overflow-hidden transform transition-all scale-100">
               {/* Header */}
               <div className="bg-gray-50 px-6 py-4 border-b border-gray-100 flex justify-between items-center">

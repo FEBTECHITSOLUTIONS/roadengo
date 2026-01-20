@@ -11,7 +11,11 @@ const AdminDashboard = () => {
   const [emergencies, setEmergencies] = useState([]);
   const [inquiries, setInquiries] = useState([]);
   const [mechanics, setMechanics] = useState([]);
+  const [contactForms, setContactForms] = useState([]);
+  const [contactFormStatusFilter, setContactFormStatusFilter] = useState("all");
   const [activeTab, setActiveTab] = useState("appointments");
+  const [emergencyStatusFilter, setEmergencyStatusFilter] = useState("all");
+  const [inquiryStatusFilter, setInquiryStatusFilter] = useState("all");
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState(null);
   const [showAssignModal, setShowAssignModal] = useState(false);
@@ -36,7 +40,7 @@ const AdminDashboard = () => {
     try {
       const response = await apiService.getMechanics();
       setMechanics(response.data || []);
-      console.log("Mechanics fetched:", response.data?.length || 0);
+      console.log("Mechanics fetched:", response.data?. length || 0);
     } catch (error) {
       console.error("Error fetching mechanics:", error);
       setMechanics([]);
@@ -47,7 +51,7 @@ const AdminDashboard = () => {
     try {
       const response = await apiService.getAppointments();
       setAppointments(response.data || []);
-      console.log("Appointments fetched:", response.data?.length || 0);
+      console.log("Appointments fetched:", response. data?.length || 0);
     } catch (error) {
       console.error("Error fetching appointments:", error);
       setAppointments([]);
@@ -67,32 +71,44 @@ const AdminDashboard = () => {
 
   const fetchInquiries = useCallback(async () => {
     try {
-      const response = await apiService.getInquiries();
+      const response = await apiService. getInquiries();
       setInquiries(response.data || []);
-      console.log("Inquiries fetched:", response.data?.length || 0);
+      console.log("Inquiries fetched:", response. data?.length || 0);
     } catch (error) {
       console.error("Error fetching inquiries:", error);
       setInquiries([]);
     }
   }, []);
 
+  const fetchContactForms = useCallback(async () => {
+  try {
+    const response = await apiService.getContactForms();
+    setContactForms(response.data || []);
+    console.log("Contact forms fetched:", response.data?.length || 0);
+  } catch (error) {
+    console.error("Error fetching contact forms:", error);
+    setContactForms([]);
+  }
+}, []);
+
   const fetchAllData = useCallback(async (showLoader = true) => {
-    if (showLoader) setLoading(true);
-    setError(null);
-    try {
-      await Promise.all([
-        fetchAppointments(),
-        fetchEmergencies(),
-        fetchInquiries(),
-        fetchMechanics(),
-      ]);
+  if (showLoader) setLoading(true);
+  setError(null);
+  try {
+    await Promise.all([
+      fetchAppointments(),
+      fetchEmergencies(),
+      fetchInquiries(),
+      fetchMechanics(),
+      fetchContactForms(),
+    ]);
     } catch (err) {
       console.error("Dashboard data loading error:", err);
       setError("Error loading dashboard data. Please refresh the page.");
     } finally {
       if (showLoader) setLoading(false);
     }
-  }, [fetchAppointments, fetchEmergencies, fetchInquiries, fetchMechanics]);
+  }, [fetchAppointments, fetchEmergencies, fetchInquiries, fetchMechanics, fetchContactForms]);
 
   // Auth check and initial fetch
   useEffect(() => {
@@ -119,7 +135,7 @@ const AdminDashboard = () => {
 
   const stopPolling = useCallback(() => {
     if (intervalRef.current) {
-      clearInterval(intervalRef.current);
+      clearInterval(intervalRef. current);
       intervalRef.current = null;
     }
   }, []);
@@ -129,7 +145,7 @@ const AdminDashboard = () => {
 
     const handleVisibilityChange = () => {
       if (document.visibilityState === "visible") {
-        console.log("Tab visible: refreshing data");
+        console.log("Tab visible:  refreshing data");
         fetchAllData(false);
         startPolling();
       } else {
@@ -150,7 +166,7 @@ const AdminDashboard = () => {
   const handleCreateMechanic = async (e) => {
     e.preventDefault();
 
-    if (!newMechanic.name || !newMechanic.email || !newMechanic.phone || !newMechanic.password) {
+    if (!newMechanic. name || !newMechanic. email || !newMechanic. phone || !newMechanic.password) {
       setError("Please fill in all required fields");
       return;
     }
@@ -168,7 +184,7 @@ const AdminDashboard = () => {
     try {
       setLoading(true);
       const payload = {
-        ...newMechanic,
+        ... newMechanic,
         specialization: isArray ? newMechanic.specialization : [newMechanic.specialization],
       };
       await apiService.registerMechanic(payload);
@@ -186,36 +202,63 @@ const AdminDashboard = () => {
       alert("✅ Mechanic created successfully!");
     } catch (error) {
       console.error("Error creating mechanic:", error);
-      setError(`Failed to create mechanic: ${error.response?.data?.message || error.message}`);
+      setError(`Failed to create mechanic:  ${error.response?.data?.message || error.message}`);
     } finally {
       setLoading(false);
     }
   };
 
   // Assign Task to Mechanic
-  const handleAssignTask = async (mechanicId) => {
-    try {
-      setLoading(true);
-      setError(null);
+const handleAssignTask = async (mechanicId) => {
+  try {
+    setLoading(true);
+    setError(null);
 
-      await apiService.assignTask({
-        mechanicId,
-        taskId: selectedTask._id,
-        taskType: selectedTask.taskType,
-      });
+    // Check if task already has a mechanic assigned
+    const previousMechanicId = selectedTask.assignedMechanic;
 
-      alert("✅ Task assigned successfully!");
-      await fetchAllData(false);
-      setShowAssignModal(false);
-      setSelectedTask(null);
-    } catch (error) {
-      console.error("Error assigning task:", error);
-      setError(`Assignment failed: ${error.response?.data?.message || error.message}`);
-    } finally {
-      setLoading(false);
+    await apiService.assignTask({
+      mechanicId,
+      taskId: selectedTask._id,
+      taskType: selectedTask.taskType,
+    });
+
+    // If re-assigning (previous mechanic exists), remove task from old mechanic
+    if (previousMechanicId && previousMechanicId !== mechanicId) {
+      try {
+        await apiService.unassignTask({
+          mechanicId: previousMechanicId,
+          taskId: selectedTask._id,
+          taskType: selectedTask.taskType,
+        });
+        console.log(`✅ Task removed from previous mechanic:  ${previousMechanicId}`);
+      } catch (err) {
+        console.warn("Could not unassign from previous mechanic:", err);
+      }
     }
-  };
 
+    // Update emergency status to 'assigned' if it's an emergency
+    if (selectedTask. taskType === "emergency") {
+      try {
+        await apiService.updateEmergency(selectedTask._id, { status: "assigned" });
+      } catch (err) {
+        console.warn("Could not update emergency status:", err);
+      }
+    }
+
+    const actionText = previousMechanicId ? "✅ Mechanic re-assigned successfully!" : "✅ Task assigned successfully!";
+    alert(actionText);
+    
+    await fetchAllData(false);
+    setShowAssignModal(false);
+    setSelectedTask(null);
+  } catch (error) {
+    console.error("Error assigning task:", error);
+    setError(`Assignment failed: ${error.response?.data?.message || error.message}`);
+  } finally {
+    setLoading(false);
+  }
+};
   // Update Status Functions
   const updateAppointmentStatus = async (id, status) => {
     try {
@@ -242,6 +285,32 @@ const AdminDashboard = () => {
       setLoading(false);
     }
   };
+
+  const updateContactFormStatus = async (id, status) => {
+  try {
+    setLoading(true);
+    await apiService. updateContactFormStatus(id, { status });
+    await fetchContactForms();
+  } catch (error) {
+    console.error("Error updating contact form:", error);
+    setError("Failed to update contact form status");
+  } finally {
+    setLoading(false);
+  }
+};
+
+const updateEmergencyStatus = async (id, status) => {
+  try {
+    setLoading(true);
+    await apiService. updateEmergency(id, { status });
+    await fetchEmergencies();
+  } catch (error) {
+    console.error("Error updating emergency:", error);
+    setError("Failed to update emergency status");
+  } finally {
+    setLoading(false);
+  }
+};
 
   const handleLogout = () => {
     localStorage.removeItem("adminToken");
@@ -279,7 +348,7 @@ const AdminDashboard = () => {
               ? ["doorstep-service"]
               : ["emergency-repair"];
 
-          const hasRequiredSkill = mechanic.specialization?.some((spec) =>
+          const hasRequiredSkill = mechanic.specialization?. some((spec) =>
             requiredSpecializations.includes(spec)
           );
 
@@ -321,7 +390,7 @@ const AdminDashboard = () => {
               <div className="grid grid-cols-1 lg:grid-cols-2 gap-3 sm:gap-4">
                 <div className="space-y-1 sm:space-y-2">
                   <p className="text-xs sm:text-sm text-gray-600">
-                    <span className="font-medium">Type:</span> {selectedTask.taskType?.toUpperCase()}
+                    <span className="font-medium">Type:</span> {selectedTask.taskType?. toUpperCase()}
                   </p>
                   <p className="text-xs sm:text-sm text-gray-600">
                     <span className="font-medium">Service:</span>{" "}
@@ -385,7 +454,7 @@ const AdminDashboard = () => {
                           <p className="text-xs sm:text-sm text-gray-500">{mechanic.phone}</p>
                         </div>
                         <div className="flex flex-col items-end ml-2">
-                          <span className="inline-flex px-1.5 sm:px-2 py-0.5 sm:py-1 text-xs font-semibold rounded-full bg-green-100 text-green-800 mb-1">
+                          <span className="inline-flex px-1. 5 sm:px-2 py-0.5 sm:py-1 text-xs font-semibold rounded-full bg-green-100 text-green-800 mb-1">
                             AVAILABLE
                           </span>
                           <div className="flex items-center">
@@ -402,7 +471,7 @@ const AdminDashboard = () => {
                           <span className="font-medium">Experience:</span> {mechanic.experience} years
                         </p>
                         <p className="text-xs sm:text-sm text-gray-600">
-                          <span className="font-medium">Location:</span> {mechanic.location?.city}
+                          <span className="font-medium">Location:</span> {mechanic.location?. city}
                         </p>
                       </div>
 
@@ -414,7 +483,7 @@ const AdminDashboard = () => {
                               key={index}
                               className="inline-flex px-1.5 sm:px-2 py-0.5 sm:py-1 text-xs font-semibold rounded-full bg-blue-100 text-blue-800"
                             >
-                              {spec.replace("-", " ")}
+                              {spec. replace("-", " ")}
                             </span>
                           ))}
                         </div>
@@ -427,7 +496,7 @@ const AdminDashboard = () => {
                             (t) => t.status === "assigned" || t.status === "in-progress"
                           ).length || 0}
                         </p>
-                        <p>Completed: {mechanic.completedTasks || 0}</p>
+                        <p>Completed:  {mechanic.completedTasks || 0}</p>
                       </div>
 
                       <div className="pt-2 sm:pt-3 border-t border-gray-200">
@@ -444,7 +513,7 @@ const AdminDashboard = () => {
               ) : (
                 <div className="text-center py-6 sm:py-8 bg-gray-50 rounded-lg">
                   <svg className="mx-auto h-10 w-10 sm:h-12 sm:w-12 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0zm6 3a2 2 0 11-4 0 2 2 0 014 0zM7 10a2 2 0 11-4 0 2 2 0 4 0z" />
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-. 656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0zm6 3a2 2 0 11-4 0 2 2 0 014 0zM7 10a2 2 0 11-4 0 2 2 0 4 0z" />
                   </svg>
                   <h3 className="mt-2 text-sm font-medium text-gray-900">No Available Mechanics</h3>
                   <p className="mt-1 text-xs sm:text-sm text-gray-500 px-4">
@@ -518,13 +587,13 @@ const AdminDashboard = () => {
         )}
 
         {/* Stats Cards */}
-        <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-5 gap-3 sm:gap-4 md:gap-6 mb-6 sm:mb-8">
+        <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-6 gap-3 sm:gap-4 md:gap-6 mb-6 sm:mb-8">
           <div className="bg-white p-3 sm:p-4 md:p-6 rounded-lg shadow">
             <h3 className="text-xs sm:text-sm md:text-lg font-semibold text-gray-600 mb-1 sm:mb-2">
               Appointments
             </h3>
             <p className="text-lg sm:text-2xl md:text-3xl font-bold text-blue-600">
-              {appointments.length}
+              {appointments. length}
             </p>
           </div>
           <div className="bg-white p-3 sm:p-4 md:p-6 rounded-lg shadow">
@@ -543,6 +612,16 @@ const AdminDashboard = () => {
               {inquiries.length}
             </p>
           </div>
+
+          <div className="bg-white p-3 sm:p-4 md:p-6 rounded-lg shadow">
+            <h3 className="text-xs sm:text-sm md:text-lg font-semibold text-gray-600 mb-1 sm:mb-2">
+              <span className="hidden sm:inline">Contact </span>Forms
+            </h3>
+            <p className="text-lg sm:text-2xl md:text-3xl font-bold text-indigo-600">
+              {contactForms.length}
+            </p>
+          </div>
+
           <div className="bg-white p-3 sm:p-4 md:p-6 rounded-lg shadow">
             <h3 className="text-xs sm:text-sm md:text-lg font-semibold text-gray-600 mb-1 sm:mb-2">
               <span className="hidden sm:inline">Total </span>Mechanics
@@ -598,6 +677,17 @@ const AdminDashboard = () => {
             >
               <span className="hidden sm:inline">Cart </span>Inquiries ({inquiries.length})
             </button>
+
+            <button
+              onClick={() => setActiveTab("contactForms")}
+              className={`px-2 sm:px-4 md:px-6 py-2 sm:py-3 rounded-lg font-semibold text-xs sm:text-sm ${
+                activeTab === "contactForms"
+                  ? "bg-indigo-600 text-white"
+                  : "bg-white text-gray-700 hover:bg-gray-50"
+              }`}
+            >
+              <span className="hidden sm:inline">Contact </span>Forms ({contactForms.length})
+            </button>
             <button
               onClick={() => setActiveTab("mechanics")}
               className={`px-2 sm:px-4 md:px-6 py-2 sm:py-3 rounded-lg font-semibold text-xs sm:text-sm ${
@@ -624,7 +714,7 @@ const AdminDashboard = () => {
         {/* Loading Indicator for Updates */}
         {loading && (
           <div className="fixed top-4 right-4 bg-blue-600 text-white px-3 sm:px-4 py-2 rounded-lg shadow-lg z-50 text-xs sm:text-sm">
-            Updating...
+            Updating... 
           </div>
         )}
 
@@ -652,7 +742,7 @@ const AdminDashboard = () => {
                             : "bg-gray-100 text-gray-800"
                         }`}
                       >
-                        {mechanic.availability?.toUpperCase()}
+                        {mechanic.availability?. toUpperCase()}
                       </span>
                     </div>
                     
@@ -673,12 +763,12 @@ const AdminDashboard = () => {
                     <div>
                       <p className="text-xs text-gray-500 mb-1">Specializations</p>
                       <div className="flex flex-wrap gap-1">
-                        {mechanic.specialization?.map((spec, index) => (
+                        {mechanic.specialization?. map((spec, index) => (
                           <span
                             key={index}
                             className="inline-flex px-2 py-1 text-xs font-semibold rounded-full bg-blue-100 text-blue-800"
                           >
-                            {spec.replace("-", " ")}
+                            {spec. replace("-", " ")}
                           </span>
                         ))}
                       </div>
@@ -729,19 +819,19 @@ const AdminDashboard = () => {
                   </tr>
                 </thead>
                 <tbody className="bg-white divide-y divide-gray-200">
-                  {mechanics.map((mechanic) => (
+                  {mechanics. map((mechanic) => (
                     <tr key={mechanic._id} className="hover:bg-gray-50">
                       <td className="px-4 lg:px-6 py-4 whitespace-nowrap">
                         <div>
                           <div className="font-semibold text-gray-900">{mechanic.name}</div>
                           <div className="text-sm text-gray-600">{mechanic.email}</div>
                           <div className="text-sm text-gray-500">{mechanic.phone}</div>
-                          <div className="text-xs text-gray-400">ID: {mechanic.mechanicId}</div>
+                          <div className="text-xs text-gray-400">ID:  {mechanic.mechanicId}</div>
                         </div>
                       </td>
                       <td className="px-4 lg:px-6 py-4">
                         <div className="flex flex-wrap gap-1">
-                          {mechanic.specialization?.map((spec, index) => (
+                          {mechanic.specialization?. map((spec, index) => (
                             <span
                               key={index}
                               className="inline-flex px-2 py-1 text-xs font-semibold rounded-full bg-blue-100 text-blue-800"
@@ -770,12 +860,12 @@ const AdminDashboard = () => {
                       <td className="px-4 lg:px-6 py-4 whitespace-nowrap">
                         <div className="text-sm text-gray-900">
                           Active:{" "}
-                          {mechanic.assignedTasks?.filter(
+                          {mechanic.assignedTasks?. filter(
                             (t) => t.status === "assigned" || t.status === "in-progress"
                           ).length || 0}
                         </div>
                         <div className="text-sm text-gray-500">
-                          Completed: {mechanic.completedTasks || 0}
+                          Completed:  {mechanic.completedTasks || 0}
                         </div>
                       </td>
                       <td className="px-4 lg:px-6 py-4 whitespace-nowrap">
@@ -793,7 +883,7 @@ const AdminDashboard = () => {
             </div>
             {mechanics.length === 0 && (
               <div className="text-center py-8 text-gray-500">
-                No mechanics found. Create one to get started.
+                No mechanics found. Create one to get started. 
               </div>
             )}
           </div>
@@ -805,7 +895,7 @@ const AdminDashboard = () => {
             {/* Mobile Card View */}
             <div className="block lg:hidden">
               <div className="space-y-4 p-4">
-                {appointments.map((appointment) => (
+                {appointments. map((appointment) => (
                   <div key={appointment._id} className="border border-gray-200 rounded-lg p-4 space-y-3">
                      
                     <div className="flex justify-between items-start">
@@ -816,7 +906,7 @@ const AdminDashboard = () => {
                       </div>
                       <span
                         className={`inline-flex px-2 py-1 text-xs font-semibold rounded-full ${
-                          appointment.status === STATUS.PENDING
+                          appointment.status === STATUS. PENDING
                             ? "bg-yellow-100 text-yellow-800"
                             : appointment.status === STATUS.CONFIRMED
                             ? "bg-blue-100 text-blue-800"
@@ -853,7 +943,7 @@ const AdminDashboard = () => {
                         <div>
                           <p className="text-xs text-gray-500">Assigned Mechanic</p>
                           <p className="text-sm font-medium">
-                           {appointment?.assignedMechanic?.name} || Unknown
+                            {appointment?. assignedMechanic?.name || "Unknown"}
                           </p>
                         </div>
                       )}
@@ -869,10 +959,10 @@ const AdminDashboard = () => {
                         <option value={STATUS.PENDING}>Pending</option>
                         <option value={STATUS.CONFIRMED}>Confirmed</option>
                         <option value={STATUS.IN_PROGRESS}>In Progress</option>
-                        <option value={STATUS.COMPLETED}>Completed</option>
+                        <option value={STATUS. COMPLETED}>Completed</option>
                         <option value={STATUS.CANCELLED}>Cancelled</option>
                       </select>
-                      {!appointment.assignedMechanic && (
+                      {! appointment.assignedMechanic && (
                         <button
                           onClick={() => {
                             setSelectedTask({ ...appointment, taskType: "appointment" });
@@ -930,7 +1020,7 @@ const AdminDashboard = () => {
                         <div>
                           <div className="font-medium text-gray-900">{appointment.serviceType}</div>
                           <div className="text-sm text-gray-600">{appointment.bikeModel}</div>
-                          <div className="text-sm text-gray-500 truncate max-w-xs">{appointment.address}</div>
+                          <div className="text-sm text-gray-500 truncate max-w-xs">{appointment. address}</div>
                         </div>
                       </td>
                       <td className="px-4 lg:px-6 py-4 whitespace-nowrap">
@@ -944,11 +1034,11 @@ const AdminDashboard = () => {
                       <td className="px-4 lg:px-6 py-4 whitespace-nowrap">
                         <span
                           className={`inline-flex px-2 py-1 text-xs font-semibold rounded-full ${
-                            appointment.status === STATUS.PENDING
+                            appointment. status === STATUS.PENDING
                               ? "bg-yellow-100 text-yellow-800"
                               : appointment.status === STATUS.CONFIRMED
                               ? "bg-blue-100 text-blue-800"
-                              : appointment.status === STATUS.IN_PROGRESS
+                              :  appointment.status === STATUS.IN_PROGRESS
                               ? "bg-purple-100 text-purple-800"
                               : appointment.status === STATUS.COMPLETED
                               ? "bg-green-100 text-green-800"
@@ -959,7 +1049,7 @@ const AdminDashboard = () => {
                         </span>
                       </td>
                       <td className="px-4 lg:px-6 py-4 whitespace-nowrap">
-                        {appointment.assignedMechanic ? (
+                        {appointment.assignedMechanic ?  (
                           <div className="text-sm">
                             <div className="font-medium text-gray-900">
                               {appointment?.assignedMechanic?.name || "Unknown"}
@@ -1010,52 +1100,216 @@ const AdminDashboard = () => {
           </div>
         )}
 
-        {/* EMERGENCIES TAB */}
-        {activeTab === "emergencies" && (
-          <div className="bg-white rounded-lg shadow-lg overflow-hidden">
-            {/* Mobile Card View */}
-            <div className="block lg:hidden">
-              <div className="space-y-4 p-4">
-                {emergencies.map((emergency) => (
-                  <div key={emergency._id} className="border border-gray-200 rounded-lg p-4 space-y-3">
-                    <div className="flex justify-between items-start">
-                      <div className="flex-1 min-w-0">
-                        <h3 className="font-semibold text-gray-900">{emergency.name}</h3>
-                        <p className="text-sm text-gray-600">{emergency.phone}</p>
-                      </div>
+       {/* EMERGENCIES TAB */}
+{activeTab === "emergencies" && (
+  <div className="bg-white rounded-lg shadow-lg overflow-hidden">
+    
+    {/* Status Filter Sub-tabs */}
+    <div className="border-b border-gray-200 bg-gray-50 p-3 sm:p-4">
+      <div className="flex flex-wrap gap-2">
+        {[
+          { id: "all", label: "All Active", color: "gray" },
+          { id: "pending", label: "Pending", color: "yellow" },
+          { id: "assigned", label: "Assigned", color: "blue" },
+          { id: "in-progress", label: "In Progress", color: "purple" }
+        ].map((filter) => {
+          const activeEmergencies = emergencies.filter(e => e. status !== "completed");
+          const count = filter.id === "all" 
+            ? activeEmergencies. length 
+            : activeEmergencies.filter(e => (e.status || "pending") === filter.id).length;
+          
+          return (
+            <button
+              key={filter.id}
+              onClick={() => setEmergencyStatusFilter(filter.id)}
+              className={`px-3 sm:px-4 py-2 rounded-lg font-semibold text-xs sm:text-sm transition-all ${
+                emergencyStatusFilter === filter.id
+                  ? filter.id === "pending"
+                    ? "bg-yellow-600 text-white"
+                    : filter.id === "assigned"
+                    ? "bg-blue-600 text-white"
+                    : filter.id === "in-progress"
+                    ? "bg-purple-600 text-white"
+                    : "bg-red-600 text-white"
+                  : "bg-white text-gray-700 hover:bg-gray-100 border border-gray-300"
+              }`}
+            >
+              {filter.label} ({count})
+            </button>
+          );
+        })}
+      </div>
+    </div>
+
+    {(() => {
+      // Filter emergencies:  hide completed, filter by status
+      const activeEmergencies = emergencies.filter(e => e.status !== "completed");
+      const filteredEmergencies = emergencyStatusFilter === "all"
+        ? activeEmergencies
+        : activeEmergencies.filter(e => (e.status || "pending") === emergencyStatusFilter);
+
+      return (
+        <>
+          {/* Mobile Card View */}
+          <div className="block lg:hidden">
+            <div className="space-y-4 p-4">
+              {filteredEmergencies.map((emergency) => (
+                <div key={emergency._id} className="border border-gray-200 rounded-lg p-4 space-y-3">
+                  <div className="flex justify-between items-start">
+                    <div className="flex-1 min-w-0">
+                      <h3 className="font-semibold text-gray-900">{emergency.name}</h3>
+                      <p className="text-sm text-gray-600">{emergency.phone}</p>
+                    </div>
+                    <div className="flex flex-col items-end gap-1">
                       <span className="inline-flex px-2 py-1 text-xs font-semibold rounded-full bg-red-100 text-red-800">
                         EMERGENCY
                       </span>
+                      <span
+                        className={`inline-flex px-2 py-1 text-xs font-semibold rounded-full ${
+                          (emergency.status || "pending") === "pending"
+                            ? "bg-yellow-100 text-yellow-800"
+                            :  (emergency.status || "pending") === "assigned"
+                            ? "bg-blue-100 text-blue-800"
+                            :  (emergency.status || "pending") === "in-progress"
+                            ? "bg-purple-100 text-purple-800"
+                            : "bg-gray-100 text-gray-800"
+                        }`}
+                      >
+                        {(emergency.status || "pending").toUpperCase()}
+                      </span>
+                    </div>
+                  </div>
+                  
+                  <div className="space-y-2">
+                    <div>
+                      <p className="text-xs text-gray-500">Bike Model</p>
+                      <p className="text-sm font-medium">{emergency.bikeModel}</p>
                     </div>
                     
-                    <div className="space-y-2">
+                    <div>
+                      <p className="text-xs text-gray-500">Issue</p>
+                      <p className="text-sm text-gray-600">{emergency. issueDescription}</p>
+                    </div>
+                    
+                    <div>
+                      <p className="text-xs text-gray-500">Location</p>
+                      <p className="text-sm text-gray-600 truncate">{emergency.location}</p>
+                    </div>
+                    
+                    <div>
+                      <p className="text-xs text-gray-500">Request Time</p>
+                      <p className="text-sm text-gray-600">{formatDateTime(emergency.createdAt)}</p>
+                    </div>
+                    
+                    {emergency.assignedMechanic && (
                       <div>
-                        <p className="text-xs text-gray-500">Bike Model</p>
-                        <p className="text-sm font-medium">{emergency.bikeModel}</p>
+                        <p className="text-xs text-gray-500">Assigned Mechanic</p>
+                        <p className="text-sm font-medium text-blue-600">
+                          {mechanics.find(m => m._id === emergency.assignedMechanic)?.name || "Unknown"}
+                        </p>
                       </div>
-                      
+                    )}
+                  </div>
+                  
+                  {/* REMOVED: Actions dropdown for mobile */}
+                  {! emergency.assignedMechanic && (
+                    <div className="pt-3 border-t border-gray-100">
+                      <button
+                        onClick={() => {
+                          setSelectedTask({ ...emergency, taskType: "emergency" });
+                          setShowAssignModal(true);
+                          setError(null);
+                        }}
+                        disabled={loading}
+                        className="w-full bg-red-600 hover:bg-red-700 text-white px-3 py-2 rounded text-sm disabled:opacity-50"
+                      >
+                        Assign Mechanic
+                      </button>
+                    </div>
+                  )}
+                </div>
+              ))}
+            </div>
+          </div>
+
+          {/* Desktop Table View */}
+          <div className="hidden lg:block overflow-x-auto">
+            <table className="w-full">
+              <thead className="bg-gray-50">
+                <tr>
+                  <th className="px-4 lg:px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                    Customer
+                  </th>
+                  <th className="px-4 lg:px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                    Issue Details
+                  </th>
+                  <th className="px-4 lg:px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                    Location
+                  </th>
+                  <th className="px-4 lg:px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                    Status
+                  </th>
+                  <th className="px-4 lg:px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                    Assigned Mechanic
+                  </th>
+                  <th className="px-4 lg:px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                    Actions
+                  </th>
+                </tr>
+              </thead>
+              <tbody className="bg-white divide-y divide-gray-200">
+                {filteredEmergencies.map((emergency) => (
+                  <tr key={emergency._id} className="hover:bg-gray-50">
+                    <td className="px-4 lg:px-6 py-4 whitespace-nowrap">
                       <div>
-                        <p className="text-xs text-gray-500">Issue</p>
-                        <p className="text-sm text-gray-600">{emergency.issueDescription}</p>
+                        <div className="font-semibold text-gray-900">{emergency.name}</div>
+                        <div className="text-sm text-gray-600">{emergency.phone}</div>
+                        <div className="text-xs text-gray-500">{formatDateTime(emergency.createdAt)}</div>
                       </div>
-                      
+                    </td>
+                    <td className="px-4 lg:px-6 py-4">
                       <div>
-                        <p className="text-xs text-gray-500">Location</p>
-                        <p className="text-sm text-gray-600 truncate">{emergency.location}</p>
-                      </div>
-                      
-                      {emergency.assignedMechanic && (
-                        <div>
-                          <p className="text-xs text-gray-500">Assigned Mechanic</p>
-                          <p className="text-sm font-medium">
-                            {emergency?.assignedMechanic?.name || "Unknown"}
-                          </p>
+                        <div className="font-medium text-gray-900">{emergency.bikeModel}</div>
+                        <div className="text-sm text-gray-600 max-w-xs truncate">
+                          {emergency.issueDescription}
                         </div>
+                      </div>
+                    </td>
+                    <td className="px-4 lg:px-6 py-4">
+                      <div className="text-sm text-gray-900 max-w-xs truncate">
+                        {emergency.location}
+                      </div>
+                    </td>
+                    <td className="px-4 lg:px-6 py-4 whitespace-nowrap">
+                      <span
+                        className={`inline-flex px-2 py-1 text-xs font-semibold rounded-full ${
+                          (emergency.status || "pending") === "pending"
+                            ? "bg-yellow-100 text-yellow-800"
+                            : (emergency.status || "pending") === "assigned"
+                            ? "bg-blue-100 text-blue-800"
+                            : (emergency. status || "pending") === "in-progress"
+                            ? "bg-purple-100 text-purple-800"
+                            :  "bg-gray-100 text-gray-800"
+                        }`}
+                      >
+                        {(emergency.status || "pending").toUpperCase()}
+                      </span>
+                    </td>
+                    <td className="px-4 lg:px-6 py-4 whitespace-nowrap">
+                      {emergency.assignedMechanic ? (
+                        <div className="text-sm">
+                          <div className="font-medium text-gray-900">
+                            {mechanics.find((m) => m._id === emergency.assignedMechanic)?.name || "Unknown"}
+                          </div>
+                          <div className="text-gray-500">Assigned</div>
+                        </div>
+                      ) : (
+                        <span className="text-sm text-red-600 font-medium">Not Assigned</span>
                       )}
-                    </div>
-                    
-                    {!emergency.assignedMechanic && (
-                      <div className="pt-3 border-t border-gray-100">
+                    </td>
+                    <td className="px-4 lg:px-6 py-4 whitespace-nowrap">
+                      {/* REMOVED:  Dropdown when mechanic is assigned */}
+                      {!emergency.assignedMechanic && (
                         <button
                           onClick={() => {
                             setSelectedTask({ ...emergency, taskType: "emergency" });
@@ -1063,329 +1317,668 @@ const AdminDashboard = () => {
                             setError(null);
                           }}
                           disabled={loading}
-                          className="w-full bg-red-600 hover:bg-red-700 text-white px-3 py-2 rounded text-sm disabled:opacity-50"
+                          className="bg-red-600 hover:bg-red-700 text-white px-3 py-1 rounded text-xs disabled:opacity-50"
                         >
                           Assign Mechanic
                         </button>
+                      )}
+                    </td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+          </div>
+
+          {/* Empty State */}
+          {filteredEmergencies.length === 0 && ! loading && (
+            <div className="text-center py-12">
+              <div className="text-6xl mb-4">
+                {emergencyStatusFilter === "pending" ? "⏳" :  
+                 emergencyStatusFilter === "assigned" ? "👨‍🔧" : 
+                 emergencyStatusFilter === "in-progress" ? "🔧" : "✅"}
+              </div>
+              <h3 className="text-lg font-semibold text-gray-900 mb-2">
+                No {emergencyStatusFilter !== "all" ? emergencyStatusFilter. charAt(0).toUpperCase() + emergencyStatusFilter.slice(1).replace("-", " ") : "Active"} Emergencies
+              </h3>
+              <p className="text-gray-600">
+                {emergencyStatusFilter === "all" 
+                  ? "No active emergency requests"
+                  : `No ${emergencyStatusFilter.replace("-", " ")} emergencies found`}
+              </p>
+            </div>
+          )}
+        </>
+      );
+    })()}
+  </div>
+)}
+
+        {/* INQUIRIES TAB - COMPLETE IMPLEMENTATION */}
+{activeTab === "inquiries" && (
+  <div className="bg-white rounded-lg shadow-lg overflow-hidden">
+    
+    {/* Status Filter Sub-tabs */}
+    <div className="border-b border-gray-200 bg-gray-50 p-3 sm:p-4">
+      <div className="flex flex-wrap gap-2">
+        {[
+          { id:  "all", label: "All Inquiries", color: "gray" },
+          { id: STATUS.PENDING, label: "Pending", color: "yellow" },
+          { id: STATUS. CONTACTED, label: "Contacted", color: "blue" },
+          { id: STATUS.QUOTED, label: "Quoted", color: "purple" },
+          { id: STATUS.COMPLETED, label: "Completed", color: "green" },
+          { id: STATUS. CANCELLED, label: "Cancelled", color: "red" }
+        ].map((filter) => {
+          const count = filter.id === "all" 
+            ? inquiries.length 
+            : inquiries.filter(i => i.status === filter.id).length;
+          
+          return (
+            <button
+              key={filter.id}
+              onClick={() => setInquiryStatusFilter(filter.id)}
+              className={`px-3 sm:px-4 py-2 rounded-lg font-semibold text-xs sm:text-sm transition-all ${
+                inquiryStatusFilter === filter.id
+                  ? filter. id === STATUS.PENDING
+                    ? "bg-yellow-600 text-white"
+                    : filter. id === STATUS.CONTACTED
+                    ? "bg-blue-600 text-white"
+                    : filter.id === STATUS. QUOTED
+                    ? "bg-purple-600 text-white"
+                    : filter.id === STATUS.COMPLETED
+                    ?  "bg-green-600 text-white"
+                    : filter.id === STATUS.CANCELLED
+                    ? "bg-red-600 text-white"
+                    : "bg-green-600 text-white"
+                  : "bg-white text-gray-700 hover:bg-gray-100 border border-gray-300"
+              }`}
+            >
+              {filter.label} ({count})
+            </button>
+          );
+        })}
+      </div>
+    </div>
+
+    {(() => {
+      // Filter inquiries based on selected status
+      const filteredInquiries = inquiryStatusFilter === "all"
+        ? inquiries
+        : inquiries.filter(i => i. status === inquiryStatusFilter);
+
+      return (
+        <>
+          {/* Mobile Card View */}
+          <div className="block lg:hidden">
+            <div className="space-y-4 p-4">
+              {filteredInquiries.map((inquiry) => (
+                <div key={inquiry._id} className="border border-gray-200 rounded-lg p-4 space-y-3">
+                  <div className="flex justify-between items-start">
+                    <div className="flex-1 min-w-0">
+                      <h3 className="font-semibold text-gray-900">{inquiry.name}</h3>
+                      <p className="text-sm text-gray-600">{inquiry.phone}</p>
+                      <p className="text-sm text-gray-500 truncate">{inquiry.email}</p>
+                    </div>
+                    <span
+                      className={`inline-flex px-2 py-1 text-xs font-semibold rounded-full ${
+                        inquiry.status === STATUS.PENDING
+                          ? "bg-yellow-100 text-yellow-800"
+                          : inquiry.status === STATUS.CONTACTED
+                          ?  "bg-blue-100 text-blue-800"
+                          : inquiry.status === STATUS. QUOTED
+                          ? "bg-purple-100 text-purple-800"
+                          : inquiry. status === STATUS.COMPLETED
+                          ? "bg-green-100 text-green-800"
+                          : "bg-gray-100 text-gray-800"
+                      }`}
+                    >
+                      {inquiry.status?. toUpperCase()}
+                    </span>
+                  </div>
+                  
+                  <div className="space-y-2">
+                    <div>
+                      <p className="text-xs text-gray-500">Cart Items</p>
+                      <p className="text-sm font-medium">{inquiry.itemCount || inquiry.cartItems?. length || 0} items</p>
+                      <div className="text-xs text-gray-600 space-y-1 mt-1">
+                        {inquiry.cartItems && inquiry.cartItems.slice(0, 2).map((item, index) => (
+                          <div key={index} className="flex justify-between">
+                            <span className="truncate mr-2">{item.name}</span>
+                            <span>x{item.quantity}</span>
+                          </div>
+                        ))}
+                        {inquiry.cartItems && inquiry.cartItems.length > 2 && (
+                          <div className="text-gray-500">+{inquiry.cartItems.length - 2} more items... </div>
+                        )}
+                      </div>
+                    </div>
+                    
+                    <div>
+                      <p className="text-xs text-gray-500">Total Amount</p>
+                      <p className="text-lg font-bold text-green-600">₹{inquiry.totalAmount}</p>
+                    </div>
+                    
+                    <div>
+                      <p className="text-xs text-gray-500">Date</p>
+                      <p className="text-sm text-gray-600">{formatDateTime(inquiry.createdAt)}</p>
+                    </div>
+                    
+                    {inquiry.address && (
+                      <div>
+                        <p className="text-xs text-gray-500">Address</p>
+                        <p className="text-sm text-gray-600 truncate">{inquiry.address}</p>
+                      </div>
+                    )}
+                    
+                    {inquiry.message && (
+                      <div>
+                        <p className="text-xs text-gray-500">Message</p>
+                        <p className="text-sm text-gray-600 line-clamp-2">{inquiry.message}</p>
                       </div>
                     )}
                   </div>
-                ))}
-              </div>
-            </div>
+                  
+                  <div className="pt-3 border-t border-gray-100 space-y-2">
+                    <select
+                      value={inquiry.status}
+                      onChange={(e) => updateInquiryStatus(inquiry._id, e.target.value)}
+                      disabled={loading}
+                      className="w-full border border-gray-300 rounded px-3 py-2 text-sm focus:ring-2 focus:ring-green-500 focus:border-transparent disabled:opacity-50"
+                    >
+                      <option value={STATUS.PENDING}>Pending</option>
+                      <option value={STATUS.CONTACTED}>Contacted</option>
+                      <option value={STATUS.QUOTED}>Quoted</option>
+                      <option value={STATUS.COMPLETED}>Completed</option>
+                      <option value={STATUS. CANCELLED}>Cancelled</option>
+                    </select>
+                    <button
+                      onClick={() => {
+                        const details = `
+📦 CART INQUIRY DETAILS
 
-            {/* Desktop Table View */}
-            <div className="hidden lg:block overflow-x-auto">
-              <table className="w-full">
-                <thead className="bg-gray-50">
-                  <tr>
-                    <th className="px-4 lg:px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                      Customer
-                    </th>
-                    <th className="px-4 lg:px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                      Issue Details
-                    </th>
-                    <th className="px-4 lg:px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                      Location
-                    </th>
-                    <th className="px-4 lg:px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                      Assigned Mechanic
-                    </th>
-                    <th className="px-4 lg:px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                      Actions
-                    </th>
-                  </tr>
-                </thead>
-                <tbody className="bg-white divide-y divide-gray-200">
-                  {emergencies.map((emergency) => (
-                    <tr key={emergency._id} className="hover:bg-gray-50">
-                      <td className="px-4 lg:px-6 py-4 whitespace-nowrap">
-                        <div>
-                          <div className="font-semibold text-gray-900">{emergency.name}</div>
-                          <div className="text-sm text-gray-600">{emergency.phone}</div>
-                        </div>
-                      </td>
-                      <td className="px-4 lg:px-6 py-4">
-                        <div>
-                          <div className="font-medium text-gray-900">{emergency.bikeModel}</div>
-                          <div className="text-sm text-gray-600 max-w-xs truncate">
-                            {emergency.issueDescription}
-                          </div>
-                        </div>
-                      </td>
-                      <td className="px-4 lg:px-6 py-4">
-                        <div className="text-sm text-gray-900 max-w-xs truncate">
-                          {emergency.location}
-                        </div>
-                      </td>
-                      <td className="px-4 lg:px-6 py-4 whitespace-nowrap">
-                        {emergency.assignedMechanic ? (
-                          <div className="text-sm">
-                            <div className="font-medium text-gray-900">
-                              {mechanics.find((m) => m._id === emergency.assignedMechanic)?.name || "Unknown"}
-                            </div>
-                            <div className="text-gray-500">Assigned</div>
-                          </div>
-                        ) : (
-                          <span className="text-sm text-gray-500">Not Assigned</span>
-                        )}
-                      </td>
-                      <td className="px-4 lg:px-6 py-4 whitespace-nowrap">
-                        {!emergency.assignedMechanic && (
-                          <button
-                            onClick={() => {
-                              setSelectedTask({ ...emergency, taskType: "emergency" });
-                              setShowAssignModal(true);
-                              setError(null);
-                            }}
-                            disabled={loading}
-                            className="bg-red-600 hover:bg-red-700 text-white px-3 py-1 rounded text-xs disabled:opacity-50"
-                          >
-                            Assign Mechanic
-                          </button>
-                        )}
-                      </td>
-                    </tr>
-                  ))}
-                </tbody>
-              </table>
+👤 Customer: ${inquiry.name}
+📞 Phone: ${inquiry.phone}
+📧 Email: ${inquiry.email}
+📍 Address: ${inquiry.address || "Not provided"}
+${inquiry.message ? "💬 Message: " + inquiry. message : ""}
+
+🛒 Cart Items:
+${inquiry. cartItems?.map(item => `- ${item.name} (${item.brand || "N/A"}) x${item.quantity} = ₹${item.price}`).join("\n") || "No items"}
+
+💰 Total:  ₹${inquiry.totalAmount}
+📊 Status: ${inquiry.status?. toUpperCase()}
+📅 Date: ${formatDateTime(inquiry.createdAt)}
+                        `.trim();
+                        alert(details);
+                      }}
+                      className="w-full text-sm text-blue-600 hover:text-blue-800 font-medium py-1"
+                    >
+                      View Full Details
+                    </button>
+                  </div>
+                </div>
+              ))}
             </div>
-            {emergencies.length === 0 && (
-              <div className="text-center py-8 text-gray-500">No emergency requests found</div>
-            )}
           </div>
-        )}
 
-        {/* INQUIRIES TAB - COMPLETE IMPLEMENTATION */}
-        {activeTab === "inquiries" && (
-          <div className="bg-white rounded-lg shadow-lg overflow-hidden">
-            {/* Mobile Card View */}
-            <div className="block lg:hidden">
-              <div className="space-y-4 p-4">
-                {inquiries.map((inquiry) => (
-                  <div key={inquiry._id} className="border border-gray-200 rounded-lg p-4 space-y-3">
-                    <div className="flex justify-between items-start">
-                      <div className="flex-1 min-w-0">
-                        <h3 className="font-semibold text-gray-900">{inquiry.name}</h3>
-                        <p className="text-sm text-gray-600">{inquiry.phone}</p>
-                        <p className="text-sm text-gray-500 truncate">{inquiry.email}</p>
-                      </div>
-                      <span
-                        className={`inline-flex px-2 py-1 text-xs font-semibold rounded-full ${
-                          inquiry.status === STATUS.PENDING
-                            ? "bg-yellow-100 text-yellow-800"
-                            : inquiry.status === STATUS.CONTACTED
-                            ? "bg-blue-100 text-blue-800"
-                            : inquiry.status === STATUS.QUOTED
-                            ? "bg-purple-100 text-purple-800"
-                            : inquiry.status === STATUS.COMPLETED
-                            ? "bg-green-100 text-green-800"
-                            : "bg-gray-100 text-gray-800"
-                        }`}
-                      >
-                        {inquiry.status?.toUpperCase()}
-                      </span>
-                    </div>
-                    
-                    <div className="space-y-2">
+          {/* Desktop Table View */}
+          <div className="hidden lg:block overflow-x-auto">
+            <table className="w-full">
+              <thead className="bg-gray-50">
+                <tr>
+                  <th className="px-4 lg:px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                    Customer
+                  </th>
+                  <th className="px-4 lg:px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                    Cart Items
+                  </th>
+                  <th className="px-4 lg:px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                    Total Amount
+                  </th>
+                  <th className="px-4 lg:px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                    Status
+                  </th>
+                  <th className="px-4 lg:px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                    Date
+                  </th>
+                  <th className="px-4 lg:px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                    Actions
+                  </th>
+                </tr>
+              </thead>
+              <tbody className="bg-white divide-y divide-gray-200">
+                {filteredInquiries.map((inquiry) => (
+                  <tr key={inquiry._id} className="hover:bg-gray-50">
+                    <td className="px-4 lg:px-6 py-4 whitespace-nowrap">
                       <div>
-                        <p className="text-xs text-gray-500">Cart Items</p>
-                        <p className="text-sm font-medium">{inquiry.itemCount || inquiry.cartItems?.length || 0} items</p>
-                        <div className="text-xs text-gray-600 space-y-1 mt-1">
-                          {inquiry.cartItems && inquiry.cartItems.slice(0, 2).map((item, index) => (
+                        <div className="font-semibold text-gray-900">{inquiry.name}</div>
+                        <div className="text-sm text-gray-600">{inquiry.phone}</div>
+                        <div className="text-sm text-gray-500">{inquiry.email}</div>
+                      </div>
+                    </td>
+                    <td className="px-4 lg:px-6 py-4">
+                      <div className="max-w-xs">
+                        <div className="text-sm font-medium text-gray-900 mb-1">
+                          {inquiry.itemCount || inquiry.cartItems?.length || 0} items
+                        </div>
+                        <div className="text-xs text-gray-600 space-y-1">
+                          {inquiry.cartItems && inquiry.cartItems.slice(0, 3).map((item, index) => (
                             <div key={index} className="flex justify-between">
                               <span className="truncate mr-2">{item.name}</span>
                               <span>x{item.quantity}</span>
                             </div>
                           ))}
-                          {inquiry.cartItems && inquiry.cartItems.length > 2 && (
-                            <div className="text-gray-500">+{inquiry.cartItems.length - 2} more items...</div>
+                          {inquiry.cartItems && inquiry.cartItems.length > 3 && (
+                            <div className="text-gray-500">+{inquiry.cartItems.length - 3} more items...</div>
                           )}
                         </div>
                       </div>
-                      
-                      <div>
-                        <p className="text-xs text-gray-500">Total Amount</p>
-                        <p className="text-lg font-bold text-green-600">₹{inquiry.totalAmount}</p>
-                      </div>
-                      
-                      <div>
-                        <p className="text-xs text-gray-500">Date</p>
-                        <p className="text-sm text-gray-600">{formatDateTime(inquiry.createdAt)}</p>
-                      </div>
-                      
-                      {inquiry.address && (
-                        <div>
-                          <p className="text-xs text-gray-500">Address</p>
-                          <p className="text-sm text-gray-600 truncate">{inquiry.address}</p>
-                        </div>
-                      )}
-                      
-                      {inquiry.message && (
-                        <div>
-                          <p className="text-xs text-gray-500">Message</p>
-                          <p className="text-sm text-gray-600 line-clamp-2">{inquiry.message}</p>
-                        </div>
-                      )}
-                    </div>
-                    
-                    <div className="pt-3 border-t border-gray-100 space-y-2">
+                    </td>
+                    <td className="px-4 lg:px-6 py-4 whitespace-nowrap">
+                      <div className="text-lg font-bold text-green-600">₹{inquiry.totalAmount}</div>
+                    </td>
+                    <td className="px-4 lg:px-6 py-4 whitespace-nowrap">
                       <select
                         value={inquiry.status}
-                        onChange={(e) => updateInquiryStatus(inquiry._id, e.target.value)}
+                        onChange={(e) => updateInquiryStatus(inquiry._id, e.target. value)}
                         disabled={loading}
-                        className="w-full border border-gray-300 rounded px-3 py-2 text-sm focus:ring-2 focus:ring-green-500 focus:border-transparent disabled:opacity-50"
+                        className={`text-sm rounded-full px-3 py-1 font-semibold border-0 focus:ring-2 focus:ring-green-500 ${
+                          inquiry.status === STATUS.PENDING
+                            ? "bg-yellow-100 text-yellow-800"
+                            : inquiry.status === STATUS.CONTACTED
+                            ?  "bg-blue-100 text-blue-800"
+                            : inquiry.status === STATUS. QUOTED
+                            ? "bg-purple-100 text-purple-800"
+                            : inquiry. status === STATUS.COMPLETED
+                            ? "bg-green-100 text-green-800"
+                            : "bg-gray-100 text-gray-800"
+                        }`}
                       >
                         <option value={STATUS.PENDING}>Pending</option>
                         <option value={STATUS.CONTACTED}>Contacted</option>
                         <option value={STATUS.QUOTED}>Quoted</option>
                         <option value={STATUS.COMPLETED}>Completed</option>
-                        <option value={STATUS.CANCELLED}>Cancelled</option>
+                        <option value={STATUS. CANCELLED}>Cancelled</option>
                       </select>
+                    </td>
+                    <td className="px-4 lg:px-6 py-4 whitespace-nowrap text-sm text-gray-900">
+                      {formatDateTime(inquiry.createdAt)}
+                    </td>
+                    <td className="px-4 lg:px-6 py-4 whitespace-nowrap">
                       <button
                         onClick={() => {
                           const details = `
-Customer: ${inquiry.name}
-Phone: ${inquiry.phone}
-Email: ${inquiry.email}
-Address: ${inquiry.address || "Not provided"}
-${inquiry.message ? "Message: " + inquiry.message : ""}
-Cart Items:
-${inquiry.cartItems?.map(item => `- ${item.name} (${item.brand || "N/A"}) x${item.quantity} = ₹${item.price}`).join("\n") || "No items"}
-Total: ₹${inquiry.totalAmount}
+📦 CART INQUIRY DETAILS
+
+👤 Customer: ${inquiry.name}
+📞 Phone: ${inquiry.phone}
+📧 Email: ${inquiry.email}
+📍 Address: ${inquiry.address || "Not provided"}
+${inquiry.message ? "💬 Message: " + inquiry.message : ""}
+
+🛒 Cart Items:
+${inquiry.cartItems?. map(item => `- ${item.name} (${item.brand || "N/A"}) x${item.quantity} = ₹${item.price}`).join("\n") || "No items"}
+
+💰 Total: ₹${inquiry.totalAmount}
+📊 Status: ${inquiry. status?.toUpperCase()}
+📅 Date: ${formatDateTime(inquiry.createdAt)}
                           `.trim();
                           alert(details);
                         }}
-                        className="w-full text-sm text-blue-600 hover:text-blue-800 font-medium py-1"
+                        className="text-xs text-blue-600 hover:text-blue-800 font-medium"
                       >
-                        View Full Details
+                        View Details
                       </button>
+                    </td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+          </div>
+
+          {/* Empty State */}
+          {filteredInquiries.length === 0 && ! loading && (
+            <div className="text-center py-12">
+              <div className="text-6xl mb-4">
+                {inquiryStatusFilter === STATUS.PENDING ?  "⏳" : 
+                 inquiryStatusFilter === STATUS.CONTACTED ? "📞" : 
+                 inquiryStatusFilter === STATUS. QUOTED ? "💰" : 
+                 inquiryStatusFilter === STATUS.COMPLETED ? "✅" : 
+                 inquiryStatusFilter === STATUS.CANCELLED ? "❌" : "🛒"}
+              </div>
+              <h3 className="text-lg font-semibold text-gray-900 mb-2">
+                No {inquiryStatusFilter !== "all" ? inquiryStatusFilter.charAt(0).toUpperCase() + inquiryStatusFilter. slice(1) : ""} Inquiries
+              </h3>
+              <p className="text-gray-600">
+                {inquiryStatusFilter === "all" 
+                  ? "No cart inquiries found"
+                  : `No ${inquiryStatusFilter} cart inquiries found`}
+              </p>
+            </div>
+          )}
+        </>
+      );
+    })()}
+  </div>
+)}
+
+        {/* CONTACT FORMS TAB */}
+{/* CONTACT FORMS TAB */}
+{activeTab === "contactForms" && (
+  <div className="bg-white rounded-lg shadow-lg overflow-hidden">
+    
+    {/* Status Filter Sub-tabs */}
+    <div className="border-b border-gray-200 bg-gray-50 p-3 sm:p-4">
+      <div className="flex flex-wrap gap-2">
+        {[
+          { id: "all", label: "All Forms", color: "gray" },
+          { id: "pending", label: "Pending", color: "yellow" },
+          { id: "contacted", label: "Contacted", color: "blue" },
+          { id: "resolved", label: "Resolved", color: "green" },
+          { id: "closed", label: "Closed", color: "gray" }
+        ].map((filter) => {
+          const count = filter.id === "all" 
+            ? contactForms.length 
+            :  contactForms.filter(f => f.status === filter.id).length;
+          
+          return (
+            <button
+              key={filter.id}
+              onClick={() => setContactFormStatusFilter(filter.id)}
+              className={`px-3 sm:px-4 py-2 rounded-lg font-semibold text-xs sm:text-sm transition-all ${
+                contactFormStatusFilter === filter.id
+                  ? filter.id === "pending"
+                    ? "bg-yellow-600 text-white"
+                    : filter.id === "contacted"
+                    ? "bg-blue-600 text-white"
+                    : filter.id === "resolved"
+                    ? "bg-green-600 text-white"
+                    : filter.id === "closed"
+                    ? "bg-gray-600 text-white"
+                    : "bg-indigo-600 text-white"
+                  : "bg-white text-gray-700 hover:bg-gray-100 border border-gray-300"
+              }`}
+            >
+              {filter.label} ({count})
+            </button>
+          );
+        })}
+      </div>
+    </div>
+
+    {(() => {
+      // Filter contact forms based on selected status
+      const filteredForms = contactFormStatusFilter === "all"
+        ? contactForms
+        : contactForms.filter(f => f.status === contactFormStatusFilter);
+
+      return (
+        <>
+          {/* Mobile Card View */}
+          <div className="block lg:hidden">
+            <div className="space-y-4 p-4">
+              {filteredForms.map((form) => (
+                <div key={form._id} className="border border-gray-200 rounded-lg p-4 space-y-3">
+                  
+                  <div className="flex justify-between items-start">
+                    <div className="flex-1 min-w-0">
+                      <h3 className="font-semibold text-gray-900">{form.name}</h3>
+                      <p className="text-sm text-gray-600">{form.phone}</p>
+                      <p className="text-sm text-gray-500 truncate">{form.email}</p>
+                    </div>
+                    <span
+                      className={`inline-flex px-2 py-1 text-xs font-semibold rounded-full ${
+                        form.status === 'pending'
+                          ? "bg-yellow-100 text-yellow-800"
+                          :  form.status === 'contacted'
+                          ? "bg-blue-100 text-blue-800"
+                          : form.status === 'resolved'
+                          ? "bg-green-100 text-green-800"
+                          : "bg-gray-100 text-gray-800"
+                      }`}
+                    >
+                      {form.status?. toUpperCase()}
+                    </span>
+                  </div>
+                  
+                  <div className="space-y-2">
+                    <div>
+                      <p className="text-xs text-gray-500">Form Type</p>
+                      <p className="text-sm font-medium text-gray-700 capitalize">
+                        {form.formType}
+                      </p>
+                    </div>
+                    
+                    <div>
+                      <p className="text-xs text-gray-500">Message</p>
+                      <p className="text-sm text-gray-600 line-clamp-2">{form.message}</p>
+                    </div>
+                    
+                    <div>
+                      <p className="text-xs text-gray-500">Submitted</p>
+                      <p className="text-sm text-gray-600">{formatDateTime(form. createdAt)}</p>
+                    </div>
+                    
+                    {form.serviceType && (
+                      <div>
+                        <p className="text-xs text-gray-500">Service Type</p>
+                        <p className="text-sm text-gray-600">{form.serviceType}</p>
+                      </div>
+                    )}
+                    
+                    {form.rating && (
+                      <div>
+                        <p className="text-xs text-gray-500">Rating</p>
+                        <p className="text-sm text-gray-600">{'⭐'.repeat(form. rating)}</p>
+                      </div>
+                    )}
+                    
+                    <div>
+                      <p className="text-xs text-gray-500">Email Status</p>
+                      {form.emailSent ? (
+                        <span className="text-green-600 font-semibold text-sm">✅ Sent</span>
+                      ) : (
+                        <span className="text-red-600 text-sm">❌ Not Sent</span>
+                      )}
                     </div>
                   </div>
-                ))}
-              </div>
-            </div>
+                  
+                  <div className="pt-3 border-t border-gray-100 space-y-2">
+                    <select
+                      value={form.status}
+                      onChange={(e) => updateContactFormStatus(form._id, e.target.value)}
+                      disabled={loading}
+                      className="w-full border border-gray-300 rounded px-3 py-2 text-sm focus:ring-2 focus:ring-indigo-500 focus:border-transparent disabled:opacity-50"
+                    >
+                      <option value="pending">Pending</option>
+                      <option value="contacted">Contacted</option>
+                      <option value="resolved">Resolved</option>
+                      <option value="closed">Closed</option>
+                    </select>
+                    
+                    <button
+                      onClick={() => {
+                        const details = `
+📋 CONTACT FORM DETAILS
 
-            {/* Desktop Table View */}
-            <div className="hidden lg:block overflow-x-auto">
-              <table className="w-full">
-                <thead className="bg-gray-50">
-                  <tr>
-                    <th className="px-4 lg:px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                      Customer
-                    </th>
-                    <th className="px-4 lg:px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                      Cart Items
-                    </th>
-                    <th className="px-4 lg:px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                      Total Amount
-                    </th>
-                    <th className="px-4 lg:px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                      Status
-                    </th>
-                    <th className="px-4 lg:px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                      Date
-                    </th>
-                    <th className="px-4 lg:px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                      Actions
-                    </th>
-                  </tr>
-                </thead>
-                <tbody className="bg-white divide-y divide-gray-200">
-                  {inquiries.map((inquiry) => (
-                    <tr key={inquiry._id} className="hover:bg-gray-50">
-                      <td className="px-4 lg:px-6 py-4 whitespace-nowrap">
-                        <div>
-                          <div className="font-semibold text-gray-900">{inquiry.name}</div>
-                          <div className="text-sm text-gray-600">{inquiry.phone}</div>
-                          <div className="text-sm text-gray-500">{inquiry.email}</div>
-                        </div>
-                      </td>
-                      <td className="px-4 lg:px-6 py-4">
-                        <div className="max-w-xs">
-                          <div className="text-sm font-medium text-gray-900 mb-1">
-                            {inquiry.itemCount || inquiry.cartItems?.length || 0} items
-                          </div>
-                          <div className="text-xs text-gray-600 space-y-1">
-                            {inquiry.cartItems && inquiry.cartItems.slice(0, 3).map((item, index) => (
-                              <div key={index} className="flex justify-between">
-                                <span className="truncate mr-2">{item.name}</span>
-                                <span>x{item.quantity}</span>
-                              </div>
-                            ))}
-                            {inquiry.cartItems && inquiry.cartItems.length > 3 && (
-                              <div className="text-gray-500">+{inquiry.cartItems.length - 3} more items...</div>
-                            )}
-                          </div>
-                        </div>
-                      </td>
-                      <td className="px-4 lg:px-6 py-4 whitespace-nowrap">
-                        <div className="text-lg font-bold text-green-600">₹{inquiry.totalAmount}</div>
-                      </td>
-                      <td className="px-4 lg:px-6 py-4 whitespace-nowrap">
-                        <span
-                          className={`inline-flex px-2 py-1 text-xs font-semibold rounded-full ${
-                            inquiry.status === STATUS.PENDING
-                              ? "bg-yellow-100 text-yellow-800"
-                              : inquiry.status === STATUS.CONTACTED
-                              ? "bg-blue-100 text-blue-800"
-                              : inquiry.status === STATUS.QUOTED
-                              ? "bg-purple-100 text-purple-800"
-                              : inquiry.status === STATUS.COMPLETED
-                              ? "bg-green-100 text-green-800"
-                              : "bg-gray-100 text-gray-800"
-                          }`}
-                        >
-                          {inquiry.status?.toUpperCase()}
-                        </span>
-                      </td>
-                      <td className="px-4 lg:px-6 py-4 whitespace-nowrap text-sm text-gray-900">
-                        {formatDateTime(inquiry.createdAt)}
-                      </td>
-                      <td className="px-4 lg:px-6 py-4 whitespace-nowrap">
-                        <div className="flex flex-col space-y-1">
-                          <select
-                            value={inquiry.status}
-                            onChange={(e) => updateInquiryStatus(inquiry._id, e.target.value)}
-                            disabled={loading}
-                            className="border border-gray-300 rounded px-2 py-1 text-xs focus:ring-2 focus:ring-green-500 focus:border-transparent disabled:opacity-50"
-                          >
-                            <option value={STATUS.PENDING}>Pending</option>
-                            <option value={STATUS.CONTACTED}>Contacted</option>
-                            <option value={STATUS.QUOTED}>Quoted</option>
-                            <option value={STATUS.COMPLETED}>Completed</option>
-                            <option value={STATUS.CANCELLED}>Cancelled</option>
-                          </select>
-                          <button
-                            onClick={() => {
-                              const details = `
-Customer: ${inquiry.name}
-Phone: ${inquiry.phone}
-Email: ${inquiry.email}
-Address: ${inquiry.address || "Not provided"}
-${inquiry.message ? "Message: " + inquiry.message : ""}
-Cart Items:
-${inquiry.cartItems?.map(item => `- ${item.name} (${item.brand || "N/A"}) x${item.quantity} = ₹${item.price}`).join("\n") || "No items"}
-Total: ₹${inquiry.totalAmount}
-                              `.trim();
-                              alert(details);
-                            }}
-                            className="text-xs text-blue-600 hover:text-blue-800 font-medium"
-                          >
-                            View Details
-                          </button>
-                        </div>
-                      </td>
-                    </tr>
-                  ))}
-                </tbody>
-              </table>
+👤 Customer Information:
+Name: ${form.name}
+Phone: ${form.phone}
+Email: ${form.email}
+
+📝 Form Details:
+Type: ${form.formType}
+Status: ${form.status}
+Message: ${form.message}
+
+${form.serviceType ? `🔧 Service Type: ${form.serviceType}` : ''}
+${form.vehicleModel ? `🏍️ Vehicle:  ${form.vehicleModel}` : ''}
+${form.location ? `📍 Location: ${form.location}` : ''}
+${form.rating ? `⭐ Rating: ${'⭐'.repeat(form.rating)}` : ''}
+
+📧 Email Status: ${form.emailSent ? '✅ Sent' : '❌ Not Sent'}
+📅 Submitted: ${formatDateTime(form.createdAt)}
+🆔 Form ID: ${form._id}
+                        `.trim();
+                        alert(details);
+                      }}
+                      className="w-full text-sm text-indigo-600 hover:text-indigo-800 font-medium py-1"
+                    >
+                      View Full Details
+                    </button>
+                  </div>
+                </div>
+              ))}
             </div>
-            {inquiries.length === 0 && (
-              <div className="text-center py-8 text-gray-500">No cart inquiries found</div>
-            )}
           </div>
-        )}
+
+          {/* Desktop Table View */}
+          <div className="hidden lg:block overflow-x-auto">
+            <table className="w-full">
+              <thead className="bg-gray-50">
+                <tr>
+                  <th className="px-4 lg:px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                    Customer
+                  </th>
+                  <th className="px-4 lg:px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                    Form Type
+                  </th>
+                  <th className="px-4 lg:px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                    Message
+                  </th>
+                  <th className="px-4 lg:px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                    Status
+                  </th>
+                  <th className="px-4 lg:px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                    Email
+                  </th>
+                  <th className="px-4 lg:px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                    Date
+                  </th>
+                  <th className="px-4 lg:px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                    Actions
+                  </th>
+                </tr>
+              </thead>
+              <tbody className="bg-white divide-y divide-gray-200">
+                {filteredForms.map((form) => (
+                  <tr key={form._id} className="hover:bg-gray-50">
+                    <td className="px-4 lg:px-6 py-4 whitespace-nowrap">
+                      <div>
+                        <div className="font-semibold text-gray-900">{form.name}</div>
+                        <div className="text-sm text-gray-600">{form.phone}</div>
+                        <div className="text-sm text-gray-500">{form.email}</div>
+                      </div>
+                    </td>
+                    <td className="px-4 lg:px-6 py-4 whitespace-nowrap">
+                      <span className="px-2 py-1 text-xs font-semibold rounded-full bg-indigo-100 text-indigo-800 capitalize">
+                        {form.formType}
+                      </span>
+                    </td>
+                    <td className="px-4 lg:px-6 py-4">
+                      <div className="max-w-xs">
+                        <p className="text-sm text-gray-600 line-clamp-2">{form.message}</p>
+                        {form.serviceType && (
+                          <p className="text-xs text-gray-500 mt-1">Service:  {form.serviceType}</p>
+                        )}
+                        {form.rating && (
+                          <p className="text-xs text-gray-500 mt-1">Rating:  {'⭐'.repeat(form.rating)}</p>
+                        )}
+                      </div>
+                    </td>
+                    <td className="px-4 lg:px-6 py-4 whitespace-nowrap">
+                      <select
+                        value={form.status}
+                        onChange={(e) => updateContactFormStatus(form._id, e.target.value)}
+                        disabled={loading}
+                        className={`text-sm rounded-full px-3 py-1 font-semibold border-0 focus:ring-2 focus:ring-indigo-500 ${
+                          form.status === 'pending'
+                            ? "bg-yellow-100 text-yellow-800"
+                            :  form.status === 'contacted'
+                            ? "bg-blue-100 text-blue-800"
+                            : form.status === 'resolved'
+                            ? "bg-green-100 text-green-800"
+                            : "bg-gray-100 text-gray-800"
+                        }`}
+                      >
+                        <option value="pending">Pending</option>
+                        <option value="contacted">Contacted</option>
+                        <option value="resolved">Resolved</option>
+                        <option value="closed">Closed</option>
+                      </select>
+                    </td>
+                    <td className="px-4 lg:px-6 py-4 whitespace-nowrap">
+                      {form.emailSent ? (
+                        <span className="text-green-600 font-semibold">✅ Sent</span>
+                      ) : (
+                        <span className="text-red-600">❌ Not Sent</span>
+                      )}
+                    </td>
+                    <td className="px-4 lg:px-6 py-4 whitespace-nowrap text-sm text-gray-500">
+                      {formatDate(form.createdAt)}<br/>
+                      {new Date(form.createdAt).toLocaleTimeString('en-IN')}
+                    </td>
+                    <td className="px-4 lg:px-6 py-4 whitespace-nowrap text-sm">
+                      <button
+                        onClick={() => {
+                          const details = `
+📋 CONTACT FORM DETAILS
+
+👤 Customer Information:
+Name: ${form.name}
+Phone: ${form.phone}
+Email: ${form.email}
+
+📝 Form Details:
+Type: ${form.formType}
+Status: ${form.status}
+Message: ${form.message}
+
+${form. serviceType ? `🔧 Service Type: ${form.serviceType}` : ''}
+${form.vehicleModel ? `🏍️ Vehicle: ${form. vehicleModel}` : ''}
+${form.location ? `📍 Location: ${form.location}` : ''}
+${form.rating ? `⭐ Rating: ${'⭐'. repeat(form.rating)}` : ''}
+
+📧 Email Status: ${form.emailSent ?  '✅ Sent' :  '❌ Not Sent'}
+📅 Submitted: ${formatDateTime(form.createdAt)}
+🆔 Form ID: ${form._id}
+                          `.trim();
+                          alert(details);
+                        }}
+                        className="text-indigo-600 hover:text-indigo-900 font-medium"
+                      >
+                        View Details
+                      </button>
+                    </td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+          </div>
+
+          {/* Empty State */}
+          {filteredForms.length === 0 && ! loading && (
+            <div className="text-center py-12">
+              <div className="text-6xl mb-4">
+                {contactFormStatusFilter === "pending" ?  "⏳" : 
+                 contactFormStatusFilter === "contacted" ? "📞" : 
+                 contactFormStatusFilter === "resolved" ? "✅" : 
+                 contactFormStatusFilter === "closed" ?  "🔒" : "📬"}
+              </div>
+              <h3 className="text-lg font-semibold text-gray-900 mb-2">
+                No {contactFormStatusFilter !== "all" ? contactFormStatusFilter. charAt(0).toUpperCase() + contactFormStatusFilter.slice(1) : ""} Forms
+              </h3>
+              <p className="text-gray-600">
+                {contactFormStatusFilter === "all" 
+                  ? "No contact form submissions yet"
+                  : `No ${contactFormStatusFilter} contact forms found`}
+              </p>
+            </div>
+          )}
+        </>
+      );
+    })()}
+  </div>
+)}
         {/* AllBookings TAB - COMPLETE IMPLEMENTATION */}
         {activeTab === "AllBookings" && (
           <div className="bg-white rounded-lg shadow-lg overflow-hidden">
@@ -1414,7 +2007,7 @@ Total: ₹${inquiry.totalAmount}
                   required
                   value={newMechanic.name}
                   onChange={(e) => setNewMechanic({ ...newMechanic, name: e.target.value })}
-                  className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 text-sm"
+                  className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus: ring-2 focus:ring-blue-500 text-sm"
                   placeholder="Enter mechanic name"
                 />
               </div>
@@ -1425,7 +2018,7 @@ Total: ₹${inquiry.totalAmount}
                   type="email"
                   required
                   value={newMechanic.email}
-                  onChange={(e) => setNewMechanic({ ...newMechanic, email: e.target.value })}
+                  onChange={(e) => setNewMechanic({ ...newMechanic, email: e. target.value })}
                   className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 text-sm"
                   placeholder="Enter email address"
                 />
@@ -1443,7 +2036,7 @@ Total: ₹${inquiry.totalAmount}
                   maxLength="10"
                   value={newMechanic.phone}
                   onChange={(e) => {
-                    const value = e.target.value.replace(/\D/g, "");
+                    const value = e. target.value.replace(/\D/g, "");
                     setNewMechanic({ ...newMechanic, phone: value });
                   }}
                   className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 text-sm"
@@ -1465,7 +2058,7 @@ Total: ₹${inquiry.totalAmount}
               </div>
             </div>
 
-            {/* ⭐ NEW FIELD: VEHICLE TYPE (Two / Three Wheeler) */}
+            {/* ⭐ NEW FIELD:  VEHICLE TYPE (Two / Three Wheeler) */}
             <div>
               <label className="block text-sm font-medium text-gray-700 mb-1">Vehicle Type *</label>
               <select
@@ -1474,7 +2067,7 @@ Total: ₹${inquiry.totalAmount}
                 onChange={(e) =>
                   setNewMechanic({
                     ...newMechanic,
-                    vehicleType: e.target.value,
+                    vehicleType:  e.target.value,
                   })
                 }
                 className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 text-sm"
@@ -1501,7 +2094,7 @@ Total: ₹${inquiry.totalAmount}
                 onChange={(e) =>
                   setNewMechanic({
                     ...newMechanic,
-                    specialization: e.target.value ? [e.target.value] : [],
+                    specialization: e.target.value ?  [e.target.value] : [],
                   })
                 }
                 className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 text-sm"
@@ -1529,7 +2122,7 @@ Total: ₹${inquiry.totalAmount}
                       experience: parseInt(e.target.value) || 0,
                     })
                   }
-                  className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 text-sm"
+                  className="w-full px-3 py-2 border border-gray-300 rounded-md focus: outline-none focus:ring-2 focus:ring-blue-500 text-sm"
                   placeholder="Years of experience"
                 />
               </div>
@@ -1542,7 +2135,7 @@ Total: ₹${inquiry.totalAmount}
                   onChange={(e) =>
                     setNewMechanic({
                       ...newMechanic,
-                      city: e.target.value ,
+                      city:  e.target.value,
                     })
                   }
                   className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 text-sm"
@@ -1565,7 +2158,7 @@ Total: ₹${inquiry.totalAmount}
             <button
               type="submit"
               disabled={loading}
-              className="w-full sm:w-auto px-4 py-2 text-sm font-medium text-white bg-purple-600 rounded-md hover:bg-purple-700 disabled:opacity-50 transition-colors"
+              className="w-full sm:w-auto px-4 py-2 text-sm font-medium text-whitebg-purple-600 rounded-md hover:bg-purple-700 disabled:opacity-50 transition-colors"
             >
               {loading ? "Creating..." : "Create Mechanic"}
             </button>

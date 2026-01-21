@@ -15,7 +15,7 @@ const Footer = () => {
   return (
     <footer className="bg-red-800 text-gray-100">
       <div className="max-w-7xl mx-auto px-4 py-12">
-        <div className="grid grid-cols-2 md:grid-cols-4 gap-10">
+        <div className="grid grid-cols-2 md:grid-cols-4 gap-6 md:gap-10">
           {/* Logo + About */}
           <div>
             <div className="flex items-center space-x-2 mb-4 overflow-hidden w-fit rounded-sm">
@@ -144,7 +144,7 @@ const Footer = () => {
           </div>
 
           {/* Contact Us */}
-          <div>
+          <div className="-left-3 relative sm:left-0">
             <h3 className="text-lg font-semibold mb-4 text-white">
               Contact Us
             </h3>
@@ -170,7 +170,7 @@ const Footer = () => {
                 </div>
                 <a 
                   href="mailto:support@roadengo.com" 
-                  className="text-gray-100 hover:text-white transition-colors text-sm font-medium wrap-anywhere"
+                  className="text-gray-100 hover:text-white transition-colors text-sm font-medium"
                 >
                   support@roadengo.com
                 </a>

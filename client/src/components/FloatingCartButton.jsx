@@ -8,7 +8,7 @@ const FloatingCartButton = () => {
   return (
     <>
       {/* Floating Cart Button - Bottom Right Corner */}
-      <div className="fixed bottom-6 right-6 z-50">
+      <div className="fixed bottom-6 left-6 z-50">
         <button
           onClick={toggleCart}
           className="relative bg-red-600 text-white p-2 rounded-full shadow-2xl hover:shadow-3xl transition-all duration-300 transform hover:scale-110 active:scale-95 focus:outline-none focus:ring-4 focus:ring-red-300/50 group"

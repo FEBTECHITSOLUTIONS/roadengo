@@ -144,7 +144,7 @@ const Footer = () => {
           </div>
 
           {/* Contact Us */}
-          <div>
+          <div className="-left-3 relative sm:left-0">
             <h3 className="text-lg font-semibold mb-4 text-white">
               Contact Us
             </h3>
@@ -170,7 +170,7 @@ const Footer = () => {
                 </div>
                 <a 
                   href="mailto:support@roadengo.com" 
-                  className="text-gray-100 hover:text-white transition-colors text-sm font-medium wrap-anywhere"
+                  className="text-gray-100 hover:text-white transition-colors text-sm font-medium"
                 >
                   support@roadengo.com
                 </a>

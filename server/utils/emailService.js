@@ -154,6 +154,60 @@ const sendCustomerConfirmationEmail = async ({ to, name, formType, message, serv
     </div>
   `;
 
+  // 2. YEH NYA FOOTER CODE ADD KARNA HAI (ADDRESS KE SAATH) ->
+  const footerHtml = `
+  <div style="background-color:#000000; padding:24px 16px; margin-top:40px; border-radius:8px; font-family:-apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;">
+    <table width="100%" cellpadding="0" cellspacing="0" border="0" style="max-width:600px; margin:0 auto;">
+      
+      <!-- Logo Row -->
+      <tr>
+        <td align="center" style="padding-bottom:16px;">
+          <span style="font-size:26px; font-weight:800; letter-spacing:-0.5px;">
+            <span style="color:#ffffff;">ROAD</span><span style="color:#dc2626;">ENGO</span>
+          </span>
+        </td>
+      </tr>
+
+      <!-- Divider -->
+      <tr>
+        <td style="padding:10px 0;">
+          <div style="height:1px; width:100%; background-color:#333333;"></div>
+        </td>
+      </tr>
+
+      <!-- Address -->
+      <tr>
+        <td style="color:#cccccc; font-size:14px; line-height:1.6; padding-bottom:20px;">
+          Lakshar Road Near,<br/>
+          Sati Kund, Haridwar,<br/>
+          Uttarakhand 249408 - India
+        </td>
+      </tr>
+
+      <!-- Bottom Row -->
+      <tr>
+        <td>
+          <table width="100%" cellpadding="0" cellspacing="0" border="0">
+            <tr>
+              
+
+              <!-- Right -->
+              <td align="center">
+                <a href="https://roadengo.com" style="color:#c21111; text-decoration:none; font-size:14px;">
+                  www.roadengo.com
+                </a>
+              </td>
+            </tr>
+          </table>
+        </td>
+      </tr>
+
+    </table>
+  </div>
+`;
+
+
+
   let html = '';
 
   // ========== GENERAL INQUIRY ==========
@@ -188,9 +242,7 @@ const sendCustomerConfirmationEmail = async ({ to, name, formType, message, serv
           <p style="margin: 4px 0 0 0; color: #9ca3af; font-size:  13px;">Available 24/7</p>
         </div>
 
-        <p style="font-size: 14px; color: #9ca3af; margin: 40px 0 0 0; padding-top: 20px; border-top: 1px solid #e5e7eb; text-align: center;">
-          RoadEngo • <a href="https://roadengo.com" style="color: #6b7280; text-decoration: none;">Visit Website</a>
-        </p>
+        ${footerHtml}
       </div>
     `;
   }
@@ -253,9 +305,7 @@ const sendCustomerConfirmationEmail = async ({ to, name, formType, message, serv
           <p style="margin: 4px 0 0 0; color:  #ef4444; font-size: 13px;">24/7 Support</p>
         </div>
 
-        <p style="font-size: 14px; color: #9ca3af; margin: 40px 0 0 0; padding-top: 20px; border-top: 1px solid #e5e7eb; text-align: center;">
-          RoadEngo • <a href="https://roadengo.com" style="color: #3b82f6; text-decoration: none;">Visit Website</a>
-        </p>
+        ${footerHtml}
       </div>
     `;
   }
@@ -313,9 +363,7 @@ const sendCustomerConfirmationEmail = async ({ to, name, formType, message, serv
           <p style="margin: 8px 0 0 0; color: #fecaca; font-size: 13px;">24/7 Emergency Line</p>
         </div>
 
-        <p style="font-size: 14px; color:  #9ca3af; margin:  40px 0 0 0; padding-top: 20px; border-top: 1px solid #e5e7eb; text-align: center;">
-          RoadEngo Emergency • <a href="https://roadengo.com" style="color: #dc2626; text-decoration:  none;">Visit Website</a>
-        </p>
+        ${footerHtml}
       </div>
     `;
   }
@@ -361,9 +409,7 @@ const sendCustomerConfirmationEmail = async ({ to, name, formType, message, serv
           <p style="margin: 4px 0 0 0; color: #9ca3af; font-size: 13px;">Available 24/7</p>
         </div>
 
-        <p style="font-size: 14px; color: #9ca3af; margin: 40px 0 0 0; padding-top: 20px; border-top: 1px solid #e5e7eb; text-align: center;">
-          RoadEngo • <a href="https://roadengo.com" style="color: #f59e0b; text-decoration: none;">Visit Website</a>
-        </p>
+        ${footerHtml}
       </div>
     `;
   }

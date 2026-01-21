@@ -3,11 +3,11 @@ import { Link } from "react-router-dom";
 
 const Hero = () => {
   return (
-    <section className="min-h-screen flex items-center justify-center bg-gradient-to-br from-red-50 via-white to-pink-50 py-10 sm:py-14 lg:py-20 px-4 sm:px-6 lg:px-8">
+    <section className="min-h-screen flex items-center justify-center bg-gradient-to-br from-red-50 via-white to-pink-50 py-8 sm:py-14 lg:py-20 px-4 sm:px-6 lg:px-8">
       <div className="max-w-7xl w-full mx-auto">
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-12 lg:gap-20 items-center">
           {/* Left Content */}
-          <div className="text-center lg:text-left space-y-8 order-1 lg:order-1">
+          <div className="text-center lg:text-left space-y-6 sm:space-y-8 order-1 lg:order-1">
             {/* Badge */}
             <div className="inline-flex items-center px-4 py-2 bg-red-100 rounded-full text-red-700 font-medium text-sm">
               <i className="ri-shield-check-line mr-2"></i>
@@ -42,14 +42,33 @@ const Hero = () => {
 
             {/* CTA Buttons */}
             <div className="flex flex-col sm:flex-row gap-4 justify-center lg:justify-start pt-6">
-              <Link
+              <>
+                <style>{`
+                @keyframes redPulse {
+                  0% {
+                    box-shadow: 0 0 0 0 rgba(220, 38, 38, 0.7);
+                  }
+                  70% {
+                    box-shadow: 0 0 0 15px rgba(220, 38, 38, 0);
+                  }
+                  100% {
+                    box-shadow: 0 0 0 0 rgba(220, 38, 38, 0);
+                  }
+                }
+                .animate-glow-pulse {
+                  animation: redPulse 2s infinite;
+                }
+              `}</style>
+
+                <Link
                 to="/emergency-assistance"
-                className="group bg-red-600 text-white px-8 py-4 rounded-xl text-lg font-semibold hover:bg-red-700 transition-all duration-300 shadow-lg hover:shadow-xl transform hover:scale-105 flex items-center justify-center gap-3 relative overflow-hidden"
-              >
-                <div className="absolute inset-0 bg-gradient-to-r from-red-700 to-red-600 opacity-0 group-hover:opacity-100 transition-opacity duration-300"></div>
-                <i className="ri-phone-fill text-xl relative z-10"></i>
-                <span className="relative z-10">Roadside repair</span>
-              </Link>
+                className="animate-glow-pulse group bg-red-600 text-white px-8 py-4 rounded-xl text-lg font-semibold hover:bg-red-700 transition-all duration-300 shadow-lg hover:shadow-xl transform hover:scale-105 flex items-center justify-center gap-3 relative overflow-hidden"
+                >
+                  <div className="absolute inset-0 bg-gradient-to-r from-red-700 to-red-600 opacity-0 group-hover:opacity-100 transition-opacity duration-300"></div>
+                  <i className="ri-phone-fill text-xl relative z-10"></i>
+                  <span className="relative z-10">Roadside repair</span>
+                </Link>
+              </>
               
               <Link
                 to="/doorstep-service"

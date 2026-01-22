@@ -3,6 +3,8 @@ import { Link } from "react-router-dom";
 import { EllipsisVertical } from 'lucide-react';
 const Navbar = () => {
   const [isMenuOpen, setIsMenuOpen] = useState(false);
+  const [isDropdownOpen, setIsDropdownOpen] = useState(false);
+
 
    const dropdownRef = useRef(null);
 
@@ -133,17 +135,20 @@ const Navbar = () => {
           </div>
 
           
-          <div className=" flex justify-center items-center">
-                
-             <div className="lg:flex lg:justify-center lg:items-center">
-            <div className="relative flex justify-center items-center group">
-              
-              {/* Icon */}
-              <EllipsisVertical className="text-white cursor-pointer" />
+          <div className=" flex justify-center items-center gap-2">
+            <div className="lg:flex lg:justify-center lg:items-center">
+              <div className="relative flex justify-center items-center group">
+
+                {/* Icon */}
+              <EllipsisVertical onClick={() => setIsDropdownOpen(!isDropdownOpen)} className="text-white cursor-pointer" />
 
               {/* Dropdown */}
               <div
-                className="absolute top-10 py-5 flex flex-col justify-center items-center gap-5 w-40 rounded-md bg-red-900 text-white opacity-0 scale-95 translate-y-2 invisible group-hover:visible group-hover:opacity-100 group-hover:scale-100 group-hover:translate-y-0 transition-all duration-300 ease-in-out mr-8 lg:mr-28 xl:mr-10">
+                className={`absolute top-10 py-5 flex flex-col justify-center items-center gap-5 w-40 rounded-md bg-red-900 text-white transition-all duration-300 ease-in-out mr-8 lg:mr-28 xl:mr-10
+                opacity-0 scale-95 invisible
+                group-hover:opacity-100 group-hover:scale-100 group-hover:visible
+                ${isDropdownOpen ? "opacity-100 scale-100 visible" : ""}`}
+  >
                 <Link
                   className="hover:scale-110 transition-all duration-300"
                   to="/admin/login"

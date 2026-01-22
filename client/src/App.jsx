@@ -6,6 +6,7 @@ import MainRouting from './routing/MainRouting';
 import './App.css';
 import { AuthProvider } from './context/AuthContext';
 import { CartProvider } from './context/CartContext';
+import FloatingButtons from './components/FloatingButtons';
 
 function App() {
   return (
@@ -17,6 +18,8 @@ function App() {
           </div>
         </CartProvider>
       </AuthProvider>
+
+      <FloatingButtons />
       
     </Router>
   );

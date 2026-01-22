@@ -13,7 +13,9 @@ app.use(cors({
   origin: [
     'http://localhost:3000',
     'http://localhost:5173',
-    'https://roadengo.vercel.app'
+    'https://roadengo.vercel.app',
+    'https://roadengo.com',
+    'https://www.roadengo.com'
   ],
   credentials: true,
   methods: ['GET', 'POST', 'PUT', 'PATCH', 'DELETE', 'OPTIONS'],
@@ -23,6 +25,9 @@ app.use(cors({
 
 app.use(express.json({ limit: '10mb' }));
 app.use(express.urlencoded({ extended: true, limit: '10mb' }));
+// Test email configuration
+const { testEmailConnection } = require('./config/email');
+testEmailConnection();
 app.use('/uploads', express.static(path.join(__dirname, 'uploads')));
 
 // MongoDB Connection
@@ -47,6 +52,7 @@ const appointmentRoutes = require('./routes/appointments');
 const emergencyRoutes = require('./routes/emergency');
 const inquiryRoutes = require('./routes/inquiries');
 const mechanicRoutes = require('./routes/mechanics');
+const contactFormRoutes = require('./routes/contactForms');
 const mechanicDashboardRoutes = require('./routes/mechanicDashboard');
 const adminRoutes = require('./routes/admin');
 const financesRouter = require('./routes/financesRouter.js');
@@ -57,9 +63,10 @@ app.use('/api/appointments', appointmentRoutes);
 app.use('/api/emergency', emergencyRoutes);
 app.use('/api/inquiries', inquiryRoutes);
 app.use('/api/mechanics', mechanicRoutes);
+app.use('/api/contact-forms', contactFormRoutes);
 app.use('/api/mechanic-dashboard', mechanicDashboardRoutes);
 app.use('/api/admin', adminRoutes);
-app.use('/api/finances' , financesRouter)
+app.use('/api/finances' , financesRouter);
 
 
 

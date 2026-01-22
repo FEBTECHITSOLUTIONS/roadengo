@@ -1,40 +1,49 @@
-const express = require("express")
-const financesRouter = express.Router()
+// routes/financesRouter.js
+const express = require('express');
+const router = express.Router();
+const Appointment = require('../models/Appointment');
+const Emergency = require('../models/Emergency');
 
-const Appointment = require("../models/Appointment");
-const Emergency = require("../models/Emergency");
-
-// GET ALL APPOINTMENTS WITH OPTIONAL FILTER
-financesRouter.get("/allbookings", async (req, res) => {
+// ✅ GET ALL COMPLETED BOOKINGS ONLY
+router.get('/allbookings', async (req, res) => {
   try {
-    console.log("Route hit: /allbookings");
-
-    const { status } = req.query;
-    const filter = {};
-filter.status = 'completed'
-      console.log("Filtering by status:", filter);
-
-    const appointments = (await Appointment.find(filter).populate("assignedMechanic" , 'name phone').lean());
-    const emergencies = (await Emergency.find(filter).populate("assignedMechanic" , 'name phone').lean())
-    // console.log("Appointments fetched:", appointments.length);
-    console.log('all appointment' , appointments);
+    // Fetch only COMPLETED appointments - sorted by completedAt (latest first)
+    const appointments = await Appointment.find({ status: 'completed' })
+      .populate('assignedMechanic', 'name email phone')
+      .sort({ 
+        completedAt: -1,  // Latest completed first
+        createdAt: -1      // Then by creation date
+      })
+      .lean();
+    
+    // Fetch only COMPLETED emergencies - sorted by completedAt (latest first)
+    const emergencies = await Emergency. find({ status: 'completed' })
+      .populate('assignedMechanic', 'name email phone')
+      .sort({ 
+        completedAt: -1,  // Latest completed first
+        createdAt: -1      // Then by creation date
+      })
+      .lean();
+    
+    console.log(`✅ Fetched ${appointments.length} completed appointments`);
+    console.log(`✅ Fetched ${emergencies.length} completed emergencies`);
     
     res.status(200).json({
       success: true,
-      count: appointments.length,
-      data:{
-        appointments:appointments,
-        emergencies:emergencies
-      },
+      data: {
+        appointments,
+        emergencies,
+        total: appointments.length + emergencies. length
+      }
     });
   } catch (error) {
-    console.error("Error fetching appointments:", error);
+    console.error('Error fetching completed bookings:', error);
     res.status(500).json({
       success: false,
-      message: "Failed to fetch appointments",
-      error: error.message,
+      message: 'Error fetching bookings',
+      error: error.message
     });
   }
 });
 
-module.exports = financesRouter
+module.exports = router;

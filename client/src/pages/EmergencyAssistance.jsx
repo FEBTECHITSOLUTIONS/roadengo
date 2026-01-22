@@ -1,4 +1,4 @@
-// pages/EmergencyAssistance.jsx - MOBILE RESPONSIVE COMPACT VERSION
+// pages/EmergencyAssistance.jsx - FULL CODE WITH ERROR BANNER
 import React, { useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import { apiService } from "../routing/apiClient";
@@ -20,52 +20,54 @@ const EmergencyAssistance = () => {
   const [errors, setErrors] = useState({});
   const [successMessage, setSuccessMessage] = useState("");
 
+  // ✅ NEW: Error Banner State
+  const [topErrorMessage, setTopErrorMessage] = useState("");
+
   // ✅ Popup States
   const [showVehiclePopup, setShowVehiclePopup] = useState(false);
   const [showModelPopup, setShowModelPopup] = useState(false);
 
-  // ✅ Vehicle Types
+  // ✅ Vehicle Types (As per your original code)
   const vehicleTypes = {
     "2-wheeler": {
       name: "2-Wheeler",
       icon: "🏍️",
-     models: [
-  "Honda Activa",
-  "Hero Splendor",
-  "TVS Jupiter",
-  "Roadengo",
-  "Royal Enfield Bullet",
-  "Bajaj Pulsar",
-  "TVS Apache",
-  "Suzuki Access",
-  "OLA Electric",
-  "Ather Electric",
-  "Electric Scooty",
-  "Other"
-]
+      models: [
+        "Honda Activa",
+        "Hero Splendor",
+        "TVS Jupiter",
+        "Roadengo",
+        "Royal Enfield Bullet",
+        "Bajaj Pulsar",
+        "TVS Apache",
+        "Suzuki Access",
+        "OLA Electric",
+        "Ather Electric",
+        "Electric Scooty",
+        "Other"
+      ]
     },
     "3-wheeler": {
       name: "3-Wheeler",
       icon: "🛺",
-     models: [
-  "BAXY CNG LODER",
-  "BAXY DSL LODER",
-  "BAXY CNG PASSENGER",
-  "BAXY LION",
-  "Citylife E-Rickshaw",
-  "Yatri E-Rickshaw",
-  "Bajaj RE",
-  "Mahindra Alfa",
-  "Mahindra Treo",
-  "TVS King",
-  "Piaggio Ape",
-  "Other"
-]
-
+      models: [
+        "BAXY CNG LODER",
+        "BAXY DSL LODER",
+        "BAXY CNG PASSENGER",
+        "BAXY LION",
+        "Citylife E-Rickshaw",
+        "Yatri E-Rickshaw",
+        "Bajaj RE",
+        "Mahindra Alfa",
+        "Mahindra Treo",
+        "TVS King",
+        "Piaggio Ape",
+        "Other"
+      ]
     },
   };
 
-  // Build address string from Nominatim response
+  // Helper function (Keeping it as you had it, though unused in GPS logic, avoiding deletion)
   const formatAddressFromNominatim = (data) => {
     if (!data) return "";
     const a = data.address || {};
@@ -85,10 +87,12 @@ const EmergencyAssistance = () => {
     return parts.join(", ") || data.display_name || "";
   };
 
-  // ✅ GPS Location function
+  // ✅ GPS Location function (Modified to use Error Banner instead of Alert)
   const fetchCurrentLocation = () => {
+    setTopErrorMessage(""); // Clear previous errors
+
     if (!navigator.geolocation) {
-      alert("❌ Geolocation not supported");
+      setTopErrorMessage("❌ Geolocation not supported by your browser");
       return;
     }
 
@@ -101,56 +105,59 @@ const EmergencyAssistance = () => {
     };
 
     navigator.geolocation.getCurrentPosition(
-  async (position) => {
-    try {
-      const { latitude, longitude } = position.coords;
+      async (position) => {
+        try {
+          const { latitude, longitude } = position.coords;
 
-      // Google Maps Geocoding API endpoint
-      const GOOGLE_API_KEY = import.meta.env.VITE_GOOGLE_MAPS_API_KEY; // store in .env
-      const url = `https://maps.googleapis.com/maps/api/geocode/json?latlng=${latitude},${longitude}&key=${GOOGLE_API_KEY}`;
+          // Google Maps Geocoding API endpoint
+          const GOOGLE_API_KEY = import.meta.env.VITE_GOOGLE_MAPS_API_KEY; 
+          
+          // Use coordinates as default fallback
+          let mainAddress = `${latitude.toFixed(6)},${longitude.toFixed(6)}`;
 
-      const response = await fetch(url);
-      if (!response.ok) throw new Error(`HTTP ${response.status}`);
+          // Only call API if Key exists
+          if (GOOGLE_API_KEY) {
+             const url = `https://maps.googleapis.com/maps/api/geocode/json?latlng=${latitude},${longitude}&key=${GOOGLE_API_KEY}`;
+             const response = await fetch(url);
+             if (response.ok) {
+                const data = await response.json();
+                if (data.status === "OK" && data.results && data.results[0]) {
+                   mainAddress = data.results[0].formatted_address;
+                }
+             }
+          }
 
-      const data = await response.json();
-
-      if (data.status !== "OK" || !data.results || !data.results[0]) {
-        throw new Error("No address found");
-      }
-
-      // Only the formatted address, no coordinates or emojis
-      const mainAddress = data.results[0].formatted_address;
-
-      setFormData((prev) => ({ ...prev, location: mainAddress }));
-      console.log("Location detected:", mainAddress);
-    } catch (err) {
-      console.error("Google geocoding failed:", err);
-
-      // fallback: just show coordinates
-      const { latitude, longitude } = position.coords;
-      const fallback = `${latitude.toFixed(6)},${longitude.toFixed(6)}`;
-      setFormData((prev) => ({ ...prev, location: fallback }));
-      console.warn("Got coordinates but couldn't fetch address.");
-    } finally {
-      setIsFetchingLocation(false);
-    }
-  },
-  (error) => {
-    console.error("Geolocation error:", error);
-    let msg = "Unable to fetch location";
-    if (error.code === error.PERMISSION_DENIED) {
-      msg = "Location permission denied";
-    } else if (error.code === error.POSITION_UNAVAILABLE) {
-      msg = "Location unavailable";
-    } else if (error.code === error.TIMEOUT) {
-      msg = "Location request timed out";
-    }
-    alert(msg);
-    setIsFetchingLocation(false);
-  },
-  options
-);
-
+          setFormData((prev) => ({ ...prev, location: mainAddress }));
+          console.log("Location detected:", mainAddress);
+        } catch (err) {
+          console.error("Google geocoding failed:", err);
+          // fallback: just show coordinates
+          const { latitude, longitude } = position.coords;
+          const fallback = `${latitude.toFixed(6)},${longitude.toFixed(6)}`;
+          setFormData((prev) => ({ ...prev, location: fallback }));
+          console.warn("Got coordinates but couldn't fetch address.");
+        } finally {
+          setIsFetchingLocation(false);
+        }
+      },
+      (error) => {
+        console.error("Geolocation error:", error);
+        let msg = "Unable to fetch location";
+        
+        // Custom Error Messages for Banner
+        if (error.code === error.PERMISSION_DENIED) {
+          msg = "🚫 Permission Denied! Please enable Location access in your browser settings.";
+        } else if (error.code === error.POSITION_UNAVAILABLE) {
+          msg = "📡 GPS Signal Lost. Please check your device location settings.";
+        } else if (error.code === error.TIMEOUT) {
+          msg = "⏳ Location request timed out. Please try again.";
+        }
+        
+        setTopErrorMessage(msg); // Show in Red Box
+        setIsFetchingLocation(false);
+      },
+      options
+    );
   };
 
   // ✅ Handle Vehicle Type Selection
@@ -199,13 +206,16 @@ const EmergencyAssistance = () => {
   const handleInputChange = (field, value) => {
     setFormData((prev) => ({ ...prev, [field]: value }));
     if (errors[field]) setErrors((prev) => ({ ...prev, [field]: "" }));
+    setTopErrorMessage(""); // Hide error when user types
   };
 
-  // ✅ Submit function
+  // ✅ Submit function (Modified to use Error Banner)
   const handleSubmit = async (e) => {
     e.preventDefault();
+    setTopErrorMessage("");
+
     if (!validateForm()) {
-      alert("Please fill all required fields correctly");
+      setTopErrorMessage("⚠️ Please fill all required fields correctly.");
       return;
     }
 
@@ -244,7 +254,8 @@ Vehicle: ${vehicleTypes[formData.vehicleType].name} - ${formData.vehicleModel}
       }
     } catch (error) {
       console.error("Emergency request error:", error);
-      alert("❌ Failed to submit. Please try again or call +91 9876543210");
+      // Show Server Error in Red Box
+      setTopErrorMessage("❌ Failed to submit. Please try again or check your internet.");
     } finally {
       setIsSubmitting(false);
     }
@@ -254,7 +265,7 @@ Vehicle: ${vehicleTypes[formData.vehicleType].name} - ${formData.vehicleModel}
 
   // ✅ Compact Vehicle Type Popup
   const VehicleTypePopup = () => (
-    <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4">
+    <div className="fixed inset-0 bg-black/30 backdrop-blur-md flex items-center justify-center z-50 p-4">
       <div className="bg-white rounded-xl p-4 w-full max-w-sm relative">
         <button
           onClick={() => setShowVehiclePopup(false)}
@@ -290,7 +301,7 @@ Vehicle: ${vehicleTypes[formData.vehicleType].name} - ${formData.vehicleModel}
 
   // ✅ Compact Vehicle Model Popup
   const VehicleModelPopup = () => (
-    <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4">
+    <div className="fixed inset-0 bg-black/30 backdrop-blur-md flex items-center justify-center z-50 p-4">
       <div className="bg-white rounded-xl p-4 w-full max-w-sm relative max-h-80 overflow-y-auto">
         <button
           onClick={() => setShowModelPopup(false)}
@@ -385,6 +396,17 @@ Vehicle: ${vehicleTypes[formData.vehicleType].name} - ${formData.vehicleModel}
               Need help? Fill this form quickly
             </p>
           </div>
+
+          {/* ✅ ERROR MESSAGE BANNER (Added Here) */}
+          {topErrorMessage && (
+            <div className="mb-4 bg-red-50 border-l-4 border-red-500 text-red-700 p-3 rounded-md shadow-sm animate-pulse flex items-start justify-between">
+                <div className="flex items-start">
+                    <span className="text-lg mr-2">⚠️</span>
+                    <span className="text-sm font-medium">{topErrorMessage}</span>
+                </div>
+                <button onClick={() => setTopErrorMessage("")} className="ml-2 text-red-400 hover:text-red-900 font-bold">✕</button>
+            </div>
+          )}
 
           <form onSubmit={handleSubmit} className="space-y-4">
             {/* Name + Phone in one line */}

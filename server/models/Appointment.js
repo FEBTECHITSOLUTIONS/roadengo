@@ -1,7 +1,7 @@
 // models/Appointment.js
 const mongoose = require('mongoose');
 
-const appointmentSchema = new mongoose.Schema({
+const appointmentSchema = new mongoose. Schema({
   name: {
     type: String,
     required: [true, 'Name is required'],
@@ -55,7 +55,7 @@ const appointmentSchema = new mongoose.Schema({
     default: 'pending'
   },
   assignedMechanic: {
-    type: mongoose.Schema.Types.ObjectId,
+    type: mongoose.Schema.Types. ObjectId,
     ref: 'Mechanic',
     default: null
   },
@@ -65,7 +65,7 @@ const appointmentSchema = new mongoose.Schema({
     default: ''
   },
   userId: {
-    type: mongoose.Schema.Types.ObjectId,
+    type: mongoose.Schema. Types.ObjectId,
     ref: 'User'
   },
   serviceCategory: {
@@ -73,11 +73,11 @@ const appointmentSchema = new mongoose.Schema({
     default: 'doorstep'
   },
   estimatedDuration: {
-    type: Number, // in minutes
+    type: Number,
     default: 60
   },
   actualDuration: {
-    type: Number, // in minutes
+    type: Number,
     default: null
   },
   cost: {
@@ -98,10 +98,41 @@ const appointmentSchema = new mongoose.Schema({
   feedback: {
     type: String,
     maxlength: [500, 'Feedback cannot exceed 500 characters'],
-    default: ''
+    default:  ''
+  },
+  completedAt: {
+    type: Date,
+    default: null
   }
 }, {
-  timestamps: true
+  timestamps:  true
+});
+
+// ✅ CRITICAL MIDDLEWARE - Auto-set completedAt when status becomes 'completed'
+appointmentSchema. pre('save', function(next) {
+  if (this.isModified('status') && this.status === 'completed' && !this.completedAt) {
+    this.completedAt = new Date();
+    console.log('✅ [Middleware] Setting completedAt for appointment:', this._id);
+  }
+  next();
+});
+
+// ✅ MIDDLEWARE for findOneAndUpdate (when updating via admin panel)
+appointmentSchema.pre('findOneAndUpdate', function(next) {
+  const update = this.getUpdate();
+  
+  // Check if status is being updated to 'completed'
+  const newStatus = update.status || update.$set?.status;
+  
+  if (newStatus === 'completed') {
+    // Set completedAt if not already set
+    if (!update.completedAt && !update.$set?.completedAt) {
+      this.set({ completedAt: new Date() });
+      console.log('✅ [Middleware] Auto-setting completedAt in findOneAndUpdate');
+    }
+  }
+  
+  next();
 });
 
 // Index for efficient queries

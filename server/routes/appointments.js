@@ -167,12 +167,13 @@ router.post('/', async (req, res) => {
 });
 
 // Update appointment
-router.patch('/:id',  async (req, res) => {
+router.patch('/:id', async (req, res) => {
   try {
     const { id } = req.params;
     const updateData = req.body;
     
-    console.log('Updating appointment:', id, updateData);
+    console.log('📝 Updating appointment:', id);
+    console.log('📝 Update data:', updateData);
     
     // Remove undefined/null values
     Object.keys(updateData).forEach(key => {
@@ -180,6 +181,12 @@ router.patch('/:id',  async (req, res) => {
         delete updateData[key];
       }
     });
+    
+    // ✅ CRITICAL: Set completedAt when status becomes 'completed'
+    if (updateData.status === 'completed') {
+      updateData.completedAt = new Date();
+      console.log('✅ Setting completedAt:', updateData.completedAt);
+    }
     
     const appointment = await Appointment.findByIdAndUpdate(
       id, 
@@ -191,14 +198,15 @@ router.patch('/:id',  async (req, res) => {
       return res.status(404).json({ message: 'Appointment not found' });
     }
     
-    console.log('Appointment updated successfully');
+    console.log('✅ Appointment updated successfully');
+    console.log('✅ completedAt value:', appointment.completedAt);
     
     res.json({
       message: 'Appointment updated successfully',
       appointment
     });
   } catch (error) {
-    console.error('Error updating appointment:', error);
+    console.error('❌ Error updating appointment:', error);
     
     if (error.name === 'ValidationError') {
       const validationErrors = Object.values(error.errors).map(err => err.message);
@@ -210,7 +218,7 @@ router.patch('/:id',  async (req, res) => {
     
     res.status(500).json({ 
       message: 'Error updating appointment', 
-      error: error.message 
+      error:  error.message 
     });
   }
 });

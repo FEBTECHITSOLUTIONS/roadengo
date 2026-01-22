@@ -126,11 +126,16 @@ export const API_ENDPOINTS = {
   EMERGENCY: '/emergency',
   EMERGENCY_BY_ID: (id) => `/emergency/${id}`,
   CREATE_EMERGENCY: '/emergency',
+  ASSIGN_EMERGENCY: (id) => `/emergency/${id}/assign`,
+  UNASSIGN_EMERGENCY: (id) => `/emergency/${id}/unassign`,
   
   // Inquiries
   INQUIRIES: '/inquiries',
   INQUIRY_BY_ID: (id) => `/inquiries/${id}`,
   CREATE_INQUIRY: '/inquiries',
+    
+  // Contact Forms
+  CONTACT_FORMS: '/contact-forms',
   
   // Mechanics
   MECHANICS: '/mechanics',
@@ -179,6 +184,12 @@ export const apiService = {
   createInquiry: (data) => apiClient.post(API_ENDPOINTS.CREATE_INQUIRY, data),
   updateInquiry: (id, data) => apiClient.patch(API_ENDPOINTS.INQUIRY_BY_ID(id), data),
   deleteInquiry: (id) => apiClient.delete(API_ENDPOINTS.INQUIRY_BY_ID(id)),
+
+    
+  // Contact Forms
+  getContactForms: (params) => apiClient.get(API_ENDPOINTS.CONTACT_FORMS, { params }),
+  createContactForm:  (data) => apiClient.post(API_ENDPOINTS. CONTACT_FORMS, data),
+  updateContactFormStatus: (id, data) => apiClient.patch(`${API_ENDPOINTS.CONTACT_FORMS}/${id}`, data),
   
   // Dashboard Stats
   getDashboardStats: (params) => apiClient.get(API_ENDPOINTS.ADMIN_DASHBOARD, { params }),

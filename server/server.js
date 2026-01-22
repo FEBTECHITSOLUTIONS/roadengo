@@ -13,7 +13,9 @@ app.use(cors({
   origin: [
     'http://localhost:3000',
     'http://localhost:5173',
-    'https://roadengo.vercel.app'
+    'https://roadengo.vercel.app',
+    'https://roadengo.com',
+    'https://www.roadengo.com'
   ],
   credentials: true,
   methods: ['GET', 'POST', 'PUT', 'PATCH', 'DELETE', 'OPTIONS'],
@@ -64,7 +66,7 @@ app.use('/api/mechanics', mechanicRoutes);
 app.use('/api/contact-forms', contactFormRoutes);
 app.use('/api/mechanic-dashboard', mechanicDashboardRoutes);
 app.use('/api/admin', adminRoutes);
-app.use('/api/finances' , financesRouter)
+app.use('/api/finances' , financesRouter);
 
 
 

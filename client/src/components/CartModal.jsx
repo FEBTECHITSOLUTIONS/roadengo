@@ -40,7 +40,7 @@ const CartModal = () => {
 
     try {
       // Use local API endpoint
-      const response = await fetch("http://localhost:5005/api/inquiries", {
+      const response = await fetch(`${import.meta.env.VITE_API_URL}/inquiries`, {
         method: "POST",
         headers: {
           "Content-Type": "application/json",

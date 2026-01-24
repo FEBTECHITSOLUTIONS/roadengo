@@ -65,8 +65,8 @@ export const AuthProvider = ({ children }) => {
       setLoading(true);
       
       const endpoint = userType === 'admin' 
-        ? 'http://localhost:5005/api/auth/login' 
-        : 'http://localhost:5005/api/mechanics/login';
+        ? `${import.meta.env.VITE_API_URL}/auth/login` 
+        : `${import.meta.env.VITE_API_URL}/mechanics/login`;
       
       const response = await fetch(endpoint, {
         method: 'POST',
